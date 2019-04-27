@@ -1,6 +1,11 @@
+#tool "nuget:?package=GitVersion.CommandLine"
+
 var target = Argument("target", "All");
 var configuration = Argument("configuration", "Release");
 var srcDir = Directory("../src");
+
+Task("SemVer")
+    .Does(() => Information(GitVersion().FullSemVer));
 
 Task("Clean")
     .Does(() => DotNetCoreClean(srcDir));

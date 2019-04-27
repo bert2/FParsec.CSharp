@@ -1,16 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Library</OutputType>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>FParsec.CSharp</PackageId>
+    <PackageVersion>0.0.0</PackageVersion>
+    <Authors>Robert Hofmann</Authors>
+    <Owners>Robert Hofmann</Owners>
+    <copyright>Copyright © 2019</copyright>
+    <tags>FParsec parser combinator csharp</tags>
+    <Title>FParsec.CSharp</Title>
+    <Description>A thin C# wrapper for FParsec.</Description>
+    <summary>A thin C# wrapper for FParsec.</summary>
+    <ProjectUrl>https://github.com/bert2/FParsec.CSharp</ProjectUrl>
+    <LicenseUrl>https://github.com/bert2/FParsec.CSharp/blob/master/LICENSE</LicenseUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FParsec" Version="1.0.4-RC3" />
+    <PackageReference Include="FParsec" Version="1.0.3" />
     <PackageReference Include="FSharp.Core" Version="4.6.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LambdaConvert\LambdaConvert.fsproj" />
+    <!-- Setting "PrivateAssets" is only needed because of the workaround described below. -->
+    <ProjectReference Include="..\LambdaConvert\LambdaConvert.fsproj" PrivateAssets="All" />
   </ItemGroup>
+
+  <!-- Start of workaround -->
+  <!--  
+    The following solves the problem that 'dotnet pack' does not include the DLLs from referenced projects.
+    See https://github.com/NuGet/Home/issues/3891 for a description of the problem
+    and for newer versions / workarounds / built-in methods.
+  -->
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+    <!-- include PDBs in the NuGet package -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+  <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+    </ItemGroup>
+  </Target>
+  <!-- End of workaround -->
 
 </Project>

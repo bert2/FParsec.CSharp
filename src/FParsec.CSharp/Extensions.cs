@@ -25,6 +25,8 @@
 
         public static FSharpList<T> ToFSharpList<T>(this IEnumerable<T> source) => ListModule.OfSeq(source);
 
+        public static bool IsOk<T>(this Reply<T> reply) => reply.Status == ReplyStatus.Ok;
+
         public static IEnumerable<ErrorMessage> AsEnumerable(this ErrorMessageList errs) {
             if (errs == null) yield break;
 

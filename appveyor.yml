@@ -1,12 +1,10 @@
 ﻿version: '{build}'
-image:
-  - Visual Studio 2017
-  - Visual Studio 2019 Preview
-  - Ubuntu
+image: Visual Studio 2017
 environment:
   nuget_key:
     secure: DviconFZ6G3ZX9Q9XktXy0SRmOXmd//stfYVnzYvniBP/JBzZ6y2gjJjEZhALyk4
 build_script:
   - ps: ./build.ps1
+test: off # tests are run by build_script
 deploy_script:
   - ps: ./build.ps1 -Target Release

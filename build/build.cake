@@ -1,17 +1,22 @@
+#addin nuget:?package=Cake.Git
 #tool "nuget:?package=GitVersion.CommandLine"
 #load "prompt.cake"
+#load "format-rel-notes.cake"
 
 var target = Argument("target", "Default");
 var config = Argument("configuration", "Release");
 var nugetKey = Argument<string>("nugetKey", null) ?? EnvironmentVariable("nuget_key");
-var srcDir = Directory("../src");
+var lastCommit = EnvironmentVariable("APPVEYOR_REPO_COMMIT_MESSAGE");
+var rootDir = Directory("..");
+var srcDir = rootDir + Directory("src");
 var libDir = srcDir + Directory("FParsec.CSharp");
 var pkgDir = libDir + Directory($"bin/{config}");
 GitVersion semVer = null;
 
 Task("SemVer").Does(() => {
     semVer = GitVersion();
-    Information(semVer.FullSemVer);
+    lastCommit = lastCommit ?? GitLogTip(rootDir).MessageShort;
+    Information($"{semVer.FullSemVer} - {lastCommit}");
 });
 
 Task("Clean").Does(() =>
@@ -34,15 +39,12 @@ Task("Test")
 
 Task("Pack")
     .IsDependentOn("SemVer")
-    .IsDependentOn("Clean")
-    .IsDependentOn("Build")
-    .IsDependentOn("Test")
     .Does(() => {
         Information($"Packing {semVer.NuGetVersion} to nuget.org");
 
         var msbuildSettings = new DotNetCoreMSBuildSettings();
-        msbuildSettings.Properties.Add("PackageVersion", new[] { semVer.NuGetVersion });
-        //msbuildSettings.Properties.Add("PackageReleaseNotes", new[] { latestCommitMsg });
+        msbuildSettings.Properties["PackageVersion"] = new[] { semVer.NuGetVersion };
+        msbuildSettings.Properties["PackageReleaseNotes"] = new[] { FormatReleaseNotes(lastCommit) };
 
         DotNetCorePack(libDir, new DotNetCorePackSettings {
             Configuration = config,

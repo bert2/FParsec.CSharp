@@ -1,16 +1,12 @@
-using static System.Threading.Tasks.Task;
 #tool "nuget:?package=GitVersion.CommandLine"
+#load "prompt.cake"
 
 var target = Argument("target", "Default");
-var configuration = Argument("configuration", "Release");
-var nugetKey = Argument<string>("nugetKey", null) ?? EnvironmentVariable("nugetKey");
+var config = Argument("configuration", "Release");
+var nugetKey = Argument<string>("nugetKey", null) ?? EnvironmentVariable("nuget_key");
 var srcDir = Directory("../src");
 var libDir = srcDir + Directory("FParsec.CSharp");
-var pkgDir = libDir + Directory($"bin/{configuration}");
-var cleanSettings = new DotNetCoreCleanSettings {
-    Configuration = configuration, Verbosity = DotNetCoreVerbosity.Minimal };
-var buildSettings = new DotNetCoreBuildSettings { Configuration = configuration };
-var testSettings = new DotNetCoreTestSettings { Configuration = configuration };
+var pkgDir = libDir + Directory($"bin/{config}");
 GitVersion semVer = null;
 
 Task("SemVer").Does(() => {
@@ -19,26 +15,37 @@ Task("SemVer").Does(() => {
 });
 
 Task("Clean").Does(() =>
-    DotNetCoreClean(srcDir, cleanSettings));
+    DotNetCoreClean(srcDir, new DotNetCoreCleanSettings {
+        Configuration = config,
+        Verbosity = DotNetCoreVerbosity.Minimal
+    }));
 
 Task("Build").Does(() =>
-    DotNetCoreBuild(srcDir, buildSettings));
+    DotNetCoreBuild(srcDir, new DotNetCoreBuildSettings {
+        Configuration = config
+    }));
 
-Task("Test").Does(() =>
-    DotNetCoreTest(srcDir, testSettings));
+Task("Test")
+    .IsDependentOn("Build")
+    .Does(() => DotNetCoreTest(srcDir, new DotNetCoreTestSettings {
+        Configuration = config,
+        NoBuild = true
+    }));
 
 Task("Pack")
     .IsDependentOn("SemVer")
     .IsDependentOn("Clean")
+    .IsDependentOn("Build")
     .IsDependentOn("Test")
     .Does(() => {
         Information($"Packing {semVer.NuGetVersion} to nuget.org");
 
         var msbuildSettings = new DotNetCoreMSBuildSettings();
         msbuildSettings.Properties.Add("PackageVersion", new[] { semVer.NuGetVersion });
+        //msbuildSettings.Properties.Add("PackageReleaseNotes", new[] { latestCommitMsg });
 
         DotNetCorePack(libDir, new DotNetCorePackSettings {
-            Configuration = configuration,
+            Configuration = config,
             OutputDirectory = pkgDir,
             NoBuild = true,
             NoDependencies = false,
@@ -69,19 +76,3 @@ Task("Default")
     .IsDependentOn("Test");
 
 RunTarget(target);
-
-string Prompt(string message, int timeoutSeconds = 60) {
-    Console.Write(message);
-
-    string response = null;
-
-    WhenAny(
-        Run(() => response = Console.ReadLine()),
-        Delay(TimeSpan.FromSeconds(timeoutSeconds))
-    ).Wait();
-
-    if (response == null)
-        throw new Exception($"User prompt timed out.");
-
-    return response;
-}

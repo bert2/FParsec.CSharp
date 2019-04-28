@@ -22,7 +22,7 @@
     <IncludeSource>true</IncludeSource>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+    <PackageReleaseNotes>Switch to MIT license.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

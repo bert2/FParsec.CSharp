@@ -16,7 +16,7 @@ GitVersion semVer = null;
 Task("SemVer").Does(() => {
     semVer = GitVersion();
     lastCommit = lastCommit ?? GitLogTip(rootDir).MessageShort;
-    Information($"{semVer.FullSemVer} - {lastCommit}");
+    Information($"{semVer.FullSemVer} ({lastCommit})");
 });
 
 Task("Clean").Does(() =>

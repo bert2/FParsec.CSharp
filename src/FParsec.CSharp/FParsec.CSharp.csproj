@@ -3,18 +3,23 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <!-- https://docs.microsoft.com/en-us/dotnet/core/tools/csproj#nuget-metadata-properties -->
+  <PropertyGroup>
     <PackageId>FParsec.CSharp</PackageId>
     <PackageVersion>0.0.0</PackageVersion>
     <Authors>Robert Hofmann</Authors>
-    <Owners>Robert Hofmann</Owners>
-    <copyright>Copyright © 2019</copyright>
-    <tags>FParsec parser combinator csharp</tags>
+    <Copyright>Copyright © 2019</Copyright>
+    <PackageTags>FParsec parser combinator csharp</PackageTags>
     <Title>FParsec.CSharp</Title>
     <Description>A thin C# wrapper for FParsec.</Description>
-    <summary>A thin C# wrapper for FParsec.</summary>
-    <ProjectUrl>https://github.com/bert2/FParsec.CSharp</ProjectUrl>
-    <LicenseUrl>https://github.com/bert2/FParsec.CSharp/blob/master/LICENSE</LicenseUrl>
+    <PackageDescription>A thin C# wrapper for FParsec.</PackageDescription>
+    <RepositoryUrl>https://github.com/bert2/FParsec.CSharp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <IncludeSource>true</IncludeSource>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>

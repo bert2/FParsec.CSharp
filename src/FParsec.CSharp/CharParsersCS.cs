@@ -37,12 +37,26 @@
         public static FSharpFunc<Chars, Reply<Unit>> Skip(char c) => skipChar<Unit>(c);
 
         /// <summary>
+        /// `AnyOf(s)` parses any char contained in the string `s`. It returns the parsed char. If
+        /// `s` contains the char '\n', `AnyOf(s)` parses any newline ("\n", "\r\n" or "\r") and
+        /// returns it as '\n'. Note that it does not make a difference whether or not `s`
+        /// contains '\r'; `AnyOf(s)` will never return '\r'.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> AnyOf(IEnumerable<char> chars) => anyOf<Unit>(chars);
+
+        /// <summary>
         /// `NoneOf(s)` parses any char not contained in the string `s`. It returns the parsed
         /// char. If `s` does not contain the char '\n', `NoneOf(s)` parses any newline
-        /// ("\n", "\r\n" or "\r") and returns it as  as '\n'. (Note that it does not make a 
-        /// difference whether or not `s` contains '\r'; `NoneOf(s)` will never return '\r'.)
+        /// ("\n", "\r\n" or "\r") and returns it as  as '\n'. Note that it does not make a 
+        /// difference whether or not `s` contains '\r'; `NoneOf(s)` will never return '\r'.
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> NoneOf(IEnumerable<char> chars) => noneOf<Unit>(chars);
+
+        /// <summary>
+        /// Parses any UTF-16 letter char identified by `System.Char.IsLetter`. Returns the parsed
+        /// char.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> Letter => letter<Unit>();
 
         #endregion Char
 

@@ -35,10 +35,22 @@ namespace Tests {
             .ShouldBe(null);
 
         [Fact]
+        public void MatchAnyOfList() =>
+            AnyOf("0123456789")
+            .ParseString("7")
+            .ShouldBe('7');
+
+        [Fact]
         public void InvertedMatch() =>
             NoneOf("abc")
             .ParseString("d")
             .ShouldBe('d');
+
+        [Fact]
+        public void ParseLetter() =>
+            Letter
+            .ParseString("A")
+            .ShouldBe('A');
 
         #endregion Chars
 

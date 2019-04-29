@@ -195,6 +195,12 @@ namespace Tests {
             .ShouldBe(2);
 
         [Fact]
+        public void AlwaysReturnValue() =>
+            Return(13)
+            .ParseString("whatever")
+            .ShouldBe(13);
+
+        [Fact]
         public void ParseAndReturnFixedValue() =>
             Int.Return(int.MaxValue)
             .ParseString("0")
@@ -211,7 +217,23 @@ namespace Tests {
             r.ShouldBe('0');
         }
 
+        [Fact]
+        public void FlattenNestedParserReplies() =>
+            StringP("foo").And(CharP('=')).And(Int).Map(Flat)
+            .ParseString("foo=1")
+            .ShouldBe(("foo", '=', 1));
+
         #endregion Combinators (special)
+
+        #region Combinators (backtracking)
+
+        [Fact]
+        public void BacktrackFailedAlternatives() =>
+            Try(StringP("aaab")).Or(StringP("aaac"))
+            .ParseString("aaac")
+            .ShouldBe("aaac");
+
+        #endregion Combinators (backtracking)
 
         #region Repetitions
 

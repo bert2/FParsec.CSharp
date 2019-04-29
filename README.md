@@ -71,11 +71,11 @@ In order to simplify the types shown in IntelliSense you can use type aliases:
 using Chars = FParsec.CharStream<Microsoft.FSharp.Core.Unit>;
 ```
 
-Unfortunately C# does not support aliasing types with unbound generics, hence if you want to simplify the type of parser you will have to do it for each of the possible `Reply<T>`s you are using:
+Unfortunately C# does not support type aliases with open generics. Hence if you want to simplify the type of parser you will have to do it for each of the possible `Reply<T>`s you are using:
 
 ```C#
-using StringParser = FSharpFunc<CharStream<Unit>, Reply<string>>;
-using JsonParser = FSharpFunc<CharStream<Unit>, Reply<JObject>>;
+using StringParser = Microsoft.FSharp.Core.FSharpFunc<FParsec.CharStream<Microsoft.FSharp.Core.Unit>, FParsec.Reply<string>>;
+using JsonParser = Microsoft.FSharp.Core.FSharpFunc<FParsec.CharStream<Microsoft.FSharp.Core.Unit>, FParsec.Reply<JObject>>;
 // ...
 ```
 

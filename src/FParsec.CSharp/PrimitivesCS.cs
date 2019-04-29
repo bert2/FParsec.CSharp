@@ -175,6 +175,19 @@
 
         #endregion Repetition
 
+        #region Backtracking
+
+        /// <summary>
+        /// The parser `Try(p)` applies the parser `p`. If `p` fails after changing the parser
+        /// state or with a fatal error, `Try(p)` will backtrack to the original parser state and
+        /// report a non-fatal error.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Try<T>(
+            FSharpFunc<Chars, Reply<T>> p)
+            => attempt(p);
+
+        #endregion Backtracking
+
         #region Special
 
         /// <summary>
@@ -185,6 +198,14 @@
             this FSharpFunc<Chars, Reply<T>> p,
             Func<T, TResult> map)
             => op_BarGreaterGreater(p, map.ToFSharpFunc());
+
+        /// <summary>
+        /// The parser `Return(x)` always succeeds with the result `x` (without changing the parser
+        /// state).
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> Return<TResult>(
+            TResult result)
+            => preturn<TResult, Unit>(result);
 
         /// <summary>
         /// The parser `p.Return(x)` applies the parser `p` and returns the result `x`.
@@ -203,6 +224,16 @@
         public static FSharpFunc<Chars, Reply<T>> Rec<T>(
             Func<FSharpFunc<Chars, Reply<T>>> p)
             => FSharpFunc.From((Chars cs) => p().Invoke(cs));
+
+        /// <summary>
+        /// Flattens the nested tuple `((a,b),c)` to `(a,b,c)`.
+        /// </summary>
+        public static (T1, T2, T3) Flat<T1, T2, T3>(((T1, T2), T3) x) => (x.Item1.Item1, x.Item1.Item2, x.Item2);
+
+        /// <summary>
+        /// Flattens the nested tuple `(a,(b,c))` to `(a,b,c)`.
+        /// </summary>
+        public static (T1, T2, T3) Flat<T1, T2, T3>((T1, (T2, T3)) x) => (x.Item1, x.Item2.Item1, x.Item2.Item2);
 
         #endregion Special
     }

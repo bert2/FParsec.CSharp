@@ -58,6 +58,11 @@
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> Letter => letter<Unit>();
 
+        /// <summary>
+        /// Parses any char in the range '0' - '9'. Returns the parsed char.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> Digit => digit<Unit>();
+
         #endregion Char
 
         #region String

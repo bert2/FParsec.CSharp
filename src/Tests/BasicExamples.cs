@@ -52,6 +52,12 @@ namespace Tests {
             .ParseString("A")
             .ShouldBe('A');
 
+        [Fact]
+        public void ParseDigit() =>
+            Digit
+            .ParseString("7")
+            .ShouldBe('7');
+
         #endregion Chars
 
         #region Strings

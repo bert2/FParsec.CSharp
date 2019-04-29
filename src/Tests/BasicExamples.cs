@@ -34,6 +34,12 @@ namespace Tests {
             .ParseString("a")
             .ShouldBe(null);
 
+        [Fact]
+        public void InvertedMatch() =>
+            NoneOf("abc")
+            .ParseString("d")
+            .ShouldBe('d');
+
         #endregion Chars
 
         #region Strings

@@ -22,7 +22,7 @@
             var jbool = StringCI("true").Or(StringCI("false"))
                 .Map(b => (object)bool.Parse(b));
 
-            var quotedString = Skip('"').And(Many(CharP(c => c != '"'))).And(Skip('"'))
+            var quotedString = Skip('"').And(Many(NoneOf("\""))).And(Skip('"'))
                 .Map(string.Concat);
 
             var jstring = quotedString.Map(s => (object)s);

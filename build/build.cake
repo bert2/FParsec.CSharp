@@ -56,9 +56,13 @@ Task("Pack")
     });
 
 Task("Release")
-    .WithCriteria(() => !lastCommit.Contains("without release"))
     .IsDependentOn("Pack")
     .Does(() => {
+        if (lastCommit.Contains("without release")) {
+            Information($"Skipping release to nuget.org");
+            return;
+        }
+
         Information($"Releasing {semVer.NuGetVersion} to nuget.org");
 
         if (string.IsNullOrEmpty(nugetKey))

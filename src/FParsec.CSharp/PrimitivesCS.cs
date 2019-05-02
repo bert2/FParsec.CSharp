@@ -191,13 +191,31 @@
         #region Special
 
         /// <summary>
-        /// The parser `p.Map(f)` applies the parser `p` and returns the result `f x`,  where `x`
+        /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(x)`,  where `x`
         /// is the result returned by `p`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<TResult>> Map<T, TResult>(
             this FSharpFunc<Chars, Reply<T>> p,
             Func<T, TResult> map)
             => op_BarGreaterGreater(p, map.ToFSharpFunc());
+
+        /// <summary>
+        /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(x, y)`, where
+        /// `x` and `y` are items of the tuple result `(x,y)` returned by `p`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> Map<T1, T2, TResult>(
+            this FSharpFunc<Chars, Reply<(T1, T2)>> p,
+            Func<T1, T2, TResult> map)
+            => op_BarGreaterGreater(p, FSharpFunc.From<(T1, T2), TResult>(x => map(x.Item1, x.Item2)));
+
+        /// <summary>
+        /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(x, y, z)`, where
+        /// `x`, `y` and `z` are items of the tuple result `(x,y,z)` returned by `p`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> Map<T1, T2, T3, TResult>(
+            this FSharpFunc<Chars, Reply<(T1, T2, T3)>> p,
+            Func<T1, T2, T3, TResult> map)
+            => op_BarGreaterGreater(p, FSharpFunc.From<(T1, T2, T3), TResult>(x => map(x.Item1, x.Item2, x.Item3)));
 
         /// <summary>
         /// The parser `Return(x)` always succeeds with the result `x` (without changing the parser

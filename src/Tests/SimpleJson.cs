@@ -33,7 +33,7 @@
             var jidentifier = quotedString;
 
             var jprop = jidentifier.And(WS).And(Skip(':')).And(WS).And(Rec(() => jvalue))
-                .Map(x => new JProperty(x.Item1, x.Item2));
+                .Map((name, value) => new JProperty(name, value));
 
             var jobject = Skip('{').And(WS).And(Many(jprop, sep: CharP(',').And(WS))).And(Skip('}'))
                 .Map(props => (object)new JObject(props));

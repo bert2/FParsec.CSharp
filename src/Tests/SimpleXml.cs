@@ -18,18 +18,18 @@
             var nameStart = Letter.Or(CharP('_'));
             var nameChar = Letter.Or(Digit).Or(AnyOf("-_."));
             var name = nameStart.And(Many(nameChar))
-                .Map(x => string.Concat(x.Item2.Prepend(x.Item1)));
+                .Map((first, rest) => string.Concat(rest.Prepend(first)));
 
             var quotedString = Skip('"').And(Many(NoneOf("\""))).And(Skip('"'))
                 .Map(string.Concat);
             var attribute = WS1.And(name).And(WS).And(Skip('=')).And(WS).And(quotedString)
-                .Map(x => new XAttribute(x.Item1, x.Item2));
+                .Map((attrName, attrVal) => new XAttribute(attrName, attrVal));
             var attributes = Many(Try(attribute));
 
             XElParser element = null;
 
             var emptyElement = Skip('<').And(name).And(attributes).And(WS).And(Skip("/>"))
-                .Map(x => new XElement(x.Item1, x.Item2));
+                .Map((elName, attrs) => new XElement(elName, attrs));
 
             var openingTag = Skip('<').And(name).And(attributes).And(WS).And(Skip(">"));
             StringParser closingTag(string tagName) => Skip("</").And(StringP(tagName)).And(WS).And(Skip('>'));
@@ -39,7 +39,7 @@
                 .Map(t => (object)string.Concat(t));
             var content = childElements.Or(text);
             var parentElement = openingTag.And(content).Map(Flat).And(x => closingTag(x.Item1).Return(x))
-                .Map(x => new XElement(x.Item1, x.Item2, x.Item3));
+                .Map((elName, elAttrs, elContent) => new XElement(elName, elAttrs, elContent));
 
             element = Try(emptyElement).Or(parentElement);
 

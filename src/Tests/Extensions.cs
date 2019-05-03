@@ -28,6 +28,10 @@
             where TError : ErrorMessage
             => reply.ShouldBe<char, TError>(message);
 
+        internal static void ShouldBe<TError>(this Reply<int> reply, string message)
+            where TError : ErrorMessage
+            => reply.ShouldBe<int, TError>(message);
+
         internal static void ShouldBe<TError>(this Reply<JObject> reply, string message)
             where TError : ErrorMessage
             => reply.ShouldBe<JObject, TError>(message);

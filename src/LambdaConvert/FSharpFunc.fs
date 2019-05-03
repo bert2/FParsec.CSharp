@@ -15,8 +15,13 @@ type public FSharpFunc =
     [<Extension>] 
     static member ToFSharpFunc<'a,'b,'c> (f: Func<'a,'b,'c>) = fun x y -> f.Invoke(x, y)
 
+    [<Extension>] 
+    static member ToFSharpFunc<'a,'b,'c,'d> (f: Func<'a,'b,'c,'d>) = fun x y z -> f.Invoke(x, y, z)
+
     static member From<'a> (f: Func<'a>) = FSharpFunc.ToFSharpFunc f
 
     static member From<'a,'b> (f: Func<'a,'b>) = FSharpFunc.ToFSharpFunc f
 
     static member From<'a,'b,'c> (f: Func<'a,'b,'c>) = FSharpFunc.ToFSharpFunc f
+
+    static member From<'a,'b,'c,'d> (f: Func<'a,'b,'c,'d>) = FSharpFunc.ToFSharpFunc f

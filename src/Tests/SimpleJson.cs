@@ -22,20 +22,20 @@
             var jbool = StringCI("true").Or(StringCI("false"))
                 .Map(b => (object)bool.Parse(b));
 
-            var quotedString = Skip('"').And(Many(NoneOf("\""))).And(Skip('"'))
+            var quotedString = Between('"', Many(NoneOf("\"")), '"')
                 .Map(string.Concat);
 
             var jstring = quotedString.Map(s => (object)s);
 
-            var jarray = Skip('[').And(WS).And(Many(Rec(() => jvalue), sep: CharP(',').And(WS))).And(Skip(']'))
+            var arrItems = Many(Rec(() => jvalue), sep: CharP(',').And(WS));
+            var jarray = Between(CharP('[').And(WS), arrItems, CharP(']'))
                 .Map(elems => (object)new JArray(elems));
 
             var jidentifier = quotedString;
-
             var jprop = jidentifier.And(WS).And(Skip(':')).And(WS).And(Rec(() => jvalue))
                 .Map((name, value) => new JProperty(name, value));
-
-            var jobject = Skip('{').And(WS).And(Many(jprop, sep: CharP(',').And(WS))).And(Skip('}'))
+            var objProps = Many(jprop, sep: CharP(',').And(WS));
+            var jobject = Between(CharP('{').And(WS), objProps, CharP('}'))
                 .Map(props => (object)new JObject(props));
 
             jvalue = OneOf(jnum, jbool, jnull, jstring, jarray, jobject).And(WS);

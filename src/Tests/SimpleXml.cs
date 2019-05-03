@@ -20,7 +20,7 @@
             var name = nameStart.And(Many(nameChar))
                 .Map((first, rest) => string.Concat(rest.Prepend(first)));
 
-            var quotedString = Skip('"').And(Many(NoneOf("\""))).And(Skip('"'))
+            var quotedString = Between('"', Many(NoneOf("\"")), '"')
                 .Map(string.Concat);
             var attribute = WS1.And(name).And(WS).And(Skip('=')).And(WS).And(quotedString)
                 .Map((attrName, attrVal) => new XAttribute(attrName, attrVal));
@@ -28,11 +28,11 @@
 
             XElParser element = null;
 
-            var emptyElement = Skip('<').And(name).And(attributes).And(WS).And(Skip("/>"))
+            var emptyElement = Between("<", name.And(attributes).And(WS), "/>")
                 .Map((elName, attrs) => new XElement(elName, attrs));
 
-            var openingTag = Skip('<').And(name).And(attributes).And(WS).And(Skip(">"));
-            StringParser closingTag(string tagName) => Skip("</").And(StringP(tagName)).And(WS).And(Skip('>'));
+            var openingTag = Between('<', name.And(attributes).And(WS), '>');
+            StringParser closingTag(string tagName) => Between("</", StringP(tagName).And(WS), ">");
             var childElements = Many1(Try(WS.And(Rec(() => element)).And(WS)))
                 .Map(attrs => (object)attrs);
             var text = Many(NoneOf("<"))

@@ -213,13 +213,19 @@ namespace Tests {
             .ShouldBe(2);
 
         [Fact]
+        public void ApplyParameterlessFuncToUnitResult() =>
+            Skip('V').Map(() => 5)
+            .ParseString("V")
+            .ShouldBe(5);
+
+        [Fact]
         public void AlwaysReturnValue() =>
             Return(13)
             .ParseString("whatever")
             .ShouldBe(13);
 
         [Fact]
-        public void ParseAndReturnFixedValue() =>
+        public void ParseAndReturnValue() =>
             Int.Return(int.MaxValue)
             .ParseString("0")
             .ShouldBe(int.MaxValue);

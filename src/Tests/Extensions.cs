@@ -11,6 +11,11 @@
         internal static void ShouldBe<TResult>(this Reply<TResult> reply, TResult result)
             => reply.Result.ShouldBe(result, reply.Error.Print());
 
+        internal static TResult ShouldBeOk<TResult>(this Reply<TResult> reply) {
+            reply.IsOk().ShouldBeTrue(reply.Error.Print());
+            return reply.Result;
+        }
+
         internal static void ShouldBe(this Reply<XElement> reply, XElement result) {
             reply.IsOk().ShouldBeTrue(reply.Error.Print());
             XNode.DeepEquals(reply.Result, result)

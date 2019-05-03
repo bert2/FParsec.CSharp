@@ -221,13 +221,23 @@
         #region Special
 
         /// <summary>
-        /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(x)`,  where `x`
+        /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(x)`, where `x`
         /// is the result returned by `p`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<TResult>> Map<T, TResult>(
             this FSharpFunc<Chars, Reply<T>> p,
             Func<T, TResult> map)
             => op_BarGreaterGreater(p, map.ToFSharpFunc());
+
+
+        /// <summary>
+        /// The parser `p.Map(f)` applies the parser `p` and returns the result `f()`. Hence the 
+        /// result of the `Unit`-returning parser `p` will be ignored.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> Map<TResult>(
+            this FSharpFunc<Chars, Reply<Unit>> p,
+            Func<TResult> map)
+            => op_BarGreaterGreater(p, FSharpFunc.From<Unit, TResult>(_ => map()));
 
         /// <summary>
         /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(x, y)`, where

@@ -20,7 +20,11 @@ While using `FParsec` from C# is entirely possible in theory, it is very awkward
 
 Based on the current implementation it should be easy to extend the wrapper yourself. Pull requests are always welcome!
 
-## Example
+## Examples
+
+You can find lots of examples in the [test project](https://github.com/bert2/FParsec.CSharp/tree/master/src/Tests). Below are some parser definitions from there.
+
+### Simple JSON
 
 This is what a basic JSON parser looks like with `FParsec.CSharp`:
 
@@ -31,16 +35,21 @@ var jnull = StringCI("null").Return((object)null);
 var jnum = Int.Map(i => (object)i);
 var jbool = StringCI("true").Or(StringCI("false"))
     .Map(b => (object)bool.Parse(b));
-var quotedString = Skip('"').And(Many(CharP(c => c != '"'))).And(Skip('"'))
+var quotedString = Between('"', Many(NoneOf("\"")), '"')
     .Map(string.Concat);
 var jstring = quotedString.Map(s => (object)s);
-var jarray = Skip('[').And(WS).And(Many(Rec(() => jvalue), sep: CharP(',').And(WS))).And(Skip(']'))
+
+var arrItems = Many(Rec(() => jvalue), sep: CharP(',').And(WS));
+var jarray = Between(CharP('[').And(WS), arrItems, CharP(']'))
     .Map(elems => (object)new JArray(elems));
+
 var jidentifier = quotedString;
 var jprop = jidentifier.And(WS).And(Skip(':')).And(WS).And(Rec(() => jvalue))
-    .Map(x => new JProperty(x.Item1, x.Item2));
-var jobject = Skip('{').And(WS).And(Many(jprop, sep: CharP(',').And(WS))).And(Skip('}'))
+    .Map((name, value) => new JProperty(name, value));
+var objProps = Many(jprop, sep: CharP(',').And(WS));
+var jobject = Between(CharP('{').And(WS), objProps, CharP('}'))
     .Map(props => (object)new JObject(props));
+
 jvalue = OneOf(jnum, jbool, jnull, jstring, jarray, jobject).And(WS);
 
 var simpleJsonParser = WS.And(jobject).And(WS).And(EOF).Map(o => (JObject)o);
@@ -55,13 +64,108 @@ Run it like so:
         ""prop2"" : [false, 13, null],
         ""prop3"" : { }
     }")
+    .Result
     .ShouldBe(new JObject(
         new JProperty("prop1", "val"),
         new JProperty("prop2", new JArray(false, 13, null)),
         new JProperty("prop3", new JObject())));
 ```
 
-You can find more examples in the [test project](https://github.com/bert2/FParsec.CSharp/tree/master/src/Tests).
+### Simple XML
+
+```C#
+var nameStart = Letter.Or(CharP('_'));
+var nameChar = Letter.Or(Digit).Or(AnyOf("-_."));
+var name = nameStart.And(Many(nameChar))
+    .Map((first, rest) => string.Concat(rest.Prepend(first)));
+
+var quotedString = Between('"', Many(NoneOf("\"")), '"')
+    .Map(string.Concat);
+var attribute = WS1.And(name).And(WS).And(Skip('=')).And(WS).And(quotedString)
+    .Map((attrName, attrVal) => new XAttribute(attrName, attrVal));
+var attributes = Many(Try(attribute));
+
+FSharpFunc<CharStream<Unit>, Reply<XElement>> element = null;
+
+var emptyElement = Between("<", name.And(attributes).And(WS), "/>")
+    .Map((elName, attrs) => new XElement(elName, attrs));
+
+var openingTag = Between('<', name.And(attributes).And(WS), '>');
+FSharpFunc<CharStream<Unit>, Reply<string>> closingTag(string tagName) => Between("</", StringP(tagName).And(WS), ">");
+var childElements = Many1(Try(WS.And(Rec(() => element)).And(WS)))
+    .Map(attrs => (object)attrs);
+var text = Many(NoneOf("<"))
+    .Map(t => (object)string.Concat(t));
+var content = childElements.Or(text);
+var parentElement = openingTag.And(content).Map(Flat).And(x => closingTag(x.Item1).Return(x))
+    .Map((elName, elAttrs, elContent) => new XElement(elName, elAttrs, elContent));
+
+element = Try(emptyElement).Or(parentElement);
+
+var simpleXmlParser = element.And(WS).And(EOF);
+```
+
+### Glob patterns
+
+```C#
+var globParser =
+    Many(OneOf(
+        Skip('?').Map(NFA.MakeAnyChar),
+        Skip('*').Map(NFA.MakeAnyChar).Map(NFA.MakeZeroOrMore),
+        Between('[', AnyChar.And(Skip('-')).And(AnyChar), ']').Map(NFA.MakeCharRange),
+        Skip('\\').And(AnyOf(@"?*[]\")).Map(NFA.MakeChar),
+        AnyChar.Map(NFA.MakeChar)))
+    .And(EOF)
+    .Map(NFA.Concat)
+    .Map(proto => proto(new Final()));
+```
+
+This example contructs a non-deterministic finite automaton (NFA) during parsing and can be used for matching:
+
+```C#
+[Fact] public void CanParseAndMatchGlobPattern() => globParser
+    .ParseString(@"The * syntax is easy?").Result
+    .Matches("The glob syntax is easy!")
+    .ShouldBe(true);
+```
+
+### Arithmetic expressions
+
+`FParsec.CSharp` also comes with a builder to construct `FParsec.OperatorPrecedenceParser`s:
+
+```C#
+var basicExprParser = new OPPBuilder<int, Unit>()
+    .WithOperators(ops => ops
+        .AddInfix("+", 1, Associativity.Left, (x, y) => x + y)
+        .AddInfix("*", 2, Associativity.Left, (x, y) => x * y))
+    .WithTerms(Int)
+    .Build()
+    .ExpressionParser;
+
+var recursiveExprParser = new OPPBuilder<int, Unit>()
+    .WithOperators(ops => ops
+        .AddInfix("+", 1, Associativity.Left, (x, y) => x + y)
+        .AddInfix("*", 2, Associativity.Left, (x, y) => x * y))
+    .WithTerms(term => OneOf(Int, Between('(', term, ')')))
+    .Build()
+    .ExpressionParser;
+
+var exprParser =
+    WS.And(new OPPBuilder<int, Unit>()
+        .WithOperators(ops => ops
+            .AddInfix("+", 10, Associativity.Left, WS, (x, y) => x + y)
+            .AddInfix("-", 10, Associativity.Left, WS, (x, y) => x - y)
+            .AddInfix("*", 20, Associativity.Left, WS, (x, y) => x * y)
+            .AddInfix("/", 20, Associativity.Left, WS, (x, y) => x / y)
+            .AddPrefix("-", 20, x => -x)
+            .AddInfix("^", 30, Associativity.Right, WS, (x, y) => (int)Math.Pow(x, y))
+            .AddPostfix("!", 40, Factorial))
+        .WithTerms(term => OneOf(
+            Int.And(WS),
+            Between(CharP('(').And(WS), term, CharP(')').And(WS))))
+        .Build()
+        .ExpressionParser);
+```
 
 ## Hints
 

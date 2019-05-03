@@ -70,6 +70,36 @@
            Func<T1, FSharpFunc<Chars, Reply<T2>>> p2)
            => op_GreaterGreaterEquals(p1, p2.ToFSharpFunc());
 
+        /// <summary>
+        /// The parser `Between(pOpen, p, pClose)` applies the parsers `pOpen`, `p` and `pClose` in
+        /// sequence. It returns the result of `p`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Between<TOpen, T, TClose>(
+            FSharpFunc<Chars, Reply<TOpen>> open,
+            FSharpFunc<Chars, Reply<T>> p,
+            FSharpFunc<Chars, Reply<TClose>> close)
+            => between(open, close, p);
+
+        /// <summary>
+        /// The parser `Between(cOpen, p, cClose)` skips the char `cOpen`, then applies parser `p`,
+        /// and then skips the char `cClose` in sequence. It returns the result of `p`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Between<T>(
+            char open,
+            FSharpFunc<Chars, Reply<T>> p,
+            char close)
+            => between(pchar<Unit>(open), pchar<Unit>(close), p);
+
+        /// <summary>
+        /// The parser `Between(sOpen, p, sClose)` skips the string `sOpen`, then applies parser `p`,
+        /// and then skips the string `sClose` in sequence. It returns the result of `p`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Between<T>(
+            string open,
+            FSharpFunc<Chars, Reply<T>> p,
+            string close)
+            => between(pstring<Unit>(open), pstring<Unit>(close), p);
+
         #endregion Sequence
 
         #region Choice

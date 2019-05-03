@@ -168,7 +168,25 @@ namespace Tests {
             .ParseString("ab")
             .ShouldBe('a');
 
-        #endregion Combinators
+        [Fact]
+        public void BetweenChars() =>
+            Between('(', Int, ')')
+            .ParseString("(1)")
+            .ShouldBe(1);
+
+        [Fact]
+        public void BetweenStrings() =>
+            Between("[begin]", Int, "[end]")
+            .ParseString("[begin]1[end]")
+            .ShouldBe(1);
+
+        [Fact]
+        public void BetweenParsers() =>
+            Between(CharP('(').And(WS), Int.And(WS), CharP(')'))
+            .ParseString("( 1 )")
+            .ShouldBe(1);
+
+        #endregion Combinators (sequence)
 
         #region Combinators (choice)
 

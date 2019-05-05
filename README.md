@@ -2,7 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/282vojx52ole5lww?svg=true)](https://ci.appveyor.com/project/bert2/fparsec-csharp) [![NuGet](https://img.shields.io/nuget/v/FParsec.CSharp.svg)](https://www.nuget.org/packages/FParsec.CSharp)
 
-`FParsec.CSharp` is a C# wrapper for the F# package [FParsec](https://github.com/stephan-tolksdorf/fparsec). `FParsec` is a parser combinator library with which you can implement parsers.
+`FParsec.CSharp` is a C# wrapper for the F# package [FParsec](https://github.com/stephan-tolksdorf/fparsec). `FParsec` is a parser combinator library with which you can implement parsers declaratively and efficiently.
 
 ## Why FParsec.CSharp?
 

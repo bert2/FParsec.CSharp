@@ -11,11 +11,13 @@
     public class ArithmeticExpression {
         #region Parser definitions
 
+        public static FSharpFunc<CharStream<Unit>, Reply<int>> Integer = Many1(Digit).Map(string.Concat).Map(int.Parse);
+
         private static readonly FSharpFunc<CharStream<Unit>, Reply<int>> BasicExprParser = new OPPBuilder<int, Unit>()
             .WithOperators(ops => ops
                 .AddInfix("+", 1, Associativity.Left, (x, y) => x + y)
                 .AddInfix("*", 2, Associativity.Left, (x, y) => x * y))
-            .WithTerms(Int)
+            .WithTerms(Integer)
             .Build()
             .ExpressionParser;
 
@@ -23,7 +25,7 @@
             .WithOperators(ops => ops
                 .AddInfix("+", 1, Associativity.Left, (x, y) => x + y)
                 .AddInfix("*", 2, Associativity.Left, (x, y) => x * y))
-            .WithTerms(term => OneOf(Int, Between('(', term, ')')))
+            .WithTerms(term => OneOf(Integer, Between('(', term, ')')))
             .Build()
             .ExpressionParser;
 
@@ -37,8 +39,9 @@
                     .AddPrefix("-", 20, x => -x)
                     .AddInfix("^", 30, Associativity.Right, WS, (x, y) => (int)Math.Pow(x, y))
                     .AddPostfix("!", 40, Factorial))
+                .WithImplicitOperator(20, (x, y) => x * y)
                 .WithTerms(term => OneOf(
-                    Int.And(WS),
+                    Integer.And(WS),
                     Between(CharP('(').And(WS), term, CharP(')').And(WS))))
                 .Build()
                 .ExpressionParser);
@@ -78,6 +81,16 @@
             RecursiveExprParser
             .ParseString("((1+2)*(3))")
             .ShouldBe(9);
+
+        [Fact]
+        public void ImplicitMul() => ExprParser
+            .ParseString("3 4")
+            .ShouldBe(12);
+
+        [Fact]
+        public void ImplicitMulOfParentheses() => ExprParser
+            .ParseString("(2 3)(4 - 2)")
+            .ShouldBe(12);
 
         [Fact]
         public void Negation() =>

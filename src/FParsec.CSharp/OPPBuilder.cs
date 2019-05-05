@@ -9,7 +9,7 @@
 
         // Split the OPP into two parts in order to deal with implicit operators
         // (see https://stackoverflow.com/questions/29322892).
-        // Only `lowOpp` will be used in case `WithImplicitOperator()` was never called.
+        // `highOpp` will only be used in case `WithImplicitOperator()` actually was called.
         private readonly OperatorPrecedenceParser<TTerm, TAfterString, Unit> lowOpp = new OperatorPrecedenceParser<TTerm, TAfterString, Unit>();
         private readonly OperatorPrecedenceParser<TTerm, TAfterString, Unit> highOpp = new OperatorPrecedenceParser<TTerm, TAfterString, Unit>();
 

@@ -2,13 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/282vojx52ole5lww?svg=true)](https://ci.appveyor.com/project/bert2/fparsec-csharp) [![NuGet](https://img.shields.io/nuget/v/FParsec.CSharp.svg)](https://www.nuget.org/packages/FParsec.CSharp)
 
-This is a C# wrapper for the parser combinator library [FParsec](https://github.com/stephan-tolksdorf/fparsec) which is written in optimized F#.
-
-## Why Parser Combinators?
-
-Easy: because they are the most elegant way to define parsers.
-
-Check out the [tests](https://github.com/bert2/FParsec.CSharp/tree/master/src/Tests) and see for yourself.
+`FParsec.CSharp` is a C# wrapper for the F# package [FParsec](https://github.com/stephan-tolksdorf/fparsec). `FParsec` is a parser combinator library with which you can implement parsers.
 
 ## Why FParsec.CSharp?
 
@@ -138,7 +132,7 @@ var basicExprParser = new OPPBuilder<int, Unit>()
     .WithOperators(ops => ops
         .AddInfix("+", 1, Associativity.Left, (x, y) => x + y)
         .AddInfix("*", 2, Associativity.Left, (x, y) => x * y))
-    .WithTerms(Int)
+    .WithTerms(Integer)
     .Build()
     .ExpressionParser;
 
@@ -146,7 +140,7 @@ var recursiveExprParser = new OPPBuilder<int, Unit>()
     .WithOperators(ops => ops
         .AddInfix("+", 1, Associativity.Left, (x, y) => x + y)
         .AddInfix("*", 2, Associativity.Left, (x, y) => x * y))
-    .WithTerms(term => OneOf(Int, Between('(', term, ')')))
+    .WithTerms(term => OneOf(Integer, Between('(', term, ')')))
     .Build()
     .ExpressionParser;
 
@@ -160,8 +154,9 @@ var exprParser =
             .AddPrefix("-", 20, x => -x)
             .AddInfix("^", 30, Associativity.Right, WS, (x, y) => (int)Math.Pow(x, y))
             .AddPostfix("!", 40, Factorial))
+        .WithImplicitOperator(20, (x, y) => x * y)
         .WithTerms(term => OneOf(
-            Int.And(WS),
+            Integer.And(WS),
             Between(CharP('(').And(WS), term, CharP(')').And(WS))))
         .Build()
         .ExpressionParser);

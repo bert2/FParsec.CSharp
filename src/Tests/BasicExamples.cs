@@ -6,6 +6,7 @@ namespace Tests {
     using static FParsec.CSharp.CharParsersCS;
     using static FParsec.CSharp.PrimitivesCS;
     using Chars = FParsec.CharStream<Microsoft.FSharp.Core.Unit>;
+    using static FParsec.CharParsers;
 
     public class BasicExamples {
         #region Chars

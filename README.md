@@ -2,25 +2,89 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/282vojx52ole5lww?svg=true)](https://ci.appveyor.com/project/bert2/fparsec-csharp) [![NuGet](https://img.shields.io/nuget/v/FParsec.CSharp.svg)](https://www.nuget.org/packages/FParsec.CSharp)
 
-`FParsec.CSharp` is a C# wrapper for the F# package [FParsec](https://github.com/stephan-tolksdorf/fparsec). `FParsec` is a parser combinator library with which you can implement parsers declaratively and efficiently.
+FParsec.CSharp is a C# wrapper for the F# package [FParsec](https://github.com/stephan-tolksdorf/fparsec). FParsec is a parser combinator library with which you can implement parsers declaratively.
 
 ## Why FParsec.CSharp?
 
-While using `FParsec` from C# is entirely possible in theory, it is very awkward in practice. Most of `FParsec`'s elegance is lost in translation due to C#'s inferior type inference and its lack of custom operators.
+While using FParsec from C# is entirely possible in theory, it is very awkward in practice. Most of FParsec's elegance is lost in translation due to C#'s inferior type inference and its lack of custom operators.
 
-`FParsec.CSharp` tries to alleviate that by wrapping `FParsec`'s operators as extension functions.
+FParsec.CSharp tries to alleviate that by wrapping FParsec's operators as extension functions.
 
-`FParsec.CSharp` does not try to hide any types from `FParsec` or `FSharp.Core`--the wrapper is thin and also avoids name collisions. That way you can always fallback to `FParsec` anytime you need some functionality not (yet) implemented by `FParsec.CSharp`.
+FParsec.CSharp does not try to hide any types from `FParsec` or `FSharp.Core`--the wrapper is thin and also avoids name collisions. That way you can always fallback to FParsec anytime you need some functionality not (yet) implemented by FParsec.CSharp.
 
-Based on the current implementation it should be easy to extend the wrapper yourself. Pull requests are always welcome!
+Based on the current implementation it should be easy to extend the wrapper yourself if needed. Pull requests are always welcome!
+
+## Getting started
+
+Import the combinators, pre-defined parsers, and helper functions:
+
+```C#
+using FParsec.CSharp; // extension functions (combinators & helpers)
+using static FParsec.CSharp.PrimitivesCS; // combinator functions
+using static FParsec.CSharp.CharParsersCS; // pre-defined parsers
+```
+
+Now you can write some parsers:
+
+```C#
+var p = AnyChar.And(Digit);
+var r = p.ParseString("a1");
+System.Diagnostics.Debug.Assert(r.Result == ('a', '1'));
+```
+
+### Using FParsec.CSharp and FParsec together
+
+In case you need one of FParsec's more specialized parsers you can easily import their namespace:
+
+```C#
+using static FParsec.CharParsers;
+```
+
+In the example below we are using `FParsec.CharParsers.many1Chars2()`. As you can see it integrates seemlessly with FParsec.CSharp:
+
+```C#
+var first = Letter.Or(CharP('_'));
+var rest = Letter.Or(CharP('_')).Or(Digit);
+var identifier = many1Chars2(first, rest);
+var p = identifier.And(Skip('=')).And(Int);
+
+var r = p.ParseString("my_1st_var=13");
+
+System.Diagnostics.Debug.Assert(r.Result == ("my_1st_var", 13));
+```
+
+FParsec supports parsing inputs with custom user state, wich is reflected by most of its functions taking a user state type variable. FParsec.CSharp however does not support user state, so you will have to specify `Microsoft.FSharp.Core.Unit` as the user state type when it can not be inferred:
+
+```C#
+var p = restOfLine<Unit>(true);
+```
+
+Otherwise you won't be able to use the combinators from FParsec.CSharp on it.
+
+Some of FParsec's parsers take anonymous functions. But since they expect curried `FSharpFunc`s they won't accept C# lambdas. FParsec.CSharp comes with a little helper to create `FSharpFunc`s from `Func` objects:
+
+```C#
+using LambdaConvert;
+
+//...
+
+// convert lambda with factory method
+var fsfunc1 = FSharpFunc.From<char, bool>(c => c == 'x' || c == 'y');
+
+// convert Func object with extension method
+Func<char, bool> func = c => c == '1' || c == '2';
+var fsfunc2 = func.ToFSharpFunc();
+
+var p = manySatisfy<Unit>(fsfunc1).And(manySatisfy<Unit>(fsfunc2));
+
+var r = p.ParseString("xyxyyy212221212");
+```
 
 ## Examples
 
 You can find lots of examples in the [test project](https://github.com/bert2/FParsec.CSharp/tree/master/src/Tests). Below are some parser definitions from there.
 
 ### Simple JSON
-
-This is what a basic JSON parser looks like with `FParsec.CSharp`:
 
 ```C#
 FSharpFunc<CharStream<Unit>, Reply<object>> jvalue = null;
@@ -47,22 +111,6 @@ var jobject = Between(CharP('{').And(WS), objProps, CharP('}'))
 jvalue = OneOf(jnum, jbool, jnull, jstring, jarray, jobject).And(WS);
 
 var simpleJsonParser = WS.And(jobject).And(WS).And(EOF).Map(o => (JObject)o);
-```
-
-Run it like so:
-
-```C#
-[Fact] public void CanParseJson() => simpleJsonParser
-    .ParseString(@"{
-        ""prop1"" : ""val"",
-        ""prop2"" : [false, 13, null],
-        ""prop3"" : { }
-    }")
-    .Result
-    .ShouldBe(new JObject(
-        new JProperty("prop1", "val"),
-        new JProperty("prop2", new JArray(false, 13, null)),
-        new JProperty("prop3", new JObject())));
 ```
 
 ### Simple XML
@@ -125,7 +173,7 @@ This example contructs a non-deterministic finite automaton (NFA) during parsing
 
 ### Arithmetic expressions
 
-`FParsec.CSharp` also comes with a builder to construct `FParsec.OperatorPrecedenceParser`s:
+FParsec.CSharp also comes with a builder to construct `FParsec.OperatorPrecedenceParser`s:
 
 ```C#
 var basicExprParser = new OPPBuilder<int, Unit>()
@@ -170,7 +218,7 @@ In order to simplify the types shown in IntelliSense you can use type aliases:
 using Chars = FParsec.CharStream<Microsoft.FSharp.Core.Unit>;
 ```
 
-Unfortunately C# does not support type aliases with open generics. Hence if you want to simplify the type of parser you will have to do it for each of the possible `Reply<T>`s you are using:
+Unfortunately C# does not support type aliases with open generics. Hence if you want to simplify the type of a parser you will have to do it for each of the possible `Reply<T>`s you are using:
 
 ```C#
 using StringParser = Microsoft.FSharp.Core.FSharpFunc<FParsec.CharStream<Microsoft.FSharp.Core.Unit>, FParsec.Reply<string>>;
@@ -180,7 +228,7 @@ using JsonParser = Microsoft.FSharp.Core.FSharpFunc<FParsec.CharStream<Microsoft
 
 ## Alternatives
 
-`FParsec.CSharp` does not wrap all of `FParsec`'s features yet. If you need an all-in-one solution then have a look at the following alternatives:
+FParsec.CSharp does not wrap all of FParsec's features yet. If you need an all-in-one solution then have a look at the following alternatives:
 
 * [Pidgin](https://github.com/benjamin-hodgson/Pidgin)
   * Can also parse binary data.

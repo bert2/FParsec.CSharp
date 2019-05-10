@@ -64,10 +64,6 @@ Otherwise you won't be able to use the combinators from FParsec.CSharp on it.
 Some of FParsec's parsers take anonymous functions. But since they expect curried `FSharpFunc`s they won't accept C# lambdas. FParsec.CSharp comes with a little helper to create `FSharpFunc`s from `Func` objects:
 
 ```C#
-using LambdaConvert;
-
-//...
-
 // convert lambda with factory method
 var fsfunc1 = FSharpFunc.From<char, bool>(c => c == 'x' || c == 'y');
 
@@ -173,7 +169,7 @@ This example contructs a non-deterministic finite automaton (NFA) during parsing
 
 ### Arithmetic expressions
 
-FParsec.CSharp also comes with a builder to construct `FParsec.OperatorPrecedenceParser`s:
+FParsec.CSharp comes with a builder to construct `FParsec.OperatorPrecedenceParser`s:
 
 ```C#
 var basicExprParser = new OPPBuilder<int, Unit>()
@@ -191,7 +187,11 @@ var recursiveExprParser = new OPPBuilder<int, Unit>()
     .WithTerms(term => OneOf(Integer, Between('(', term, ')')))
     .Build()
     .ExpressionParser;
+```
 
+It also supports implicit operators:
+
+```C#
 var exprParser =
     WS.And(new OPPBuilder<int, Unit>()
         .WithOperators(ops => ops

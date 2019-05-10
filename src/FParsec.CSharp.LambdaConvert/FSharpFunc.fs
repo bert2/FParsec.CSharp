@@ -1,4 +1,4 @@
-﻿namespace LambdaConvert
+﻿namespace FParsec.CSharp
 
 open System
 open System.Runtime.CompilerServices

@@ -1,6 +1,5 @@
 ﻿namespace FParsec.CSharp {
     using System;
-    using LambdaConvert;
     using Microsoft.FSharp.Collections;
     using Microsoft.FSharp.Core;
     using static CharParsers;

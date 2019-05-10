@@ -32,7 +32,7 @@
 
   <ItemGroup>
     <!-- Setting "PrivateAssets" is only needed because of the workaround described below. -->
-    <ProjectReference Include="..\LambdaConvert\LambdaConvert.fsproj" PrivateAssets="All" />
+    <ProjectReference Include="..\FParsec.CSharp.LambdaConvert\FParsec.CSharp.LambdaConvert.fsproj" PrivateAssets="All" />
   </ItemGroup>
 
   <!-- Start of workaround -->

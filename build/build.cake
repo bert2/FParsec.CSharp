@@ -1,7 +1,7 @@
-#addin nuget:?package=Cake.Git
-#tool "nuget:?package=GitVersion.CommandLine"
-#load "prompt.cake"
-#load "format-rel-notes.cake"
+#addin Cake.Git
+#tool GitVersion.CommandLine
+#load prompt.cake
+#load format-rel-notes.cake
 
 var target = Argument("target", "Default");
 var config = Argument("configuration", "Release");
@@ -40,7 +40,7 @@ Task("Test")
 Task("Pack")
     .IsDependentOn("SemVer")
     .Does(() => {
-        Information($"Packing {semVer.NuGetVersion} to nuget.org");
+        Information($"Packing {semVer.NuGetVersion}");
 
         var msbuildSettings = new DotNetCoreMSBuildSettings();
         msbuildSettings.Properties["PackageVersion"] = new[] { semVer.NuGetVersion };

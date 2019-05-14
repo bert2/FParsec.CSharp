@@ -1,6 +1,6 @@
 using _Task = System.Threading.Tasks.Task;
 
-string Prompt(string message, int timeoutSeconds = 60) {
+string Prompt(string message, TimeSpan? timeout = null) {
     Warning(message);
     Console.Write("> ");
 
@@ -8,7 +8,7 @@ string Prompt(string message, int timeoutSeconds = 60) {
 
     _Task.WhenAny(
         _Task.Run(() => response = Console.ReadLine()),
-        _Task.Delay(TimeSpan.FromSeconds(timeoutSeconds))
+        _Task.Delay(timeout ?? TimeSpan.FromSeconds(30))
     ).Wait();
 
     if (response == null)

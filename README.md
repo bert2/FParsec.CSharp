@@ -162,7 +162,7 @@ This example contructs a non-deterministic finite automaton (NFA) during parsing
 
 ```C#
 [Fact] public void CanParseAndMatchGlobPattern() => globParser
-    .ParseString(@"The * syntax is easy?").Result
+    .ParseString("The * syntax is easy?").Result
     .Matches("The glob syntax is easy!")
     .ShouldBe(true);
 ```
@@ -208,6 +208,40 @@ var exprParser =
             Between(CharP('(').And(WS), term, CharP(')').And(WS))))
         .Build()
         .ExpressionParser);
+```
+
+Armed with the `OPPBuilder` and the NFA implementation used for the glob parser above we can even build a simple regex parser & matcher:
+
+```C#
+var simpleRegexParser =
+    Many(new OPPBuilder<NFA.ProtoState, Unit>()
+        .WithImplicitOperator(2, NFA.Connect)
+        .WithOperators(ops => ops
+            .AddPostfix("*", 3, NFA.MakeZeroOrMore)
+            .AddPostfix("+", 3, NFA.MakeOneOrMore)
+            .AddPostfix("?", 3, NFA.MakeZeroOrOne)
+            .AddInfix("|", 1, NFA.MakeAlternation))
+        .WithTerms(matchExpr => {
+            var group = Between('(', Many(matchExpr), ')');
+            var wildcard = Skip('.');
+            var charMatch = NoneOf("*+?|()");
+            return OneOf(
+                group.Map(NFA.Concat),
+                wildcard.Map(NFA.MakeAnyChar),
+                charMatch.Map(NFA.MakeChar));
+        })
+        .Build()
+        .ExpressionParser)
+    .And(EOF)
+    .Map(NFA.Concat)
+    .Map(proto => proto(new Final()));
+```
+
+```C#
+[Fact] public void CanParseAndMatchRegex() => simpleRegexParser
+    .ParseString("The( simple)? .+ syntax is .*more tricky( and (complex|difficult|involved))+.").Result
+    .Matches("The simple regex syntax is only a little bit more tricky and complex and involved!")
+    .ShouldBe(true);
 ```
 
 ## Hints

@@ -4,9 +4,7 @@
     using System.Linq;
 
     public static class NFA {
-        public delegate IState Proto(IState exit);
-
-        public static bool Matches(this IState start, string text) => IsMatch(start, text);
+        // Executing the NFA
 
         public static bool IsMatch(IState start, string text) => text
             .Aggregate(
@@ -17,24 +15,44 @@
             .OfType<Final>()
             .Any();
 
-        public static Proto Zero = exit => exit;
-        public static Proto Connect(Proto first, Proto second) => exit => first(second(exit));
-        public static Proto Concat(IEnumerable<Proto> protos) => exit => protos.Aggregate(Zero, Connect)(exit);
+        public static bool Matches(this IState start, string text) => IsMatch(start, text);
 
-        public static Proto MakeChar(char c) => exit => new CharS(c, exit);
-        public static Proto MakeAnyChar() => exit => new AnyCharS(exit);
-        public static Proto MakeCharRange(char min, char max) => exit => new CharRange(min, max, exit);
+        // Monoid implemention
 
-        public static Proto MakeZeroOrMore(Proto body) => exit => {
+        public delegate IState ProtoState(IState exit);
+        public static readonly ProtoState Zero = exit => exit;
+        public static ProtoState Connect(ProtoState first, ProtoState second) => exit => first(second(exit));
+        public static ProtoState Concat(IEnumerable<ProtoState> protos) => protos.Aggregate(Zero, Connect);
+
+        // Control structures
+
+        public static ProtoState MakeChar(char c) => exit => new CharS(c, exit);
+        public static ProtoState MakeAnyChar() => exit => new AnyCharS(exit);
+        public static ProtoState MakeCharRange(char min, char max) => exit => new CharRange(min, max, exit);
+        public static ProtoState MakeAlternation(ProtoState left, ProtoState right) => Branch(left, right);
+        public static ProtoState MakeZeroOrOne(ProtoState body) => Branch(body, Zero);
+        public static ProtoState MakeZeroOrMore(ProtoState body) => exit => Loop(body, exit).loop;
+        public static ProtoState MakeOneOrMore(ProtoState body) => exit => Loop(body, exit).body;
+
+        // Generalizations
+
+        public static ProtoState Branch(ProtoState left, ProtoState right) => exit => new Split(left(exit), right(exit));
+
+        public static (IState body, Split loop) Loop(ProtoState body, IState exit) {
             IState enter = null;
             var loop = new Split(() => enter, exit);
             enter = body(loop);
-            return loop;
-        };
+            return (enter, loop);
+        }
     }
 
     public interface IState {
+        // Returns all states the can be reached from the current state by consuming the input character.
         IEnumerable<IState> Consume(char c);
+
+        // Epsilon expansion: returns all states that can be reached from the current state without
+        // consuming anything. Breaks transition loops by keeping track of already expanded states
+        // using the set `visited`.
         IEnumerable<IState> Expand(HashSet<IState> visited);
     }
 
@@ -62,7 +80,7 @@
         public CharRange(char min, char max, IState next) { this.min = min; this.max = max; this.next = next; }
         public IEnumerable<IState> Consume(char c) { if (min <= c && c <= max) yield return next; }
         public IEnumerable<IState> Expand(HashSet<IState> visited) { yield return this; }
-        public override string ToString() => $"CharRange('{min}-{max}')";
+        public override string ToString() => $"CharRange('{min}'-'{max}')";
     }
 
     public class Split : IState {

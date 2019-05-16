@@ -40,11 +40,12 @@ Task("Test")
 Task("Pack")
     .IsDependentOn("SemVer")
     .Does(() => {
-        Information($"Packing {semVer.NuGetVersion}");
+        var relNotes = FormatReleaseNotes(lastCommit);
+        Information($"Packing {semVer.NuGetVersion} ({relNotes})");
 
         var msbuildSettings = new DotNetCoreMSBuildSettings();
         msbuildSettings.Properties["PackageVersion"] = new[] { semVer.NuGetVersion };
-        msbuildSettings.Properties["PackageReleaseNotes"] = new[] { FormatReleaseNotes(lastCommit) };
+        msbuildSettings.Properties["PackageReleaseNotes"] = new[] { relNotes };
 
         DotNetCorePack(libDir, new DotNetCorePackSettings {
             Configuration = config,

@@ -174,16 +174,16 @@ FParsec.CSharp comes with a builder to construct `FParsec.OperatorPrecedencePars
 ```C#
 var basicExprParser = new OPPBuilder<int, Unit>()
     .WithOperators(ops => ops
-        .AddInfix("+", 1, Associativity.Left, (x, y) => x + y)
-        .AddInfix("*", 2, Associativity.Left, (x, y) => x * y))
+        .AddInfix("+", 1, (x, y) => x + y)
+        .AddInfix("*", 2, (x, y) => x * y))
     .WithTerms(Integer)
     .Build()
     .ExpressionParser;
 
 var recursiveExprParser = new OPPBuilder<int, Unit>()
     .WithOperators(ops => ops
-        .AddInfix("+", 1, Associativity.Left, (x, y) => x + y)
-        .AddInfix("*", 2, Associativity.Left, (x, y) => x * y))
+        .AddInfix("+", 1, (x, y) => x + y)
+        .AddInfix("*", 2, (x, y) => x * y))
     .WithTerms(term => OneOf(Integer, Between('(', term, ')')))
     .Build()
     .ExpressionParser;
@@ -195,10 +195,10 @@ It also supports implicit operators:
 var exprParser =
     WS.And(new OPPBuilder<int, Unit>()
         .WithOperators(ops => ops
-            .AddInfix("+", 10, Associativity.Left, WS, (x, y) => x + y)
-            .AddInfix("-", 10, Associativity.Left, WS, (x, y) => x - y)
-            .AddInfix("*", 20, Associativity.Left, WS, (x, y) => x * y)
-            .AddInfix("/", 20, Associativity.Left, WS, (x, y) => x / y)
+            .AddInfix("+", 10, WS, (x, y) => x + y)
+            .AddInfix("-", 10, WS, (x, y) => x - y)
+            .AddInfix("*", 20, WS, (x, y) => x * y)
+            .AddInfix("/", 20, WS, (x, y) => x / y)
             .AddPrefix("-", 20, x => -x)
             .AddInfix("^", 30, Associativity.Right, WS, (x, y) => (int)Math.Pow(x, y))
             .AddPostfix("!", 40, Factorial))

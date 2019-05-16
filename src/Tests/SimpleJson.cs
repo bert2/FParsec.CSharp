@@ -15,28 +15,31 @@
         static SimpleJson() {
             FSharpFunc<CharStream<Unit>, Reply<object>> jvalue = null;
 
-            var jnull = StringCI("null").Return((object)null);
+            var jnull = StringCI("null").Return((object)null).Lbl("null");
 
-            var jnum = Int.Map(i => (object)i);
+            var jnum = Int.Map(i => (object)i).Lbl("integer");
 
             var jbool = StringCI("true").Or(StringCI("false"))
-                .Map(b => (object)bool.Parse(b));
+                .Map(b => (object)bool.Parse(b))
+                .Lbl("bool");
 
             var quotedString = Between('"', Many(NoneOf("\"")), '"')
                 .Map(string.Concat);
 
-            var jstring = quotedString.Map(s => (object)s);
+            var jstring = quotedString.Map(s => (object)s).Lbl("string");
 
             var arrItems = Many(Rec(() => jvalue), sep: CharP(',').And(WS));
             var jarray = Between(CharP('[').And(WS), arrItems, CharP(']'))
-                .Map(elems => (object)new JArray(elems));
+                .Map(elems => (object)new JArray(elems))
+                .Lbl("array");
 
-            var jidentifier = quotedString;
+            var jidentifier = quotedString.Lbl("identifier");
             var jprop = jidentifier.And(WS).And(Skip(':')).And(WS).And(Rec(() => jvalue))
                 .Map((name, value) => new JProperty(name, value));
             var objProps = Many(jprop, sep: CharP(',').And(WS));
             var jobject = Between(CharP('{').And(WS), objProps, CharP('}'))
-                .Map(props => (object)new JObject(props));
+                .Map(props => (object)new JObject(props))
+                .Lbl("object");
 
             jvalue = OneOf(jnum, jbool, jnull, jstring, jarray, jobject).And(WS);
 
@@ -130,6 +133,26 @@
             SimpleJsonParser
             .ParseString("{} this should cause an error")
             .ShouldBe<ErrorMessage.Expected>("end of input");
+
+        [Fact]
+        public void HelpfulErrorWhenParsingProperty() =>
+            SimpleJsonParser
+            .ParseString("{ x }")
+            .ShouldBeErrors(
+                new ErrorMessage.Expected("identifier"),
+                new ErrorMessage.ExpectedString("}"));
+
+        [Fact]
+        public void HelpfulErrorWhenParsingValue() =>
+            SimpleJsonParser
+            .ParseString("{ \"prop\": x }")
+            .ShouldBeErrors(
+                new ErrorMessage.Expected("null"),
+                new ErrorMessage.Expected("integer"),
+                new ErrorMessage.Expected("string"),
+                new ErrorMessage.Expected("bool"),
+                new ErrorMessage.Expected("array"),
+                new ErrorMessage.Expected("object"));
 
         #endregion Tests
     }

@@ -254,9 +254,9 @@ namespace Tests {
 
         [Fact]
         public void BacktrackFailedAlternatives() =>
-            Try(StringP("aaab")).Or(StringP("aaac"))
-            .ParseString("aaac")
-            .ShouldBe("aaac");
+            Try(Digit.And(Letter)).Or(Digit.And(Digit))
+            .ParseString("12")
+            .ShouldBe(('1', '2'));
 
         #endregion Combinators (backtracking)
 
@@ -309,5 +309,21 @@ namespace Tests {
             .ShouldBe<ErrorMessage.ExpectedString>("a");
 
         #endregion Parse errors
+
+        #region Labels
+
+        [Fact]
+        public void LabelAsErrorMsg() =>
+            CharP('a').Label("the first letter of the alphabet")
+            .ParseString("x")
+            .ShouldBe<ErrorMessage.Expected>("the first letter of the alphabet");
+
+        [Fact]
+        public void LabelEvenWhenParserAlreadyConsumed() =>
+            CharP('a').And(CharP('b')).Label_("the first two letters of the alphabet")
+            .ParseString("ax")
+            .ShouldBe<ErrorMessage.CompoundError>("the first two letters of the alphabet");
+
+        #endregion Labels
     }
 }

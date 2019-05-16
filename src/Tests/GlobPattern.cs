@@ -12,8 +12,8 @@
             Many(OneOf(
                 Skip('?').Map(NFA.MakeAnyChar),
                 Skip('*').Map(NFA.MakeAnyChar).Map(NFA.MakeZeroOrMore),
-                Between('[', AnyChar.And(Skip('-')).And(AnyChar), ']').Map(NFA.MakeCharRange),
-                Skip('\\').And(AnyOf(@"?*[]\")).Map(NFA.MakeChar),
+                Between('[', AnyChar.And(Skip('-')).And(AnyChar), ']').Lbl("character range").Map(NFA.MakeCharRange),
+                Skip('\\').And(AnyOf(@"?*[]\").Lbl("meta character")).Map(NFA.MakeChar),
                 AnyChar.Map(NFA.MakeChar)))
             .And(EOF)
             .Map(NFA.Concat)

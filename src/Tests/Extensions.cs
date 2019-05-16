@@ -29,9 +29,22 @@
                 .ShouldBeOfType<TError>()
                 .GetString().ShouldBe(message);
 
+        internal static void ShouldBeErrors<T>(this Reply<T> reply, params ErrorMessage[] errors) {
+            reply.Error.AsEnumerable().Count().ShouldBe(errors.Length, reply.Error.Print());
+            reply.Error.AsEnumerable().ShouldBe(errors, ignoreOrder: true, reply.Error.Print());
+        }
+
         internal static void ShouldBe<TError>(this Reply<char> reply, string message)
             where TError : ErrorMessage
             => reply.ShouldBe<char, TError>(message);
+
+        internal static void ShouldBe<TError>(this Reply<(char, char)> reply, string message)
+            where TError : ErrorMessage
+            => reply.ShouldBe<(char, char), TError>(message);
+
+        internal static void ShouldBe<TError>(this Reply<string> reply, string message)
+            where TError : ErrorMessage
+            => reply.ShouldBe<string, TError>(message);
 
         internal static void ShouldBe<TError>(this Reply<int> reply, string message)
             where TError : ErrorMessage

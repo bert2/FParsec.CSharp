@@ -16,7 +16,7 @@
             string operatorString,
             int precedence,
             Func<TTerm, TTerm, TTerm> map)
-            => AddInfix(operatorString, precedence, Associativity.None, stop, map);
+            => AddInfix(operatorString, precedence, Associativity.Left, stop, map);
 
         public Operators<TTerm, TAfterString> AddInfix(string operatorString,
             int precedence,
@@ -29,7 +29,7 @@
             int precedence,
             FSharpFunc<CharStream<Unit>, Reply<TAfterString>> afterStringParser,
             Func<TTerm, TTerm, TTerm> map)
-            => AddInfix(operatorString, precedence, Associativity.None, afterStringParser, map);
+            => AddInfix(operatorString, precedence, Associativity.Left, afterStringParser, map);
 
         public Operators<TTerm, TAfterString> AddInfix(
             string operatorString,

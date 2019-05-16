@@ -210,6 +210,8 @@ var exprParser =
         .ExpressionParser);
 ```
 
+### Simple regular expressions
+
 Armed with the `OPPBuilder` and the NFA implementation used for the glob parser above we can even build a simple regex parser & matcher:
 
 ```C#

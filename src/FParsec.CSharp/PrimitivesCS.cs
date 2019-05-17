@@ -245,6 +245,18 @@
             FSharpFunc<Chars, Reply<T>> p)
             => attempt(p);
 
+        /// <summary>
+        /// <para>The parser `LookAhead(p)` parses `p` and restores the original parse state afterwards.</para>
+        /// <para>
+        /// In case `p` fails after changing the parser state, the error messages are wrapped in a
+        /// `NestedError`. If it succeeds, any error messages are discarded. Fatal errors are
+        /// turned into normal errors.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> LookAhead<T>(
+            FSharpFunc<Chars, Reply<T>> p)
+            => lookAhead(p);
+
         #endregion Backtracking
 
         #region Special

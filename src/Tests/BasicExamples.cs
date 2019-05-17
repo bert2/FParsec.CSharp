@@ -193,10 +193,20 @@ namespace Tests {
         #region Combinators (backtracking)
 
         [Fact]
-        public void BacktrackFailedAlternatives() =>
+        public void TryAndBacktrackFailure() =>
             Try(Digit.And(Letter)).Or(Digit.And(Digit))
             .ParseString("12")
             .ShouldBe(('1', '2'));
+
+        [Fact]
+        public void LookAheadAndBacktrackSuccess() {
+            var keepLowerSkipUpper = LookAhead(Letter).And(c => char.IsLower(c)
+                ? ManyChars(Lower)
+                : ManyChars(Upper).Return(""));
+            Many(keepLowerSkipUpper, sep: ',')
+                .ParseString("you,CELLS,are,WITHIN,not,even,CELLS,close,to,INTERLINKED,baseline")
+                .ShouldBe(new[] { "you", "", "are", "", "not", "even", "", "close", "to", "", "baseline" }.ToFSharpList());
+        }
 
         #endregion Combinators (backtracking)
 

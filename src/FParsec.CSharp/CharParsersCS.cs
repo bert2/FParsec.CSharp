@@ -114,46 +114,100 @@
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> SkipCI(string s) => skipStringCI<Unit>(s);
 
+        /// <summary>
+        /// <para>
+        /// `ManyChars(cp)` parses a sequence of *zero* or more chars with the char parser `cp`. It
+        /// returns the parsed chars as a string.
+        /// </para>
+        /// <para>
+        /// `ManyChars(cp)` is an optimized implementation of `Many(Try(cp))` that returns the
+        /// chars as a string instead of a char list. The equivalence to `Many(Try(p))` instead of
+        /// `Many(p)` implies that `ManyChars()` never fails.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> ManyChars(
+            FSharpFunc<Chars, Reply<char>> p)
+            => manyChars(p);
+
+        /// <summary>
+        /// <para>
+        /// `Many1Chars(cp)` parses a sequence of *one* or more chars with the char parser `cp`. It
+        /// returns the parsed chars as a string.
+        /// </para>
+        /// <para>
+        /// `Many1Chars(cp)` is an optimized implementation of `Many1(Try(cp))` that returns the
+        /// chars as a string instead of a char list. The equivalence to `Many1(Try(p))` instead of
+        /// `Many1(p)` implies that `Many1Chars()` never fails after consuming input.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Many1Chars(
+            FSharpFunc<Chars, Reply<char>> p)
+            => many1Chars(p);
+
         #endregion String
 
         #region Number
 
         /// <summary>
+        /// <para>
         /// Parses an integer in decimal, hexadecimal ("0x" prefix), octal ("0o") or binary ("0b")
         /// format.
-        /// The parser fails
-        /// without consuming input, if not at least one digit (including the '0' in the format
+        /// </para>
+        /// <para>The parser fails:</para>
+        /// <para>
+        /// - without consuming input, if not at least one digit (including the '0' in the format
         ///     specifiers "0x" etc.) can be parsed,
-        /// after consuming input, if no digit comes after an exponent marker or no hex digit comes
-        ///     after a format specifier,
-        /// after consuming input, if the value represented by the input string is greater than
+        /// </para>
+        /// <para>
+        /// - after consuming input, if no digit comes after an exponent marker or no hex digit
+        ///     comes after a format specifier,
+        /// </para>
+        /// <para>
+        /// - after consuming input, if the value represented by the input string is greater than
         ///     `System.Int32.MaxValue` or less than `System.Int32.MinValue`.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<int>> Int = pint32<Unit>();
 
         /// <summary>
+        /// <para>
         /// Parses an integer in decimal, hexadecimal ("0x" prefix), octal ("0o") or binary ("0b")
         /// format.
-        /// The parser fails
-        /// without consuming input, if not at least one digit (including the '0' in the format
+        /// </para>
+        /// <para>The parser fails:</para>
+        /// <para>
+        /// - without consuming input, if not at least one digit (including the '0' in the format
         ///     specifiers "0x" etc.) can be parsed,
-        /// after consuming input, if no digit comes after an exponent marker or no hex digit comes
-        ///     after a format specifier,
-        /// after consuming input, if the value represented by the input string is greater than
+        /// </para>
+        /// <para>
+        /// - after consuming input, if no digit comes after an exponent marker or no hex digit
+        ///     comes after a format specifier,
+        /// </para>
+        /// <para>
+        /// - after consuming input, if the value represented by the input string is greater than
         ///     `System.Int64.MaxValue` or less than `System.Int64.MinValue`.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<long>> Long = pint64<Unit>();
 
         /// <summary>
+        /// <para>
         /// Parses a floating-point number in decimal or hexadecimal format.
         /// The special values NaN and Inf(inity)? (case insensitive) are also recognized.
-        /// The parser fails
-        /// without consuming input, if not at least one digit (including the '0' in "0x") can be
+        /// </para>
+        /// <para>The parser fails:</para>
+        /// <para>
+        /// - without consuming input, if not at least one digit (including the '0' in "0x") can be
         ///     parsed,
-        /// after consuming input, if no digit comes after an exponent marker or no hex digit comes
-        ///     after "0x",
-        /// after consuming input, if the value represented by the input string (after rounding) is
+        /// </para>
+        /// <para>
+        /// - after consuming input, if no digit comes after an exponent marker or no hex digit
+        ///     comes after "0x",
+        /// </para>
+        /// <para>
+        /// - after consuming input, if the value represented by the input string (after rounding) is
         ///     greater than `System.Double.MaxValue` or less than `System.Double.MinValue`.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<double>> Float = pfloat<Unit>();
 
@@ -183,6 +237,9 @@
 
         #region EOF
 
+        /// <summary>
+        /// The parser `EOF` only succeeds at the end of the input. It never consumes input.
+        /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> EOF = eof<Unit>();
 
         #endregion EOF

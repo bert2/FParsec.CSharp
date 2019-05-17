@@ -19,9 +19,14 @@
             => op_DotGreaterGreaterDot(p1, p2).Map(x => x.ToValueTuple());
 
         /// <summary>
+        /// <para>
         /// The parser `p1.And(p2)` applies the parsers `p1` and `p2` in sequence and returns
-        /// the result of `p1`. Since `p2` is a skipping parser that returns `Unit` its result 
+        /// the result of `p1`.
+        /// </para>
+        /// <para>
+        /// Since `p2` is a skipping parser that returns `Unit` its result
         /// will not be returned.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<T1>> And<T1>(
             this FSharpFunc<Chars, Reply<T1>> p1,
@@ -29,9 +34,14 @@
             => op_DotGreaterGreater(p1, p2);
 
         /// <summary>
+        /// <para>
         /// The parser `p1.And(p2)` applies the parsers `p1` and `p2` in sequence and returns
-        /// the result of `p2`. Since `p1` is a skipping parser that returns `Unit` its result 
+        /// the result of `p2`.
+        /// </para>
+        /// <para>
+        /// Since `p1` is a skipping parser that returns `Unit` its result
         /// will not be returned.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<T2>> And<T2>(
             this FSharpFunc<Chars, Reply<Unit>> p1,
@@ -39,10 +49,15 @@
             => op_GreaterGreaterDot(p1, p2);
 
         /// <summary>
+        /// <para>
         /// The parser `p1.And(p2)` applies the parsers `p1` and `p2` in sequence and returns
-        /// the result of `p2`. Since `p1` is a skipping parser that returns `Unit` its result 
+        /// the result of `p2`.
+        /// </para>
+        /// <para>
+        /// Since `p1` is a skipping parser that returns `Unit` its result
         /// will not be returned. Although `p2` is skipping parser as well, its result will still
         /// be returned instead of creating a new `Reply&lt;Unit&gt;`.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> And(
             this FSharpFunc<Chars, Reply<Unit>> p1,
@@ -50,9 +65,14 @@
             => op_GreaterGreaterDot(p1, p2);
 
         /// <summary>
+        /// <para>
         /// The parser `p1.And_(p2)` applies the parsers `p1` and `p2` in sequence and returns
-        /// the results in a tuple. `p1.And_(p2)` behaves like `p1.And(p2)` except that it will
+        /// the results in a tuple.
+        /// </para>
+        /// <para>
+        /// `p1.And_(p2)` behaves like `p1.And(p2)` except that it will
         /// always return both parser results even if either of them returns `Unit`.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<(T1, T2)>> And_<T1, T2>(
             this FSharpFunc<Chars, Reply<T1>> p1,
@@ -104,12 +124,16 @@
         #region Choice
 
         /// <summary>
-        /// The parser `p1.Or(p2)` first applies the parser `p1`.
-        /// If `p1` succeeds, the result of `p1` is returned.
+        /// <para>The parser `p1.Or(p2)` first applies the parser `p1`.</para>
+        /// <para>If `p1` succeeds, the result of `p1` is returned.</para>
+        /// <para>
         /// If `p1` fails with a non-fatal error and *without changing the parser state*,
         /// the parser `p2` is applied.
+        /// </para>
+        /// <para>
         /// Note: The stream position is part of the parser state, so if `p1` fails after consuming input,
         /// `p2` will not be applied.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<T>> Or<T>(
             this FSharpFunc<Chars, Reply<T>> p1,
@@ -129,12 +153,18 @@
         #region Repetition
 
         /// <summary>
+        /// <para>
         /// The parser `Many(p)` repeatedly applies the parser `p` until `p` fails.
         /// It returns a list of the results returned by `p`.
+        /// </para>
+        /// <para>
         /// At the end of the sequence `p` must fail without changing the parser state and without
         /// signalling a `FatalError`, otherwise `Many(p)` will fail with the error reported by `p`.
+        /// </para>
+        /// <para>
         /// `Many(p)` tries to guard against an infinite loop by throwing an exception
         /// if `p` succeeds without changing the parser state.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many<T>(
             FSharpFunc<Chars, Reply<T>> p)
@@ -279,10 +309,16 @@
             => p.Return((Unit)null);
 
         /// <summary>
-        /// The parser `Rec(() => p)` is needed for recursive grammars (e.g. JSON, where objects
-        /// can be nested). When parsers `p1` and `p2` depend on each other (directly or 
-        /// indirectly) then the parser that is defined first has to reference the parser defined 
-        /// last using `Rec(() => ...)`.
+        /// <para>
+        /// The parser `Rec(() => p)` delays reading the value of `p` until the parent parser is
+        /// run. `Rec()` is needed for recursive grammars (e.g. JSON, where objects can be nested).
+        /// </para>
+        /// <para>
+        /// When parsers `p1` and `p2` depend on each other (directly or
+        /// indirectly) then the parser that is defined last needs to be declared first and
+        /// initialized with `null`. The parser that is defined first can then reference the parser
+        /// defined last using `Rec(() => ...)`.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<T>> Rec<T>(
             Func<FSharpFunc<Chars, Reply<T>>> p)

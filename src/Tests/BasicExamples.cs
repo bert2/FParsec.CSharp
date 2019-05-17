@@ -47,6 +47,10 @@ namespace Tests {
 
         [Fact] public void ParseAndSkipStringIgnoreCase() => SkipCI("hello parser").ParseString("Hello PARSER").ShouldBe(null);
 
+        [Fact] public void ParseStringWithCharParser() => ManyChars(Upper).ParseString("HELLO").ShouldBe("HELLO");
+
+        [Fact] public void ParseStringWithCharParserAtLeastOnce() => Many1Chars(Lower).ParseString("hello").ShouldBe("hello");
+
         #endregion Strings
 
         #region Numbers
@@ -170,8 +174,8 @@ namespace Tests {
         [Fact]
         public void RecursiveGrammer() {
             FSharpFunc<Chars, Reply<char>> expr = null;
-            var parenthesised = Skip('(').And(Rec(() => expr)).And(Skip(')'));
-            expr = CharP(char.IsDigit).Or(parenthesised);
+            var parenthesized = Between('(', Rec(() => expr), ')');
+            expr = CharP(char.IsDigit).Or(parenthesized);
 
             var r = expr.ParseString("((0))");
 

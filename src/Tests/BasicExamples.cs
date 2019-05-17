@@ -11,129 +11,65 @@ namespace Tests {
     public class BasicExamples {
         #region Chars
 
-        [Fact]
-        public void ParseAnyChar() =>
-            AnyChar
-            .ParseString("x")
-            .ShouldBe('x');
+        [Fact] public void ParseAnyChar() => AnyChar.ParseString("x").ShouldBe('x');
 
-        [Fact]
-        public void SingleChar() =>
-            CharP('a')
-            .ParseString("a")
-            .ShouldBe('a');
+        [Fact] public void SingleChar() => CharP('a').ParseString("a").ShouldBe('a');
 
-        [Fact]
-        public void CharThatSatisfiesPredicate() =>
-            CharP(char.IsDigit)
-            .ParseString("1")
-            .ShouldBe('1');
+        [Fact] public void CharThatSatisfiesPredicate() => CharP(char.IsDigit).ParseString("1").ShouldBe('1');
 
-        [Fact]
-        public void ParseAndSkipChar() =>
-            Skip('a')
-            .ParseString("a")
-            .ShouldBe(null);
+        [Fact] public void ParseAndSkipChar() => Skip('a').ParseString("a").ShouldBe(null);
 
-        [Fact]
-        public void MatchAnyOfList() =>
-            AnyOf("0123456789")
-            .ParseString("7")
-            .ShouldBe('7');
+        [Fact] public void MatchAnyOfList() => AnyOf("0123456789").ParseString("7").ShouldBe('7');
 
-        [Fact]
-        public void InvertedMatch() =>
-            NoneOf("abc")
-            .ParseString("d")
-            .ShouldBe('d');
+        [Fact] public void InvertedMatch() => NoneOf("abc").ParseString("d").ShouldBe('d');
 
-        [Fact]
-        public void ParseLetter() =>
-            Letter
-            .ParseString("A")
-            .ShouldBe('A');
+        [Fact] public void ParseLetter() => Letter.ParseString("A").ShouldBe('A');
 
-        [Fact]
-        public void ParseDigit() =>
-            Digit
-            .ParseString("7")
-            .ShouldBe('7');
+        [Fact] public void UpperCaseLetter() => Upper.ParseString("X").ShouldBe('X');
+
+        [Fact] public void LowerCaseLetter() => Lower.ParseString("x").ShouldBe('x');
+
+        [Fact] public void ParseDigit() => Digit.ParseString("7").ShouldBe('7');
+
+        [Fact] public void HexDigit() => Hex.ParseString("F").ShouldBe('F');
+
+        [Fact] public void OctalDigit() => Octal.ParseString("7").ShouldBe('7');
 
         #endregion Chars
 
         #region Strings
 
-        [Fact]
-        public void ParseString() =>
-            StringP("hello parser")
-            .ParseString("hello parser")
-            .ShouldBe("hello parser");
+        [Fact] public void ParseString() => StringP("hello parser").ParseString("hello parser").ShouldBe("hello parser");
 
-        [Fact]
-        public void ParseStringIgnoreCase() =>
-            StringCI("hello parser")
-            .ParseString("Hello PARSER")
-            .ShouldBe("Hello PARSER");
+        [Fact] public void ParseStringIgnoreCase() => StringCI("hello parser").ParseString("Hello PARSER").ShouldBe("Hello PARSER");
 
-        [Fact]
-        public void ParseAndSkipString() =>
-            Skip("abc")
-            .ParseString("abc")
-            .ShouldBe(null);
+        [Fact] public void ParseAndSkipString() => Skip("abc").ParseString("abc").ShouldBe(null);
 
-        [Fact]
-        public void ParseAndSkipStringIgnoreCase() =>
-            SkipCI("hello parser")
-            .ParseString("Hello PARSER")
-            .ShouldBe(null);
+        [Fact] public void ParseAndSkipStringIgnoreCase() => SkipCI("hello parser").ParseString("Hello PARSER").ShouldBe(null);
 
         #endregion Strings
 
         #region Numbers
 
-        [Fact]
-        public void ParseInt() =>
-            Int
-            .ParseString("13")
-            .ShouldBe(13);
+        [Fact] public void ParseInt() => Int.ParseString("13").ShouldBe(13);
 
-        [Fact]
-        public void ParseLong() =>
-            Long
-            .ParseString("9223372036854775807")
-            .ShouldBe(9223372036854775807);
+        [Fact] public void ParseLong() => Long.ParseString("9223372036854775807").ShouldBe(9223372036854775807);
 
-        [Fact]
-        public void ParseFloat() =>
-            Float
-            .ParseString("13.45")
-            .ShouldBe(13.45);
+        [Fact] public void ParseFloat() => Float.ParseString("13.45").ShouldBe(13.45);
 
         #endregion Numbers
 
         #region White space
 
-        [Fact]
-        public void ZeroOrMoreWhitespaces() =>
-            Spaces
-            .ParseString("\n \t \r\n \r")
-            .ShouldBe(null);
+        [Fact] public void ZeroOrMoreWhitespaces() => Spaces.ParseString("\n \t \r\n \r").ShouldBe(null);
 
-        [Fact]
-        public void OneOreMoreWhitespaces() =>
-            Spaces1
-            .ParseString("\n \t \r\n \r")
-            .ShouldBe(null);
+        [Fact] public void OneOreMoreWhitespaces() => Spaces1.ParseString("\n \t \r\n \r").ShouldBe(null);
 
         #endregion White space
 
         #region End of input
 
-        [Fact]
-        public void EndOfInput() =>
-            EOF
-            .ParseString("")
-            .ShouldBe(null);
+        [Fact] public void EndOfInput() => EOF.ParseString("").ShouldBe(null);
 
         #endregion End of input
 
@@ -302,11 +238,7 @@ namespace Tests {
 
         #region Parse errors
 
-        [Fact]
-        public void UnexpectedChar() =>
-            CharP('a')
-            .ParseString("b")
-            .ShouldBe<ErrorMessage.ExpectedString>("a");
+        [Fact] public void UnexpectedChar() => CharP('a').ParseString("b").ShouldBe<ErrorMessage.ExpectedString>("a");
 
         #endregion Parse errors
 

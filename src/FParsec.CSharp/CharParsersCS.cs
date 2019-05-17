@@ -58,9 +58,32 @@
         public static FSharpFunc<Chars, Reply<char>> Letter => letter<Unit>();
 
         /// <summary>
+        /// Parses any UTF-16 uppercase letter char identified by `System.Char.IsUpper`. Returns
+        /// the parsed char.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> Upper => upper<Unit>();
+
+        /// <summary>
+        /// Parses any UTF-16 lowercase letter char identified by `System.Char.IsLower`. Returns
+        /// the parsed char.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> Lower => lower<Unit>();
+
+        /// <summary>
         /// Parses any char in the range '0' - '9'. Returns the parsed char.
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> Digit => digit<Unit>();
+
+        /// <summary>
+        /// Parses any char in the range '0' - '9', 'a' - 'f' and 'A' - 'F'. Returns the parsed
+        /// char.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> Hex => hex<Unit>();
+
+        /// <summary>
+        /// Parses any char in the range '0' - '7'. Returns the parsed char.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> Octal => octal<Unit>();
 
         #endregion Char
 

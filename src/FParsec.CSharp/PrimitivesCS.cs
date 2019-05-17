@@ -272,6 +272,13 @@
             => op_GreaterGreaterPercent(p, result);
 
         /// <summary>
+        /// The parser `Skip(p)` applies the parser `p` and skips its result, i.e. returns `Unit`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> Skip<T>(
+            FSharpFunc<Chars, Reply<T>> p)
+            => p.Return((Unit)null);
+
+        /// <summary>
         /// The parser `Rec(() => p)` is needed for recursive grammars (e.g. JSON, where objects
         /// can be nested). When parsers `p1` and `p2` depend on each other (directly or 
         /// indirectly) then the parser that is defined first has to reference the parser defined 

@@ -188,27 +188,50 @@ namespace Tests {
             .ParseString("foo=1")
             .ShouldBe(("foo", '=', 1));
 
+        [Fact]
+        public void ParserMustChangeState() =>
+            NotEmpty(Many(AnyChar))
+            .ParseString("")
+            .ShouldBe<ErrorMessage.Expected>("any char");
+
+
         #endregion Combinators (special)
 
-        #region Combinators (backtracking)
+        #region Combinators (backtracking, looking ahead & conditional parsing)
 
         [Fact]
-        public void TryAndBacktrackFailure() =>
+        public void BacktrackFailure() =>
             Try(Digit.And(Letter)).Or(Digit.And(Digit))
             .ParseString("12")
             .ShouldBe(('1', '2'));
 
         [Fact]
-        public void LookAheadAndBacktrackSuccess() {
+        public void LookAheadAndBacktrack() {
             var keepLowerSkipUpper = LookAhead(Letter).And(c => char.IsLower(c)
                 ? ManyChars(Lower)
                 : ManyChars(Upper).Return(""));
+
             Many(keepLowerSkipUpper, sep: ',')
-                .ParseString("you,CELLS,are,WITHIN,not,even,CELLS,close,to,INTERLINKED,baseline")
-                .ShouldBe(new[] { "you", "", "are", "", "not", "even", "", "close", "to", "", "baseline" }.ToFSharpList());
+            .ParseString("you,CELLS,are,WITHIN,not,even,CELLS,close,to,INTERLINKED,baseline")
+            .ShouldBe("you", "", "are", "", "not", "even", "", "close", "to", "", "baseline");
         }
 
-        #endregion Combinators (backtracking)
+        [Fact]
+        public void LookAheadAndBacktrackWithoutResult() =>
+            FollowedBy(Upper, "start of sentence")
+                .And(Many(NoneOf(".!?")))
+                .And(FollowedBy(AnyOf(".!?"), "end of sentence"))
+                .Map(string.Concat)
+            .ParseString("Is this a sentence?")
+            .ShouldBe("Is this a sentence");
+
+        [Fact]
+        public void NegativelyLookAheadAndBacktrackWithoutResult() =>
+            Many1(Digit).And(NotFollowedBy(CharP('.'), "floating point"))
+            .ParseString("123")
+            .ShouldBe('1', '2', '3');
+
+        #endregion Combinators (backtracking, looking ahead & conditional parsing)
 
         #region Repetitions
 
@@ -216,37 +239,37 @@ namespace Tests {
         public void ZeroOrMoreOfChar() =>
             Many(CharP('a'))
             .ParseString("aaa")
-            .ShouldBe("aaa".ToFSharpList());
+            .ShouldBe('a', 'a', 'a');
 
         [Fact]
         public void OneOrMoreOfChar() =>
             Many1(CharP('a'))
             .ParseString("aaa")
-            .ShouldBe("aaa".ToFSharpList());
+            .ShouldBe('a', 'a', 'a');
 
         [Fact]
         public void CommaSeparatedChars() =>
             Many(AnyChar, sep: ',')
             .ParseString("a,b,c")
-            .ShouldBe("abc".ToFSharpList());
+            .ShouldBe('a', 'b', 'c');
 
         [Fact]
         public void StringSeparatedChars() =>
             Many(AnyChar, sep: " - ")
             .ParseString("a - b - c")
-            .ShouldBe("abc".ToFSharpList());
+            .ShouldBe('a', 'b', 'c');
 
         [Fact]
         public void ParserSeparatedChars() =>
             Many(AnyChar, sep: CharP(char.IsDigit))
             .ParseString("a1b2c")
-            .ShouldBe("abc".ToFSharpList());
+            .ShouldBe('a', 'b', 'c');
 
         [Fact]
         public void CommaSeparatedCharsAtLeastOne() =>
             Many1(AnyChar, sep: ',')
             .ParseString("a,b,c")
-            .ShouldBe("abc".ToFSharpList());
+            .ShouldBe('a', 'b', 'c');
 
         #endregion Repetitions
 

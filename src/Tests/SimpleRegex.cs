@@ -33,55 +33,55 @@
 
         [Fact]
         public void SingleChar() => SimpleRegexParser
-            .ParseString("a").ShouldBeOk()
+            .ParseString("a").OkResult()
             .Matches("a")
             .ShouldBe(true);
 
         [Fact]
         public void MultipleChars() => SimpleRegexParser
-            .ParseString("abc").ShouldBeOk()
+            .ParseString("abc").OkResult()
             .Matches("abc")
             .ShouldBe(true);
 
         [Fact]
         public void AnyCharMatch() => SimpleRegexParser
-            .ParseString("a.c").ShouldBeOk()
+            .ParseString("a.c").OkResult()
             .Matches("axc")
             .ShouldBe(true);
 
         [Fact]
         public void Grouping() => SimpleRegexParser
-            .ParseString("()a((b)c)").ShouldBeOk()
+            .ParseString("()a((b)c)").OkResult()
             .Matches("abc")
             .ShouldBe(true);
 
         [Fact]
         public void KleeneStar() => SimpleRegexParser
-            .ParseString("(ab)*c*").ShouldBeOk()
+            .ParseString("(ab)*c*").OkResult()
             .Matches("ababab")
             .ShouldBe(true);
 
         [Fact]
         public void KleenePlus() => SimpleRegexParser
-            .ParseString("(ab)+c+").ShouldBeOk()
+            .ParseString("(ab)+c+").OkResult()
             .Matches("abababc")
             .ShouldBe(true);
 
         [Fact]
         public void Option() => SimpleRegexParser
-            .ParseString("ab?c?").ShouldBeOk()
+            .ParseString("ab?c?").OkResult()
             .Matches("ac")
             .ShouldBe(true);
 
         [Fact]
         public void Alternation() => SimpleRegexParser
-            .ParseString("a|b|c").ShouldBeOk()
+            .ParseString("a|b|c").OkResult()
             .Matches("c")
             .ShouldBe(true);
 
         [Fact]
         public void All() => SimpleRegexParser
-            .ParseString("(a|b|c)+d*(ef|gh(.)+)?").ShouldBeOk()
+            .ParseString("(a|b|c)+d*(ef|gh(.)+)?").OkResult()
             .Matches("abcabcghxxx")
             .ShouldBe(true);
     }

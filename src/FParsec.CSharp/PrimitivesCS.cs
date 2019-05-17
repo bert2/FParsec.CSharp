@@ -257,6 +257,57 @@
             FSharpFunc<Chars, Reply<T>> p)
             => lookAhead(p);
 
+        /// <summary>
+        /// <para>
+        /// The parser `FollowedBy(p)` succeeds if the parser `p` succeeds at the current position.
+        /// Otherwise it fails with a non-fatal error. This parser never changes the parser state.
+        /// </para>
+        /// <para>
+        /// If the parser `FollowedBy(p)` fails, it returns no descriptive error message. Hence it
+        /// should only be used together with other parsers that take care of a potential error.
+        /// Alternatively, `FollowedBy(p, s)` can be used to ensure a more descriptive error
+        /// message.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> FollowedBy<T>(
+            FSharpFunc<Chars, Reply<T>> p)
+            => followedBy(p);
+
+        /// <summary>
+        /// The parser `FollowedBy(p, s)` behaves like `FollowedBy(p)`, except that it returns an
+        /// `Expected s` error message when the parser `p` fails.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> FollowedBy<T>(
+            FSharpFunc<Chars, Reply<T>> p,
+            string label)
+            => followedByL(p, label);
+
+        /// <summary>
+        /// <para>
+        /// The parser `NotFollowedBy(p)` succeeds if the parser `p` fails to parse at the current
+        /// position. Otherwise it fails with a non-fatal error. This parser never changes the
+        /// parser state.
+        /// </para>
+        /// <para>
+        /// If the parser `NotFollowedBy(p)` fails, it returns no descriptive error message. Hence
+        /// it should only be used together with other parsers that take care of a potential error.
+        /// Alternatively, `NotFollowedBy(p, s)` can be used to ensure a more descriptive error
+        /// message.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedBy<T>(
+            FSharpFunc<Chars, Reply<T>> p)
+            => notFollowedBy(p);
+
+        /// <summary>
+        /// The parser `NotFollowedBy(p, s)` behaves like `NotFollowedBy(p)`, except that it
+        /// returns an `Unexpected s` error message when the parser `p` fails.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedBy<T>(
+            FSharpFunc<Chars, Reply<T>> p,
+            string label)
+            => notFollowedByL(p, label);
+
         #endregion Backtracking
 
         #region Special
@@ -335,6 +386,14 @@
         public static FSharpFunc<Chars, Reply<T>> Rec<T>(
             Func<FSharpFunc<Chars, Reply<T>>> p)
             => FSharpFunc.From((Chars cs) => p().Invoke(cs));
+
+        /// <summary>
+        /// The parser `NotEmpty(p)` behaves like `p`, except that it fails when `p` succeeds
+        /// without consuming input or changing the parser state in any other way.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> NotEmpty<T>(
+            FSharpFunc<Chars, Reply<T>> p)
+            => notEmpty(p);
 
         /// <summary>
         /// Flattens the nested tuple `((a,b),c)` to `(a,b,c)`.

@@ -69,13 +69,13 @@ namespace Tests {
 
         [Fact] public void OneOreMoreWhitespaces() => Spaces1.ParseString("\n \t \r\n \r").ShouldBe(null);
 
-        #endregion White space
+        [Fact] public void EndOfLine() => Newline.ParseString("\r\n").ShouldBe('\n');
 
-        #region End of input
+        [Fact] public void TabChar() => Tab.ParseString("\t").ShouldBe('\t');
 
         [Fact] public void EndOfInput() => EOF.ParseString("").ShouldBe(null);
 
-        #endregion End of input
+        #endregion White space
 
         #region Combinators (sequence)
 

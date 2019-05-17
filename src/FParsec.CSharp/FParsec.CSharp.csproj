@@ -11,7 +11,7 @@
     <PackageVersion>0.0.0</PackageVersion>
     <Authors>Robert Hofmann</Authors>
     <Copyright>Copyright © 2019</Copyright>
-    <PackageTags>FParsec parser combinator csharp</PackageTags>
+    <PackageTags>parser combinator c# csharp parsec fparsec</PackageTags>
     <Title>FParsec.CSharp</Title>
     <Description>A thin C# wrapper for FParsec.</Description>
     <PackageDescription>A thin C# wrapper for FParsec.</PackageDescription>

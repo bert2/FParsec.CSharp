@@ -12,7 +12,7 @@
         /// `AnyChar` parses any single char or newline ("\n", "\r\n" or "\r").
         /// Returns the parsed char, or '\n' in case a newline was parsed.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> AnyChar = anyChar<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> AnyChar => anyChar<Unit>();
 
         /// <summary>
         /// `CharP(c)` parses the char `c` and returns `c`. If `c = '\r'` or `c = '\n'` then
@@ -167,7 +167,7 @@
         ///     `System.Int32.MaxValue` or less than `System.Int32.MinValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<int>> Int = pint32<Unit>();
+        public static FSharpFunc<Chars, Reply<int>> Int => pint32<Unit>();
 
         /// <summary>
         /// <para>
@@ -188,7 +188,7 @@
         ///     `System.Int64.MaxValue` or less than `System.Int64.MinValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<long>> Long = pint64<Unit>();
+        public static FSharpFunc<Chars, Reply<long>> Long => pint64<Unit>();
 
         /// <summary>
         /// <para>
@@ -209,7 +209,7 @@
         ///     greater than `System.Double.MaxValue` or less than `System.Double.MinValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<double>> Float = pfloat<Unit>();
+        public static FSharpFunc<Chars, Reply<double>> Float => pfloat<Unit>();
 
         #endregion Number
 
@@ -219,29 +219,83 @@
         /// Skips over any sequence of *zero* or more whitespaces (space (' '), tab ('\t') or
         /// newline ("\n", "\r\n" or "\r")).
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Spaces = spaces<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> Spaces => spaces<Unit>();
 
         /// <summary>Short form for `Spaces`.</summary>
-        public static FSharpFunc<Chars, Reply<Unit>> WS = Spaces;
+        public static FSharpFunc<Chars, Reply<Unit>> WS => Spaces;
 
         /// <summary>
         /// Skips over any sequence of *one* or more whitespaces (space (' '), tab('\t') or
         /// newline ("\n", "\r\n" or "\r")).
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Spaces1 = spaces1<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> Spaces1 => spaces1<Unit>();
 
         /// <summary>Short form for `Spaces1`.</summary>
-        public static FSharpFunc<Chars, Reply<Unit>> WS1 = Spaces1;
+        public static FSharpFunc<Chars, Reply<Unit>> WS1 => Spaces1;
 
-        #endregion Whitespace
+        /// <summary>
+        /// Parses a newline ("\n", "\r\n" or "\r"). Returns '\n'. Is equivalent to `CharP('\n')`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> Newline => newline<Unit>();
 
-        #region EOF
+        /// <summary>Short form for `Newline`.</summary>
+        public static FSharpFunc<Chars, Reply<char>> NL => newline<Unit>();
+
+        /// <summary>
+        /// Parses the tab char '\t' and returns '\t'. Note that a tab char is treated like any
+        /// other non-newline char: the column number is incremented by (only) 1.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> Tab => tab<Unit>();
 
         /// <summary>
         /// The parser `EOF` only succeeds at the end of the input. It never consumes input.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> EOF = eof<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> EOF => eof<Unit>();
 
-        #endregion EOF
+        #endregion Whitespace
+
+        #region Conditional parsing
+
+        /// <summary>
+        /// `NotFollowedByEOF` is an optimized implementation of
+        /// `NotFollowedBy(EOF, "end of input")`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedByEOF => notFollowedByEof<Unit>();
+
+        /// <summary>
+        /// `FollowedByNewline` is an optimized implementation of `FollowedBy(Newline, "newline")`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> FollowedByNewline => followedByNewline<Unit>();
+
+        /// <summary>
+        /// `NotFollowedByNewline` is an optimized implementation of
+        /// `NotFollowedBy(Newline, "newline")`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedByNewline => notFollowedByNewline<Unit>();
+
+        /// <summary>
+        /// `FollowedBy(s)` is an optimized implementation of `FollowedBy(StringP(s), $"'{s}'"))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> FollowedBy(string s) => followedByString<Unit>(s);
+
+        /// <summary>
+        /// `NotFollowedBy(s)` is an optimized implementation of
+        /// `NotFollowedBy(StringP(s), $"'{s}'"))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedBy(string s) => notFollowedByString<Unit>(s);
+
+        /// <summary>
+        /// `FollowedByCI(s)` is an optimized implementation of
+        /// `FollowedBy(StringCI(s), $"'{s}'"))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> FollowedByCI(string s) => followedByStringCI<Unit>(s);
+
+        /// <summary>
+        /// `NotFollowedByCI(s)` is an optimized implementation of
+        /// `NotFollowedBy(StringCI(s), $"'{s}'"))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedByCI(string s) => notFollowedByStringCI<Unit>(s);
+
+        #endregion Conditional parsing
     }
 }

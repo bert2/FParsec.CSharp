@@ -166,6 +166,12 @@ namespace Tests {
             .ParseString("b")
             .ShouldBe('b');
 
+        [Fact]
+        public void AlternativeValue() =>
+            Digit.Or('\0')
+            .ParseString("a")
+            .ShouldBe('\0');
+
         #endregion Combinators
 
         #region Combinators (special)

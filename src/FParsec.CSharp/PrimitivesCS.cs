@@ -268,6 +268,14 @@
             params FSharpFunc<Chars, Reply<T>>[] ps)
             => choice(ps);
 
+        /// <summary>
+        /// The parser `p.Or(x)` is an optimized implementation of `p.Or(Return(x))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Or<T>(
+            this FSharpFunc<Chars, Reply<T>> p,
+            T x)
+            => op_LessBarGreaterPercent(p, x);
+
         #endregion Choice
 
         #region Repetition

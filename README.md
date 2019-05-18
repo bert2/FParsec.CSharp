@@ -250,7 +250,7 @@ var simpleRegexParser =
 
 ### Debugging
 
-When you need to debug into your parser chain use the `Debug()` combinator on any of the parsers in your chain.
+When you need to debug into your parser chain, use the `Debug()` combinator on any of your chain's parsers.
 
 It takes two `Action`s:
 

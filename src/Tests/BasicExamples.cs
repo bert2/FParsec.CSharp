@@ -126,6 +126,29 @@ namespace Tests {
             .ParseString("( 1 )")
             .ShouldBe(1);
 
+        [Fact]
+        public void ParserSequenceToArray() =>
+            Array(4, Digit)
+            .ParseString("1234")
+            .ShouldBe(new[] { '1', '2', '3', '4' });
+
+        [Fact]
+        public void ParserSequenceToTuple() =>
+            Tuple(Int.And(WS), Float.And(WS), Many1Chars(Digit))
+            .ParseString("12 34.5 28")
+            .ShouldBe((12, 34.5, "28"));
+
+        [Fact]
+        public void ParserSequenceWithMapping() =>
+            Pipe(
+                Int.And(WS),
+                Float.And(WS),
+                Many1Chars(Digit),
+                (x, y, z) => x + y + int.Parse(z))
+            .ParseString("12 34.5 28")
+            .ShouldBe(74.5);
+
+
         #endregion Combinators (sequence)
 
         #region Combinators (choice)

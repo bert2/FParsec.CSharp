@@ -119,6 +119,126 @@
             string close)
             => between(pstring<Unit>(open), pstring<Unit>(close), p);
 
+        /// <summary>
+        /// <para>
+        /// The parser `Array(n,p)` parses `n` occurences of `p` and returns the results in an
+        /// array.
+        /// </para>
+        /// <para>
+        /// For example, `Array(3,p)` is equivalent to `Pipe(p,p,p,(a,b,c) => new[] {a,b,c})`.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T[]>> Array<T>(
+            int n,
+            FSharpFunc<Chars, Reply<T>> p)
+            => parray(n, p);
+
+        /// <summary>
+        /// The parser `SkipArray(n,p)` is an optimized implementation of `Skip(Array(n,p))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipArray<T>(
+            int n,
+            FSharpFunc<Chars, Reply<T>> p)
+            => skipArray(n, p);
+
+        /// <summary>
+        /// <para>
+        /// The parser `Tuple(p1,p2)` applies the parsers `p1` and `p2` in sequence and returns
+        /// the results in a tuple.
+        /// </para>
+        /// <para>`Tuple(p1,p2)` is equivalent to `p1.And(p2)`.</para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<(T1, T2)>> Tuple<T1, T2>(
+            FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2)
+            => tuple2(p1, p2).Map(x => x.ToValueTuple());
+
+        /// <summary>
+        /// <para>
+        /// The parser `Tuple(p1,p2,p3)` applies the parsers `p1`, `p2` and `p3` in sequence and
+        /// returns the results in a tuple.
+        /// </para>
+        /// <para>`Tuple(p1,p2,p3)` is equivalent to `p1.And(p2).And(p3).Map(Flat)`.</para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<(T1, T2, T3)>> Tuple<T1, T2, T3>(
+            FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2,
+            FSharpFunc<Chars, Reply<T3>> p3)
+            => tuple3(p1, p2, p3).Map(x => x.ToValueTuple());
+
+        /// <summary>
+        /// The parser `Tuple(p1,p2,p3,p4)` applies the parsers `p1`, `p2`, `p3` and `p4` in
+        /// sequence and returns the results in a tuple.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<(T1, T2, T3, T4)>> Tuple<T1, T2, T3, T4>(
+            FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2,
+            FSharpFunc<Chars, Reply<T3>> p3,
+            FSharpFunc<Chars, Reply<T4>> p4)
+            => tuple4(p1, p2, p3, p4).Map(x => x.ToValueTuple());
+
+        /// <summary>
+        /// The parser `Tuple(p1,p2,p3,p4,p5)` applies the parsers `p1`, `p2`, `p3`, `p4` and `p5`
+        /// in sequence and returns the results in a tuple.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<(T1, T2, T3, T4, T5)>> Tuple<T1, T2, T3, T4, T5>(
+            FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2,
+            FSharpFunc<Chars, Reply<T3>> p3,
+            FSharpFunc<Chars, Reply<T4>> p4,
+            FSharpFunc<Chars, Reply<T5>> p5)
+            => tuple5(p1, p2, p3, p4, p5).Map(x => x.ToValueTuple());
+
+        /// <summary>
+        /// The parser `Pipe(p1,p2,f)` applies the parsers `p1` and `p2` in sequence. It returns
+        /// the result of the function application `f(a,b)`, where `a`, `b` and `c` are the results
+        /// returned by `p1` and `p2`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> Pipe<T1, T2, TResult>(
+            FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2,
+            Func<T1, T2, TResult> f)
+            => pipe2(p1, p2, f.ToFSharpFunc());
+
+        /// <summary>
+        /// The parser `Pipe(p1,p2,p3,f)` applies the parsers `p1`, `p2` and `p3` in sequence. It
+        /// returns the result of the function application `f(a,b,c)`, where `a`, `b` and `c` are
+        /// the results returned by `p1`, `p2` and `p3`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> Pipe<T1, T2, T3, TResult>(
+            FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2,
+            FSharpFunc<Chars, Reply<T3>> p3,
+            Func<T1, T2, T3, TResult> f)
+            => pipe3(p1, p2, p3, f.ToFSharpFunc());
+
+        /// <summary>
+        /// The parser `Pipe(p1,p2,p3,p4,f)` applies the parsers `p1`, `p2`, `p3` and `p4` in
+        /// sequence. It returns the result of the function application `f(a,b,c,d)`, where `a`,
+        /// `b`, `c` and `d` are the results returned by `p1`, `p2`, `p3` and `p4`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> Pipe<T1, T2, T3, T4, TResult>(
+            FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2,
+            FSharpFunc<Chars, Reply<T3>> p3,
+            FSharpFunc<Chars, Reply<T4>> p4,
+            Func<T1, T2, T3, T4, TResult> f)
+            => pipe4(p1, p2, p3, p4, f.ToFSharpFunc());
+
+        /// <summary>
+        /// The parser `Pipe(p1,p2,p3,p4,p5,f)` applies the parsers `p1`, `p2`, `p3`, `p4` and `p5`
+        /// in sequence. It returns the result of the function application `f(a,b,c,d,e)`, where
+        /// `a`, `b`, `c`, `d` and `e` are the results returned by `p1`, `p2`, `p3`, `p4` and `p5`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> Pipe<T1, T2, T3, T4, T5, TResult>(
+            FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2,
+            FSharpFunc<Chars, Reply<T3>> p3,
+            FSharpFunc<Chars, Reply<T4>> p4,
+            FSharpFunc<Chars, Reply<T5>> p5,
+            Func<T1, T2, T3, T4, T5, TResult> f)
+            => pipe5(p1, p2, p3, p4, p5, f.ToFSharpFunc());
+
         #endregion Sequence
 
         #region Choice

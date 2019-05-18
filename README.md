@@ -248,6 +248,26 @@ var simpleRegexParser =
 
 ## Hints
 
+### Debugging
+
+When you need to debug into your parser chain use the `Debug()` combinator on any of the parsers in your chain.
+
+It takes two `Action`s:
+
+* `Action<CharStream<Unit>> before`: is run before the parser is applied,
+* `Action<CharStream<Unit>, Reply<T>> after`: is run after the parser was applied.
+
+For instance, you can use empty `Action`s in order to place break points:
+
+```C#
+var p = Digit.Debug(cs => {}, (cs, r) => {})
+        .And(
+            Letter.Debug(cs => {}, (cs, r) => {}))
+        .Debug(cs => {}, (cs, r) => {});
+```
+
+### Aliasing awkward types
+
 In order to simplify the types shown in IntelliSense you can use type aliases:
 
 ```C#

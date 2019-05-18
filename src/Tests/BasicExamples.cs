@@ -2,6 +2,7 @@ namespace Tests {
     using FParsec;
     using FParsec.CSharp;
     using Microsoft.FSharp.Core;
+    using Shouldly;
     using Xunit;
     using static FParsec.CSharp.CharParsersCS;
     using static FParsec.CSharp.PrimitivesCS;
@@ -336,6 +337,18 @@ namespace Tests {
         #region Parse errors
 
         [Fact] public void UnexpectedChar() => CharP('a').ParseString("b").ShouldBe<ErrorMessage.ExpectedString>("a");
+
+        [Fact] public void AlwaysFailingParser() => Zero<char>().ParseString("abc").ShouldBeErrors();
+
+        [Fact] public void FailWithMessage() =>
+            Fail<char>("my error")
+            .ParseString("abc")
+            .ShouldBe<ErrorMessage.Message>("my error");
+
+        [Fact] public void FailFatallyWithMessage() =>
+            FailFatally<char>("my error")
+            .ParseString("abc")
+            .Status.ShouldBe(ReplyStatus.FatalError);
 
         #endregion Parse errors
 

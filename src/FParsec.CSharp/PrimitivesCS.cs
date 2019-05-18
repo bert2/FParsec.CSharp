@@ -433,6 +433,64 @@
         #region Special
 
         /// <summary>
+        /// The parser `Zero()` always fails with an empty error message list, i.e. an unspecified
+        /// error.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Zero<T>() => pzero<T, Unit>();
+
+        /// <summary>
+        /// The parser `Return(x)` always succeeds with the result `x` (without changing the parser
+        /// state).
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> Return<TResult>(
+            TResult result)
+            => preturn<TResult, Unit>(result);
+
+        /// <summary>
+        /// The parser `p.Return(x)` applies the parser `p` and returns the result `x`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> Return<T, TResult>(
+            this FSharpFunc<Chars, Reply<T>> p,
+            TResult result)
+            => op_GreaterGreaterPercent(p, result);
+
+        /// <summary>
+        /// The parser `Fail(s)` always fails with a `messageError s`. The error message will be
+        /// displayed together with other error messages generated for the same input position.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Fail<T>(string error) => fail<T, Unit>(error);
+
+        /// <summary>
+        /// The parser `FailFatally(s)` always fails with a `messageError s`. It signals a
+        /// FatalError, so that no error recovery is attempted (except via backtracking
+        /// constructs).
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> FailFatally<T>(string error) => failFatally<T, Unit>(error);
+
+        /// <summary>
+        /// The parser `Skip(p)` applies the parser `p` and skips its result, i.e. returns `Unit`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> Skip<T>(
+            FSharpFunc<Chars, Reply<T>> p)
+            => p.Return((Unit)null);
+
+        /// <summary>
+        /// <para>
+        /// The parser `Rec(() => p)` delays reading the value of `p` until the parent parser is
+        /// run. `Rec()` is needed for recursive grammars (e.g. JSON, where objects can be nested).
+        /// </para>
+        /// <para>
+        /// When parsers `p1` and `p2` depend on each other (directly or
+        /// indirectly) then the parser that is defined last needs to be declared first and
+        /// initialized with `null`. The parser that is defined first can then reference the parser
+        /// defined last using `Rec(() => ...)`.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Rec<T>(
+            Func<FSharpFunc<Chars, Reply<T>>> p)
+            => FSharpFunc.From((Chars cs) => p().Invoke(cs));
+
+        /// <summary>
         /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(x)`, where `x`
         /// is the result returned by `p`.
         /// </summary>
@@ -467,45 +525,6 @@
             this FSharpFunc<Chars, Reply<(T1, T2, T3)>> p,
             Func<T1, T2, T3, TResult> map)
             => op_BarGreaterGreater(p, FSharpFunc.From<(T1, T2, T3), TResult>(x => map(x.Item1, x.Item2, x.Item3)));
-
-        /// <summary>
-        /// The parser `Return(x)` always succeeds with the result `x` (without changing the parser
-        /// state).
-        /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> Return<TResult>(
-            TResult result)
-            => preturn<TResult, Unit>(result);
-
-        /// <summary>
-        /// The parser `p.Return(x)` applies the parser `p` and returns the result `x`.
-        /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> Return<T, TResult>(
-            this FSharpFunc<Chars, Reply<T>> p,
-            TResult result)
-            => op_GreaterGreaterPercent(p, result);
-
-        /// <summary>
-        /// The parser `Skip(p)` applies the parser `p` and skips its result, i.e. returns `Unit`.
-        /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Skip<T>(
-            FSharpFunc<Chars, Reply<T>> p)
-            => p.Return((Unit)null);
-
-        /// <summary>
-        /// <para>
-        /// The parser `Rec(() => p)` delays reading the value of `p` until the parent parser is
-        /// run. `Rec()` is needed for recursive grammars (e.g. JSON, where objects can be nested).
-        /// </para>
-        /// <para>
-        /// When parsers `p1` and `p2` depend on each other (directly or
-        /// indirectly) then the parser that is defined last needs to be declared first and
-        /// initialized with `null`. The parser that is defined first can then reference the parser
-        /// defined last using `Rec(() => ...)`.
-        /// </para>
-        /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Rec<T>(
-            Func<FSharpFunc<Chars, Reply<T>>> p)
-            => FSharpFunc.From((Chars cs) => p().Invoke(cs));
 
         /// <summary>
         /// The parser `NotEmpty(p)` behaves like `p`, except that it fails when `p` succeeds

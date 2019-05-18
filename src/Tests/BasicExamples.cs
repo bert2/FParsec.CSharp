@@ -6,7 +6,6 @@ namespace Tests {
     using static FParsec.CSharp.CharParsersCS;
     using static FParsec.CSharp.PrimitivesCS;
     using Chars = FParsec.CharStream<Microsoft.FSharp.Core.Unit>;
-    using static FParsec.CharParsers;
 
     public class BasicExamples {
         #region Chars
@@ -230,6 +229,44 @@ namespace Tests {
             Many1(Digit).And(NotFollowedBy(CharP('.'), "floating point"))
             .ParseString("123")
             .ShouldBe('1', '2', '3');
+
+        [Fact]
+        public void PeekNextChar() {
+            FSharpFunc<Chars, Reply<char>> NextIsSmallerOrEOF(char c) =>
+                NextCharSatisfies(n => n < c).Lbl($"char smaller than '{c}'")
+                .Or(EOF)
+                .Return(c);
+
+            Many(AnyChar.And(NextIsSmallerOrEOF))
+            .ParseString("cba")
+            .ShouldBe('c', 'b', 'a');
+        }
+
+        [Fact]
+        public void PeekNextTwoChars() {
+            FSharpFunc<Chars, Reply<char>> IsSumOfNext2(char c) =>
+                Next2CharsSatisfy((a, b) => a + b == c).Lbl("reverse Fibonacci chars")
+                .Or(FollowedBy(AnyChar.And(EOF)))
+                .Or(EOF)
+                .Return(c);
+
+            Many(AnyChar.And(IsSumOfNext2))
+            .ParseString("\x8\x5\x3\x2\x1\x1\x0")
+            .ShouldBe('\x8', '\x5', '\x3', '\x2', '\x1', '\x1', '\x0');
+        }
+
+        [Fact]
+        public void LookBehind() {
+            var tagType = OneOf(
+                PreviousCharSatisfies(c => c == '/').Return("self-closing tag"),
+                Return("opening tag"));
+
+            var tagContent = Many1(NoneOf(">"));
+
+            Between('<', Skip(tagContent).And(tagType), '>')
+            .ParseString("<tag />")
+            .ShouldBe("self-closing tag");
+        }
 
         #endregion Combinators (backtracking, looking ahead & conditional parsing)
 

@@ -296,6 +296,102 @@
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> NotFollowedByCI(string s) => notFollowedByStringCI<Unit>(s);
 
+        /// <summary>
+        /// `NextCharSatisfies(f)` is an optimized implementation of `FollowedBy(CharP(f))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> NextCharSatisfies(
+            Func<char, bool> pred)
+            => nextCharSatisfies<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>
+        /// `NextCharSatisfiesNot(f)` is an optimized implementation of `NotFollowedBy(CharP(f))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> NextCharSatisfiesNot(
+            Func<char, bool> pred)
+            => nextCharSatisfiesNot<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>
+        /// <para>
+        /// `Next2CharsSatisfy(f)` succeeds if the predicate function `f` returns `true` when
+        /// applied to the next two chars in the input stream, otherwise it fails.
+        /// </para>
+        /// <para>
+        /// If there aren't two chars remaining in the input stream, this parser fails (as opposed
+        /// to `Next2CharsSatisfyNot()`). This parser never changes the parser state.
+        /// </para>
+        /// <para>Any newline ("\n", "\r\n" or "\r") in the input is interpreted as a single char '\n'.</para>
+        /// <para>
+        /// If this parser fails, it returns no descriptive error message; hence it should only be
+        /// used together with parsers that take care of a potential error.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> Next2CharsSatisfy(
+            Func<char, char, bool> pred)
+            => next2CharsSatisfy<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>
+        /// <para>
+        /// `Next2CharsSatisfyNot(f)` succeeds if the predicate function `f` returns `false` when
+        /// applied to the next two chars in the input stream, otherwise it fails.
+        /// </para>
+        /// <para>
+        /// If there aren't two chars remaining in the input stream, this parser succeeds (as
+        /// opposed to `Next2CharsSatisfy()`). This parser never changes the parser state.
+        /// </para>
+        /// <para>Any newline ("\n", "\r\n" or "\r") in the input is interpreted as a single char '\n'.</para>
+        /// <para>
+        /// If this parser fails, it returns no descriptive error message; hence it should only be
+        /// used together with parsers that take care of a potential error.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> Next2CharsSatisfyNot(
+            Func<char, char, bool> pred)
+            => next2CharsSatisfyNot<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>
+        /// <para>
+        /// `PreviousCharSatisfies(f)` succeeds if the predicate function `f` returns `true` when
+        /// applied to the previous char in the stream, otherwise it fails.
+        /// </para>
+        /// <para>
+        /// If there is no previous char (because the stream is at the beginning), this parser
+        /// fails (as opposed to `PreviousCharSatisfiesNot()`). This parser never changes the
+        /// parser state.
+        /// </para>
+        /// <para>
+        /// Any newline ("\n", "\r\n" or "\r") in the input is interpreted as a single char '\n'.
+        /// </para>
+        /// <para>
+        /// If this parser fails, it returns no descriptive error message; hence it should only be
+        /// used together with parsers that take care of a potential error.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> PreviousCharSatisfies(
+            Func<char, bool> pred)
+            => previousCharSatisfies<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>
+        /// <para>
+        /// `PreviousCharSatisfiesNot(f)` succeeds if the predicate function `f` returns `false`
+        /// when applied to the previous char in the stream, otherwise it fails.
+        /// </para>
+        /// <para>
+        /// If there is no previous char (because the stream is at the beginning), this parser
+        /// succeeds (as opposed to `PreviousCharSatisfies()`). This parser never changes the
+        /// parser state.
+        /// </para>
+        /// <para>
+        /// Any newline ("\n", "\r\n" or "\r") in the input is interpreted as a single char '\n'.
+        /// </para>
+        /// <para>
+        /// If this parser fails, it returns no descriptive error message; hence it should only be
+        /// used together with parsers that take care of a potential error.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> PreviousCharSatisfiesNot(
+            Func<char, bool> pred)
+            => previousCharSatisfiesNot<Unit>(pred.ToFSharpFunc());
+
         #endregion Conditional parsing
     }
 }

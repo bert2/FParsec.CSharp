@@ -179,7 +179,7 @@
             => many1(p);
 
         /// <summary>
-        /// The parser `Many(p, c)` parses *zero* or more occurrences of `p` separated by the char
+        /// The parser `Many(p,c)` parses *zero* or more occurrences of `p` separated by the char
         /// `c` (in EBNF notation: `(p (c p)*)?`).
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many<T>(
@@ -188,8 +188,8 @@
             => sepBy(p, pchar<Unit>(sep));
 
         /// <summary>
-        /// The parser `Many(p, s)` parses *zero* or more occurrences of `p` separated by the
-        /// string `s` (in EBNF notation: `(p (s p)*)?`).
+        /// The parser `Many(p,s)` parses *zero* or more occurrences of `p` separated by the string
+        /// `s` (in EBNF notation: `(p (s p)*)?`).
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many<T>(
             FSharpFunc<Chars, Reply<T>> p,
@@ -197,7 +197,7 @@
             => sepBy(p, pstring<Unit>(sep));
 
         /// <summary>
-        /// The parser `Many(p, sep)` parses *zero* or more occurrences of `p` separated by the
+        /// The parser `Many(p,sep)` parses *zero* or more occurrences of `p` separated by the
         /// parser `sep` (in EBNF notation: `(p (sep p)*)?`).
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many<T, TSep>(
@@ -206,8 +206,8 @@
             => sepBy(p, sep);
 
         /// <summary>
-        /// The parser `Many1(p, c)` parses *one* or more occurrences of `p` separated by the
-        /// char `c` (in EBNF notation: `p (c p)*`).
+        /// The parser `Many1(p,c)` parses *one* or more occurrences of `p` separated by the char
+        /// `c` (in EBNF notation: `p (c p)*`).
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T>(
             FSharpFunc<Chars, Reply<T>> p,
@@ -215,8 +215,8 @@
             => sepBy1(p, pchar<Unit>(sep));
 
         /// <summary>
-        /// The parser `Many1(p, s)` parses *one* or more occurrences of `p` separated by the
-        /// string `s` (in EBNF notation: `p (s p)*`).
+        /// The parser `Many1(p,s)` parses *one* or more occurrences of `p` separated by the string
+        /// `s` (in EBNF notation: `p (s p)*`).
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T>(
             FSharpFunc<Chars, Reply<T>> p,
@@ -224,7 +224,7 @@
             => sepBy1(p, pstring<Unit>(sep));
 
         /// <summary>
-        /// The parser `Many1(p, sep)` parses *one* or more occurrences of `p` separated by the
+        /// The parser `Many1(p,sep)` parses *one* or more occurrences of `p` separated by the
         /// parser `sep` (in EBNF notation: `p (sep p)*`).
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T>(
@@ -265,7 +265,7 @@
         /// <para>
         /// If the parser `FollowedBy(p)` fails, it returns no descriptive error message. Hence it
         /// should only be used together with other parsers that take care of a potential error.
-        /// Alternatively, `FollowedBy(p, s)` can be used to ensure a more descriptive error
+        /// Alternatively, `FollowedBy(p,s)` can be used to ensure a more descriptive error
         /// message.
         /// </para>
         /// </summary>
@@ -274,7 +274,7 @@
             => followedBy(p);
 
         /// <summary>
-        /// The parser `FollowedBy(p, s)` behaves like `FollowedBy(p)`, except that it returns an
+        /// The parser `FollowedBy(p,s)` behaves like `FollowedBy(p)`, except that it returns an
         /// `Expected s` error message when the parser `p` fails.
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> FollowedBy<T>(
@@ -291,7 +291,7 @@
         /// <para>
         /// If the parser `NotFollowedBy(p)` fails, it returns no descriptive error message. Hence
         /// it should only be used together with other parsers that take care of a potential error.
-        /// Alternatively, `NotFollowedBy(p, s)` can be used to ensure a more descriptive error
+        /// Alternatively, `NotFollowedBy(p,s)` can be used to ensure a more descriptive error
         /// message.
         /// </para>
         /// </summary>
@@ -300,8 +300,8 @@
             => notFollowedBy(p);
 
         /// <summary>
-        /// The parser `NotFollowedBy(p, s)` behaves like `NotFollowedBy(p)`, except that it
-        /// returns an `Unexpected s` error message when the parser `p` fails.
+        /// The parser `NotFollowedBy(p,s)` behaves like `NotFollowedBy(p)`, except that it returns
+        /// an `Unexpected s` error message when the parser `p` fails.
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> NotFollowedBy<T>(
             FSharpFunc<Chars, Reply<T>> p,
@@ -331,8 +331,8 @@
             => op_BarGreaterGreater(p, FSharpFunc.From<Unit, TResult>(_ => map()));
 
         /// <summary>
-        /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(x, y)`, where
-        /// `x` and `y` are items of the tuple result `(x,y)` returned by `p`.
+        /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(x,y)`, where `x`
+        /// and `y` are items of the tuple result `(x,y)` returned by `p`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<TResult>> Map<T1, T2, TResult>(
             this FSharpFunc<Chars, Reply<(T1, T2)>> p,
@@ -394,6 +394,32 @@
         public static FSharpFunc<Chars, Reply<T>> NotEmpty<T>(
             FSharpFunc<Chars, Reply<T>> p)
             => notEmpty(p);
+
+        /// <summary>
+        /// <para>
+        /// The parser `p.Debug(before,after)` passes the `CharStream` input of `p` to the `before`
+        /// action before applying `p`. Afterwards it passes the reply and the input stream to the
+        /// `after` action, before finally returning the reply.
+        /// </para>
+        /// <para>
+        /// This combinator should only be used for debugging. Hook into your combinator chain at
+        /// arbitrary positions in order to observe stream state and parser replies.
+        /// </para>
+        /// <para>
+        /// You can use empty actions to place break points:
+        /// `Letter.Debug(cs => {}, (cs, r) => {}).And(Digit)`
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Debug<T>(
+            this FSharpFunc<Chars, Reply<T>> p,
+            Action<Chars> before,
+            Action<Chars, Reply<T>> after)
+            => FSharpFunc.From((Chars cs) => {
+                before(cs);
+                var r = p.Invoke(cs);
+                after(cs, r);
+                return r;
+            });
 
         /// <summary>
         /// Flattens the nested tuple `((a,b),c)` to `(a,b,c)`.

@@ -355,9 +355,9 @@
         /// The parser `Many1(p,sep)` parses *one* or more occurrences of `p` separated by the
         /// parser `sep` (in EBNF notation: `p (sep p)*`).
         /// </summary>
-        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T>(
+        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T, TSep>(
             FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<T>> sep)
+            FSharpFunc<Chars, Reply<TSep>> sep)
             => sepBy1(p, sep);
 
         #endregion Repetition

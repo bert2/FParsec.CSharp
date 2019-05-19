@@ -172,6 +172,24 @@ namespace Tests {
             .ParseString("a")
             .ShouldBe('\0');
 
+        [Fact]
+        public void SkipOverOptionalValue() =>
+            Optional(CharP(';'))
+            .ParseString("")
+            .ShouldBe(null);
+
+        [Fact]
+        public void ParseOptionalValueOrDefault() =>
+            Opt(CharP(';'))
+            .ParseString("")
+            .ShouldBe('\0');
+
+        [Fact]
+        public void ParseOptionalValueWithoutUnwrapping() =>
+            Opt_(CharP(';'))
+            .ParseString("")
+            .ShouldBe(FSharpOption<char>.None);
+
         #endregion Combinators
 
         #region Combinators (special)
@@ -360,7 +378,7 @@ namespace Tests {
         [Fact] public void FailFatallyWithMessage() =>
             FailFatally<char>("my error")
             .ParseString("abc")
-            .Status.ShouldBe(ReplyStatus.FatalError);
+            .ShouldBe(ReplyStatus.FatalError);
 
         #endregion Parse errors
 

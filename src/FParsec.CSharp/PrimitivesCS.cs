@@ -276,6 +276,31 @@
             T x)
             => op_LessBarGreaterPercent(p, x);
 
+        /// <summary>
+        /// The parser `Optional(p)` skips over an optional occurrence of `p`. `Optional(p)` is an
+        /// optimized implementation of `p.Return((Unit)null).Or((Unit)null)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> Optional<T>(
+            FSharpFunc<Chars, Reply<T>> p)
+            => optional(p);
+
+        /// <summary>
+        /// The parser `Opt(p)` behaves like `Opt_(p)` but also unwraps the `FSharpOption` value.
+        /// In case `Opt(p)` did not parse anything the result types `default` value is returned.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Opt<T>(
+            FSharpFunc<Chars, Reply<T>> p)
+            => opt(p).Map(x => x.GetValueOrDefault());
+
+        /// <summary>
+        /// The parser `Opt_(p)` parses an optional occurrence of `p` as an `FSharpOption` value.
+        /// `Opt_(p)` is an optimized implementation of
+        /// `p.Map(FSharpOption.Some).Or(FSharpOption.None)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<FSharpOption<T>>> Opt_<T>(
+            FSharpFunc<Chars, Reply<T>> p)
+            => opt(p);
+
         #endregion Choice
 
         #region Repetition

@@ -9,20 +9,19 @@
     using Shouldly;
 
     internal static class Extensions {
+        internal static TResult OkResult<TResult>(this Reply<TResult> reply) {
+            reply.IsOk().ShouldBeTrue(reply.Error.Print());
+            return reply.Result;
+        }
+
         internal static void ShouldBe<TResult>(this Reply<TResult> reply, TResult result)
             => reply.OkResult().ShouldBe(result, reply.Error.Print());
 
         internal static void ShouldBe<TResult>(this Reply<FSharpList<TResult>> reply, params TResult[] results)
             => reply.OkResult().ShouldBe(results.ToFSharpList(), reply.Error.Print());
 
-        internal static TResult OkResult<TResult>(this Reply<TResult> reply) {
-            reply.IsOk().ShouldBeTrue(reply.Error.Print());
-            return reply.Result;
-        }
-
-        internal static void ShouldBe(this Reply<XElement> reply, XElement result) => XNode
-            .DeepEquals(reply.OkResult(), result)
-            .ShouldBeTrue($"\nExpected:\t{result}\nActual:\t\t{reply.Result}");
+        internal static void ShouldBe<T>(this Reply<T> reply, ReplyStatus status)
+            => reply.Status.ShouldBe(status, reply.Error.Print());
 
         internal static void ShouldBe<T, TError>(this Reply<T> reply, string message)
             where TError : ErrorMessage
@@ -67,6 +66,10 @@
             => reply.ShouldBe<XElement, TError>(message);
 
         #endregion Explicit wrappers for ShouldBe<T, TError> to avoid specifying T
+
+        internal static void ShouldBe(this Reply<XElement> reply, XElement result) => XNode
+            .DeepEquals(reply.OkResult(), result)
+            .ShouldBeTrue($"\nExpected:\t{result}\nActual:\t\t{reply.Result}");
 
         internal static string Print(this ErrorMessageList errors) => string.Join(", ", errors
             .AsEnumerable()

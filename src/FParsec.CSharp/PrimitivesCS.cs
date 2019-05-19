@@ -307,58 +307,106 @@
             => many1(p);
 
         /// <summary>
+        /// <para>
         /// The parser `Many(p,c)` parses *zero* or more occurrences of `p` separated by the char
         /// `c` (in EBNF notation: `(p (c p)*)?`).
+        /// </para>
+        /// <para>
+        /// The parser `Many(p,c,true)` parses *zero* or more occurrences of `p` separated and
+        /// optionally ended by `c` (in EBNF notation: `(p (c p)* c?)?`).
+        /// </para>
+        /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many<T>(
             FSharpFunc<Chars, Reply<T>> p,
-            char sep)
-            => sepBy(p, pchar<Unit>(sep));
+            char sep,
+            bool canEndWithSep = false)
+            => canEndWithSep ? sepEndBy(p, pchar<Unit>(sep)) : sepBy(p, pchar<Unit>(sep));
 
         /// <summary>
+        /// <para>
         /// The parser `Many(p,s)` parses *zero* or more occurrences of `p` separated by the string
         /// `s` (in EBNF notation: `(p (s p)*)?`).
+        /// </para>
+        /// <para>
+        /// The parser `Many(p,s,true)` parses *zero* or more occurrences of `p` separated and
+        /// optionally ended by `s` (in EBNF notation: `(p (s p)* s?)?`).
+        /// </para>
+        /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many<T>(
             FSharpFunc<Chars, Reply<T>> p,
-            string sep)
-            => sepBy(p, pstring<Unit>(sep));
+            string sep,
+            bool canEndWithSep = false)
+            => canEndWithSep ? sepEndBy(p, pstring<Unit>(sep)) : sepBy(p, pstring<Unit>(sep));
 
         /// <summary>
+        /// <para>
         /// The parser `Many(p,sep)` parses *zero* or more occurrences of `p` separated by the
         /// parser `sep` (in EBNF notation: `(p (sep p)*)?`).
+        /// </para>
+        /// <para>
+        /// The parser `Many(p,sep,true)` parses *zero* or more occurrences of `p` separated and
+        /// optionally ended by `sep` (in EBNF notation: `(p (sep p)* sep?)?`).
+        /// </para>
+        /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many<T, TSep>(
             FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TSep>> sep)
-            => sepBy(p, sep);
+            FSharpFunc<Chars, Reply<TSep>> sep,
+            bool canEndWithSep = false)
+            => canEndWithSep ? sepEndBy(p, sep) : sepBy(p, sep);
 
         /// <summary>
+        /// <para>
         /// The parser `Many1(p,c)` parses *one* or more occurrences of `p` separated by the char
         /// `c` (in EBNF notation: `p (c p)*`).
+        /// </para>
+        /// <para>
+        /// The parser `Many1(p,c,true)` parses *one* or more occurrences of `p` separated and
+        /// optionally ended by `c` (in EBNF notation: `p (c p)* c?`).
+        /// </para>
+        /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T>(
             FSharpFunc<Chars, Reply<T>> p,
-            char sep)
-            => sepBy1(p, pchar<Unit>(sep));
+            char sep,
+            bool canEndWithSep = false)
+            => canEndWithSep ? sepEndBy1(p, pchar<Unit>(sep)) : sepBy1(p, pchar<Unit>(sep));
 
         /// <summary>
+        /// <para>
         /// The parser `Many1(p,s)` parses *one* or more occurrences of `p` separated by the string
         /// `s` (in EBNF notation: `p (s p)*`).
+        /// </para>
+        /// <para>
+        /// The parser `Many1(p,s,true)` parses *one* or more occurrences of `p` separated and
+        /// optionally ended by `s` (in EBNF notation: `p (s p)* s?`).
+        /// </para>
+        /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T>(
             FSharpFunc<Chars, Reply<T>> p,
-            string sep)
-            => sepBy1(p, pstring<Unit>(sep));
+            string sep,
+            bool canEndWithSep = false)
+            => canEndWithSep ? sepEndBy1(p, pstring<Unit>(sep)) : sepBy1(p, pstring<Unit>(sep));
 
         /// <summary>
+        /// <para>
         /// The parser `Many1(p,sep)` parses *one* or more occurrences of `p` separated by the
         /// parser `sep` (in EBNF notation: `p (sep p)*`).
+        /// </para>
+        /// <para>
+        /// The parser `Many1(p,sep,true)` parses *one* or more occurrences of `p` separated and
+        /// optionally ended by `sep` (in EBNF notation: `p (sep p)* sep?`).
+        /// </para>
+        /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T, TSep>(
             FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TSep>> sep)
-            => sepBy1(p, sep);
+            FSharpFunc<Chars, Reply<TSep>> sep,
+            bool canEndWithSep = false)
+            => canEndWithSep ? sepEndBy1(p, sep) : sepBy1(p, sep);
 
         #endregion Repetition
 

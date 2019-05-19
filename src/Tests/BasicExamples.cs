@@ -338,6 +338,12 @@ namespace Tests {
             .ParseString("a,b,c")
             .ShouldBe('a', 'b', 'c');
 
+        [Fact]
+        public void CommaSeparatedWithTrailingComma() =>
+            Many(AnyChar, sep: ',', canEndWithSep: true)
+            .ParseString("a,b,c,")
+            .ShouldBe('a', 'b', 'c');
+
         #endregion Repetitions
 
         #region Parse errors

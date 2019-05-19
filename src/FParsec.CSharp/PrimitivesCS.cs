@@ -433,6 +433,93 @@
             bool canEndWithSep = false)
             => canEndWithSep ? sepEndBy1(p, sep) : sepBy1(p, sep);
 
+        /// <summary>
+        /// <para>
+        /// The parser `ManyTill(p,endp)` repeatedly applies the parser `p` for as long as `endp`
+        /// fails (without changing the parser state).
+        /// </para>
+        /// <para>It returns a list of the results returned by `p`.</para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<FSharpList<T>>> ManyTill<T, TEnd>(
+            FSharpFunc<Chars, Reply<T>> p,
+            FSharpFunc<Chars, Reply<TEnd>> end)
+            => manyTill(p, end);
+
+        /// <summary>
+        /// <para>
+        /// The parser `Many1Till(p,endp)` behaves like `manyTill(p,endp)`, except that it requires
+        /// `p` to succeed at least one time.
+        /// </para>
+        /// <para>
+        /// `Many1Till(p,endp)` is an optimized implementation of
+        /// `Pipe(p, ManyTill(p,endp), FSharpList.Cons)`.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1Till<T, TEnd>(
+            FSharpFunc<Chars, Reply<T>> p,
+            FSharpFunc<Chars, Reply<TEnd>> end)
+            => many1Till(p, end);
+
+        /// <summary>
+        /// <para>
+        /// The parser `ChainL1(p,op)` parses one or more occurrences of `p` separated by `op` (in
+        /// EBNF notation: `p (op p)*`).
+        /// </para>
+        /// <para>
+        /// It returns the value obtained by *left* associative application of all functions
+        /// returned by `op` to the results returned by `p`, i.e.
+        /// `f_n (... (f_2 (f_1 x_1 x_2) x_3) ...) x_n+1`, where `f_1` to `f_n` are the functions
+        /// returned by the parser `op` and `x_1` to `x_n+1` are the values returned by `p`.
+        /// </para>
+        /// <para>
+        /// If only a single occurance of `p` and no occurance of `op` is parsed, the result of `p`
+        /// is returned directly.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> ChainL1<T>(
+            FSharpFunc<Chars, Reply<T>> p,
+            FSharpFunc<Chars, Reply<Func<T, T, T>>> op)
+            => chainl1(p, op.Map(f => f.ToFSharpFunc()));
+
+        /// <summary>
+        /// The parser `ChainL(p,op,x)` is equivalent to `ChainL1(p,op).Or(x)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> ChainL<T>(
+            FSharpFunc<Chars, Reply<T>> p,
+            FSharpFunc<Chars, Reply<Func<T, T, T>>> op,
+            T defaultVal)
+            => chainl(p, op.Map(f => f.ToFSharpFunc()), defaultVal);
+
+        /// <summary>
+        /// <para>
+        /// The parser `ChainR1(p,op)` parses one or more occurrences of `p` separated by `op` (in
+        /// EBNF notation: `p (op p)*`).
+        /// </para>
+        /// <para>
+        /// It returns the value obtained by *right* associative application of all functions
+        /// returned by `op` to the results returned by `p`, i.e.
+        /// `f1 x_1 (f_2 x_2 (... (f_n x_n x_n+1) ...))`, where `f_1` to `f_n` are the functions
+        /// returned by the parser `op` and `x_1` to `x_n+1` are the values returned by `p`.
+        /// </para>
+        /// <para>
+        /// If only a single occurance of `p` and no occurance of `op` is parsed, the result of `p`
+        /// is returned directly.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> ChainR1<T>(
+            FSharpFunc<Chars, Reply<T>> p,
+            FSharpFunc<Chars, Reply<Func<T, T, T>>> op)
+            => chainr1(p, op.Map(f => f.ToFSharpFunc()));
+
+        /// <summary>
+        /// The parser `ChainR(p,op,x)` is equivalent to `ChainR1(p,op).Or(x)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> ChainR<T>(
+            FSharpFunc<Chars, Reply<T>> p,
+            FSharpFunc<Chars, Reply<Func<T, T, T>>> op,
+            T defaultVal)
+            => chainr(p, op.Map(f => f.ToFSharpFunc()), defaultVal);
+
         #endregion Repetition
 
         #region Backtracking
@@ -533,6 +620,17 @@
         public static FSharpFunc<Chars, Reply<TResult>> Return<T, TResult>(
             this FSharpFunc<Chars, Reply<T>> p,
             TResult result)
+            => op_GreaterGreaterPercent(p, result);
+
+        /// <summary>
+        /// <para>
+        /// The parser `p.Return(f)` applies the parser `p` and returns the binary operation `f`.
+        /// </para>
+        /// <para>`p.Return(f)` is mainly just a helper for `ChainL()` and `ChainL1()`.</para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Func<TOp, TOp, TOp>>> Return<T, TOp>(
+            this FSharpFunc<Chars, Reply<T>> p,
+            Func<TOp, TOp, TOp> result)
             => op_GreaterGreaterPercent(p, result);
 
         /// <summary>

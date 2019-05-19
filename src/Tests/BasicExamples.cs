@@ -192,6 +192,70 @@ namespace Tests {
 
         #endregion Combinators
 
+        #region Repetitions
+
+        [Fact]
+        public void ZeroOrMoreOfChar() =>
+            Many(CharP('a'))
+            .ParseString("aaa")
+            .ShouldBe('a', 'a', 'a');
+
+        [Fact]
+        public void OneOrMoreOfChar() =>
+            Many1(CharP('a'))
+            .ParseString("aaa")
+            .ShouldBe('a', 'a', 'a');
+
+        [Fact]
+        public void CommaSeparatedChars() =>
+            Many(AnyChar, sep: ',')
+            .ParseString("a,b,c")
+            .ShouldBe('a', 'b', 'c');
+
+        [Fact]
+        public void StringSeparatedChars() =>
+            Many(AnyChar, sep: " - ")
+            .ParseString("a - b - c")
+            .ShouldBe('a', 'b', 'c');
+
+        [Fact]
+        public void ParserSeparatedChars() =>
+            Many(AnyChar, sep: CharP(char.IsDigit))
+            .ParseString("a1b2c")
+            .ShouldBe('a', 'b', 'c');
+
+        [Fact]
+        public void CommaSeparatedCharsAtLeastOne() =>
+            Many1(AnyChar, sep: ',')
+            .ParseString("a,b,c")
+            .ShouldBe('a', 'b', 'c');
+
+        [Fact]
+        public void CommaSeparatedWithTrailingComma() =>
+            Many(AnyChar, sep: ',', canEndWithSep: true)
+            .ParseString("a,b,c,")
+            .ShouldBe('a', 'b', 'c');
+
+        [Fact]
+        public void ParseUntilEndingIsParsed() =>
+            ManyTill(NoneOf(".!?"), AnyOf(".!?")).Map(string.Concat)
+            .ParseString("Hello world!")
+            .ShouldBe("Hello world");
+
+        [Fact]
+        public void ComputeExpressionDuringParsing() {
+            var op = OneOf(
+                CharP('+').Return((int x, int y) => x + y),
+                CharP('-').Return((int x, int y) => x - y));
+
+            ChainL1(Int, op)
+            .ParseString("1+2+3-4+5-6")
+            .ShouldBe(1);
+        }
+
+
+        #endregion Repetitions
+
         #region Combinators (special)
 
         [Fact]
@@ -317,52 +381,6 @@ namespace Tests {
         }
 
         #endregion Combinators (backtracking, looking ahead & conditional parsing)
-
-        #region Repetitions
-
-        [Fact]
-        public void ZeroOrMoreOfChar() =>
-            Many(CharP('a'))
-            .ParseString("aaa")
-            .ShouldBe('a', 'a', 'a');
-
-        [Fact]
-        public void OneOrMoreOfChar() =>
-            Many1(CharP('a'))
-            .ParseString("aaa")
-            .ShouldBe('a', 'a', 'a');
-
-        [Fact]
-        public void CommaSeparatedChars() =>
-            Many(AnyChar, sep: ',')
-            .ParseString("a,b,c")
-            .ShouldBe('a', 'b', 'c');
-
-        [Fact]
-        public void StringSeparatedChars() =>
-            Many(AnyChar, sep: " - ")
-            .ParseString("a - b - c")
-            .ShouldBe('a', 'b', 'c');
-
-        [Fact]
-        public void ParserSeparatedChars() =>
-            Many(AnyChar, sep: CharP(char.IsDigit))
-            .ParseString("a1b2c")
-            .ShouldBe('a', 'b', 'c');
-
-        [Fact]
-        public void CommaSeparatedCharsAtLeastOne() =>
-            Many1(AnyChar, sep: ',')
-            .ParseString("a,b,c")
-            .ShouldBe('a', 'b', 'c');
-
-        [Fact]
-        public void CommaSeparatedWithTrailingComma() =>
-            Many(AnyChar, sep: ',', canEndWithSep: true)
-            .ParseString("a,b,c,")
-            .ShouldBe('a', 'b', 'c');
-
-        #endregion Repetitions
 
         #region Parse errors
 

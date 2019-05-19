@@ -1,5 +1,4 @@
 mode: Mainline
-next-version: 0.1.0
-branches: {}
-ignore:
-  sha: []
+branches:
+  master:
+    increment: Minor

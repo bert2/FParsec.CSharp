@@ -149,7 +149,6 @@ namespace Tests {
             .ParseString("12 34.5 28")
             .ShouldBe(74.5);
 
-
         #endregion Combinators (sequence)
 
         #region Combinators (choice)
@@ -271,7 +270,6 @@ namespace Tests {
             .ShouldBe(1);
         }
 
-
         #endregion Repetitions
 
         #region Combinators (special)
@@ -322,7 +320,6 @@ namespace Tests {
             NotEmpty(Many(AnyChar))
             .ParseString("")
             .ShouldBe<ErrorMessage.Expected>("any char");
-
 
         #endregion Combinators (special)
 

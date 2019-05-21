@@ -286,11 +286,20 @@
 
         /// <summary>
         /// The parser `Opt(p)` behaves like `Opt_(p)` but also unwraps the `FSharpOption` value.
-        /// In case `Opt(p)` did not parse anything the result types `default` value is returned.
+        /// In case `Opt(p)` did not parse anything the result type's `default` value is returned.
         /// </summary>
         public static FSharpFunc<Chars, Reply<T>> Opt<T>(
             FSharpFunc<Chars, Reply<T>> p)
             => opt(p).Map(x => x.GetValueOrDefault());
+
+        /// <summary>
+        /// The parser `Opt(p,d)` behaves like `Opt_(p)` but also unwraps the `FSharpOption` value.
+        /// In case `Opt(p,d)` did not parse anything then `d` is returned.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Opt<T>(
+            FSharpFunc<Chars, Reply<T>> p,
+            T defaultValue)
+            => opt(p).Map(x => x.GetValueOrDefault(defaultValue));
 
         /// <summary>
         /// The parser `Opt_(p)` parses an optional occurrence of `p` as an `FSharpOption` value.

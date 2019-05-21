@@ -179,10 +179,22 @@ namespace Tests {
             .ShouldBe(null);
 
         [Fact]
-        public void ParseOptionalValueOrDefault() =>
-            Opt(CharP(';'))
+        public void ParseOptionalValue() =>
+            Opt(CharP('a'))
+            .ParseString("a")
+            .ShouldBe('a');
+
+        [Fact]
+        public void ParseMissingOptional() =>
+            Opt(CharP('a'))
             .ParseString("")
             .ShouldBe('\0');
+
+        [Fact]
+        public void ParseMissingOptionalWithDefault() =>
+            Opt(CharP('a'), defaultValue: 'x')
+            .ParseString("")
+            .ShouldBe('x');
 
         [Fact]
         public void ParseOptionalValueWithoutUnwrapping() =>

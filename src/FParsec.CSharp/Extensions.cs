@@ -25,7 +25,10 @@
 
         public static FSharpList<T> ToFSharpList<T>(this IEnumerable<T> source) => ListModule.OfSeq(source);
 
-        public static T GetValueOrDefault<T>(this FSharpOption<T> opt) => FSharpOption<T>.get_IsSome(opt)? opt.Value : default;
+        public static T GetValueOrDefault<T>(
+            this FSharpOption<T> opt,
+            T defaultValue = default)
+            => FSharpOption<T>.get_IsSome(opt)? opt.Value : defaultValue;
 
         public static bool IsOk<T>(this Reply<T> reply) => reply.Status == ReplyStatus.Ok;
 

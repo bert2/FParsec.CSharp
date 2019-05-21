@@ -269,6 +269,14 @@
             => choice(ps);
 
         /// <summary>
+        /// The parser `Choice(ps,s)` is an optimized implementation of `Choice(ps).Label(s)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Choice<T>(
+            string label,
+            params FSharpFunc<Chars, Reply<T>>[] ps)
+            => choiceL(ps, label);
+
+        /// <summary>
         /// The parser `p.Or(x)` is an optimized implementation of `p.Or(Return(x))`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<T>> Or<T>(

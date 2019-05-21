@@ -26,24 +26,26 @@
 
         // Control structures
 
-        public static ProtoState MakeChar(char c) => exit => new CharS(c, exit);
-        public static ProtoState MakeAnyChar() => exit => new AnyCharS(exit);
-        public static ProtoState MakeCharRange(char min, char max) => exit => new CharRange(min, max, exit);
+        public static ProtoState MakeChar(char c) => Accept(new CharL(c));
+        public static ProtoState MakeAnyChar() => Accept(new AnyCharL());
+        public static ProtoState MakeCharRange(char min, char max) => Accept(new CharRangeL(min, max));
         public static ProtoState MakeAlternation(ProtoState left, ProtoState right) => Branch(left, right);
         public static ProtoState MakeZeroOrOne(ProtoState body) => Branch(body, Zero);
-        public static ProtoState MakeZeroOrMore(ProtoState body) => exit => Loop(body, exit).loop;
-        public static ProtoState MakeOneOrMore(ProtoState body) => exit => Loop(body, exit).body;
+        public static ProtoState MakeZeroOrMore(ProtoState body) => Loop(body);
+        public static ProtoState MakeOneOrMore(ProtoState body) => Loop(body, atLeastOnce: true);
 
         // Generalizations
 
+        public static ProtoState Accept(ILetter letter) => exit => new State(letter, exit);
+
         public static ProtoState Branch(ProtoState left, ProtoState right) => exit => new Split(left(exit), right(exit));
 
-        public static (IState body, Split loop) Loop(ProtoState body, IState exit) {
-            IState enter = null;
-            var loop = new Split(() => enter, exit);
-            enter = body(loop);
-            return (enter, loop);
-        }
+        public static ProtoState Loop(ProtoState body, bool atLeastOnce = false) => exit => {
+            IState _body = null;
+            var loop = new Split(() => _body, exit);
+            _body = body(loop);
+            return atLeastOnce ? _body : loop;
+        };
     }
 
     public interface IState {
@@ -56,31 +58,13 @@
         IEnumerable<IState> Expand(HashSet<IState> visited);
     }
 
-    public class CharS : IState {
-        private readonly char c;
+    public class State : IState {
+        private readonly ILetter letter;
         private readonly IState next;
-        public CharS(char c, IState next) { this.c = c; this.next = next; }
-        public IEnumerable<IState> Consume(char c) { if (this.c == c) yield return next; }
+        public State(ILetter letter, IState next) { this.letter = letter; this.next = next; }
+        public IEnumerable<IState> Consume(char c) { if (letter.Matches(c)) yield return next; }
         public IEnumerable<IState> Expand(HashSet<IState> visited) { yield return this; }
-        public override string ToString() => $"Char('{c}')";
-    }
-
-    public class AnyCharS : IState {
-        private readonly IState next;
-        public AnyCharS(IState next) => this.next = next;
-        public IEnumerable<IState> Consume(char c) { yield return next; }
-        public IEnumerable<IState> Expand(HashSet<IState> visited) { yield return this; }
-        public override string ToString() => "AnyChar";
-    }
-
-    public class CharRange : IState {
-        private readonly char min;
-        private readonly char max;
-        private readonly IState next;
-        public CharRange(char min, char max, IState next) { this.min = min; this.max = max; this.next = next; }
-        public IEnumerable<IState> Consume(char c) { if (min <= c && c <= max) yield return next; }
-        public IEnumerable<IState> Expand(HashSet<IState> visited) { yield return this; }
-        public override string ToString() => $"CharRange('{min}'-'{max}')";
+        public override string ToString() => letter.ToString();
     }
 
     public class Split : IState {
@@ -100,5 +84,29 @@
         public IEnumerable<IState> Consume(char c) { yield break; }
         public IEnumerable<IState> Expand(HashSet<IState> visited) { yield return this; }
         public override string ToString() => "Final";
+    }
+
+    public interface ILetter {
+        bool Matches(char c);
+    }
+
+    public class CharL : ILetter {
+        private readonly char c;
+        public CharL(char c) => this.c = c;
+        public bool Matches(char c) => c == this.c;
+        public override string ToString() => $"Char('{c}')";
+    }
+
+    public class AnyCharL : ILetter {
+        public bool Matches(char c) => true;
+        public override string ToString() => "AnyChar";
+    }
+
+    public class CharRangeL : ILetter {
+        private readonly char min;
+        private readonly char max;
+        public CharRangeL(char min, char max) { this.min = min; this.max = max; }
+        public bool Matches(char c) => min <= c && c <= max;
+        public override string ToString() => $"CharRange('{min}'-'{max}')";
     }
 }

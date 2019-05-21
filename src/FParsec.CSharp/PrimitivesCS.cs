@@ -264,7 +264,7 @@
         /// The parser `OneOf(ps)` is an optimized implementation of `p1.Or(p2).Or(...).Or(pn)`,
         /// where `p1` ... `pn` are the parsers in the sequence `ps`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> OneOf<T>(
+        public static FSharpFunc<Chars, Reply<T>> Choice<T>(
             params FSharpFunc<Chars, Reply<T>>[] ps)
             => choice(ps);
 

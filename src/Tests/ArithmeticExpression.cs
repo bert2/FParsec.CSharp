@@ -25,7 +25,7 @@
             .WithOperators(ops => ops
                 .AddInfix("+", 1, (x, y) => x + y)
                 .AddInfix("*", 2, (x, y) => x * y))
-            .WithTerms(term => OneOf(Integer, Between('(', term, ')')))
+            .WithTerms(term => Choice(Integer, Between('(', term, ')')))
             .Build()
             .ExpressionParser;
 
@@ -40,7 +40,7 @@
                     .AddInfix("^", 30, Associativity.Right, WS, (x, y) => (int)Math.Pow(x, y))
                     .AddPostfix("!", 40, Factorial))
                 .WithImplicitOperator(20, (x, y) => x * y)
-                .WithTerms(term => OneOf(
+                .WithTerms(term => Choice(
                     Integer.And(WS),
                     Between(CharP('(').And(WS), term, CharP(')').And(WS))))
                 .Build()

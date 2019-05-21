@@ -9,7 +9,7 @@
 
     public class GlobPattern {
         private static readonly FSharpFunc<CharStream<Unit>, Reply<IState>> GlobParser =
-            Many(OneOf(
+            Many(Choice(
                 Skip('?').Map(NFA.MakeAnyChar),
                 Skip('*').Map(NFA.MakeAnyChar).Map(NFA.MakeZeroOrMore),
                 Between('[', AnyChar.And(Skip('-')).And(AnyChar), ']').Lbl("character range").Map(NFA.MakeCharRange),

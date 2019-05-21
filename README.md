@@ -104,7 +104,7 @@ var objProps = Many(jprop, sep: CharP(',').And(WS));
 var jobject = Between(CharP('{').And(WS), objProps, CharP('}'))
     .Map(props => (object)new JObject(props));
 
-jvalue = OneOf(jnum, jbool, jnull, jstring, jarray, jobject).And(WS);
+jvalue = Choice(jnum, jbool, jnull, jstring, jarray, jobject).And(WS);
 
 var simpleJsonParser = WS.And(jobject).And(WS).And(EOF).Map(o => (JObject)o);
 ```
@@ -147,7 +147,7 @@ var simpleXmlParser = element.And(WS).And(EOF);
 
 ```C#
 var globParser =
-    Many(OneOf(
+    Many(Choice(
         Skip('?').Map(NFA.MakeAnyChar),
         Skip('*').Map(NFA.MakeAnyChar).Map(NFA.MakeZeroOrMore),
         Between('[', AnyChar.And(Skip('-')).And(AnyChar), ']').Map(NFA.MakeCharRange),
@@ -184,7 +184,7 @@ var recursiveExprParser = new OPPBuilder<int, Unit>()
     .WithOperators(ops => ops
         .AddInfix("+", 1, (x, y) => x + y)
         .AddInfix("*", 2, (x, y) => x * y))
-    .WithTerms(term => OneOf(Integer, Between('(', term, ')')))
+    .WithTerms(term => Choice(Integer, Between('(', term, ')')))
     .Build()
     .ExpressionParser;
 ```
@@ -203,7 +203,7 @@ var exprParser =
             .AddInfix("^", 30, Associativity.Right, WS, (x, y) => (int)Math.Pow(x, y))
             .AddPostfix("!", 40, Factorial))
         .WithImplicitOperator(20, (x, y) => x * y)
-        .WithTerms(term => OneOf(
+        .WithTerms(term => Choice(
             Integer.And(WS),
             Between(CharP('(').And(WS), term, CharP(')').And(WS))))
         .Build()
@@ -227,7 +227,7 @@ var simpleRegexParser =
             var group = Between('(', Many(matchExpr), ')');
             var wildcard = Skip('.');
             var charMatch = NoneOf("*+?|()");
-            return OneOf(
+            return Choice(
                 group.Map(NFA.Concat),
                 wildcard.Map(NFA.MakeAnyChar),
                 charMatch.Map(NFA.MakeChar));

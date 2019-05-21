@@ -20,7 +20,7 @@
                     var group = Between('(', Many(matchExpr), ')');
                     var wildcard = Skip('.');
                     var charMatch = NoneOf("*+?|()");
-                    return OneOf(
+                    return Choice(
                         group.Map(NFA.Concat),
                         wildcard.Map(NFA.MakeAnyChar),
                         charMatch.Map(NFA.MakeChar));

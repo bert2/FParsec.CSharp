@@ -41,7 +41,7 @@
                 .Map(props => (object)new JObject(props))
                 .Lbl("object");
 
-            jvalue = OneOf(jnum, jbool, jnull, jstring, jarray, jobject).And(WS);
+            jvalue = Choice(jnum, jbool, jnull, jstring, jarray, jobject).And(WS);
 
             SimpleJsonParser = WS.And(jobject).And(WS).And(EOF).Map(o => (JObject)o);
         }

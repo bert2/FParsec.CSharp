@@ -162,7 +162,7 @@ namespace Tests {
 
         [Fact]
         public void OneOfMultipleChars() =>
-            OneOf(CharP('a'), CharP('b'), CharP('c'))
+            Choice(CharP('a'), CharP('b'), CharP('c'))
             .ParseString("b")
             .ShouldBe('b');
 
@@ -250,7 +250,7 @@ namespace Tests {
 
         [Fact]
         public void ComputeExpressionDuringParsing() {
-            var op = OneOf(
+            var op = Choice(
                 CharP('+').Return((int x, int y) => x + y),
                 CharP('-').Return((int x, int y) => x - y));
 
@@ -375,7 +375,7 @@ namespace Tests {
 
         [Fact]
         public void LookBehind() {
-            var tagType = OneOf(
+            var tagType = Choice(
                 PreviousCharSatisfies(c => c == '/').Return("self-closing tag"),
                 Return("opening tag"));
 

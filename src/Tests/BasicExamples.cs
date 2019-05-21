@@ -243,6 +243,12 @@ namespace Tests {
             .ShouldBe("Hello world");
 
         [Fact]
+        public void SkipManyCommaSeparated() =>
+            SkipMany(Letter, sep: ',')
+            .ParseString("a,b,c")
+            .ShouldBe(null);
+
+        [Fact]
         public void ComputeExpressionDuringParsing() {
             var op = OneOf(
                 CharP('+').Return((int x, int y) => x + y),

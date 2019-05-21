@@ -324,14 +324,6 @@
             => many(p);
 
         /// <summary>
-        /// The parser `Many1(p)` behaves like `Many(p)`, except that it requires `p` to succeed at
-        /// least one time.
-        /// </summary>
-        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T>(
-            FSharpFunc<Chars, Reply<T>> p)
-            => many1(p);
-
-        /// <summary>
         /// <para>
         /// The parser `Many(p,c)` parses *zero* or more occurrences of `p` separated by the char
         /// `c` (in EBNF notation: `(p (c p)*)?`).
@@ -381,6 +373,48 @@
             FSharpFunc<Chars, Reply<TSep>> sep,
             bool canEndWithSep = false)
             => canEndWithSep ? sepEndBy(p, sep) : sepBy(p, sep);
+
+        /// <summary>
+        /// The parser `SkipMany(p)` is an optimized implementation of `Skip(Many(p))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipMany<T>(
+            FSharpFunc<Chars, Reply<T>> p)
+            => skipMany(p);
+
+        /// <summary>
+        /// The parser `SkipMany(p,c)` is an optimized implementation of `Skip(Many(p,c))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipMany<T>(
+            FSharpFunc<Chars, Reply<T>> p,
+            char sep,
+            bool canEndWithSep = false)
+            => canEndWithSep ? skipSepEndBy(p, pchar<Unit>(sep)) : skipSepBy(p, pchar<Unit>(sep));
+
+        /// <summary>
+        /// The parser `SkipMany(p,s)` is an optimized implementation of `Skip(Many(p,s))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipMany<T>(
+            FSharpFunc<Chars, Reply<T>> p,
+            string sep,
+            bool canEndWithSep = false)
+            => canEndWithSep ? skipSepEndBy(p, pstring<Unit>(sep)) : skipSepBy(p, pstring<Unit>(sep));
+
+        /// <summary>
+        /// The parser `SkipMany(p,sep)` is an optimized implementation of `Skip(Many(p,sep))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipMany<T, TSep>(
+            FSharpFunc<Chars, Reply<T>> p,
+            FSharpFunc<Chars, Reply<TSep>> sep,
+            bool canEndWithSep = false)
+            => canEndWithSep ? skipSepEndBy(p, sep) : skipSepBy(p, sep);
+
+        /// <summary>
+        /// The parser `Many1(p)` behaves like `Many(p)`, except that it requires `p` to succeed at
+        /// least one time.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T>(
+            FSharpFunc<Chars, Reply<T>> p)
+            => many1(p);
 
         /// <summary>
         /// <para>
@@ -434,6 +468,40 @@
             => canEndWithSep ? sepEndBy1(p, sep) : sepBy1(p, sep);
 
         /// <summary>
+        /// The parser `SkipMany1(p)` is an optimized implementation of `Skip(Many1(p))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1<T>(
+            FSharpFunc<Chars, Reply<T>> p)
+            => skipMany1(p);
+
+        /// <summary>
+        /// The parser `SkipMany1(p,c)` is an optimized implementation of `Skip(Many1(p,c))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1<T>(
+            FSharpFunc<Chars, Reply<T>> p,
+            char sep,
+            bool canEndWithSep = false)
+            => canEndWithSep ? skipSepEndBy1(p, pchar<Unit>(sep)) : skipSepBy1(p, pchar<Unit>(sep));
+
+        /// <summary>
+        /// The parser `SkipMany1(p,s)` is an optimized implementation of `Skip(Many1(p,s))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1<T>(
+            FSharpFunc<Chars, Reply<T>> p,
+            string sep,
+            bool canEndWithSep = false)
+            => canEndWithSep ? skipSepEndBy1(p, pstring<Unit>(sep)) : skipSepBy1(p, pstring<Unit>(sep));
+
+        /// <summary>
+        /// The parser `SkipMany1(p,sep)` is an optimized implementation of `Skip(Many1(p,sep))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1<T, TSep>(
+            FSharpFunc<Chars, Reply<T>> p,
+            FSharpFunc<Chars, Reply<TSep>> sep,
+            bool canEndWithSep = false)
+            => canEndWithSep ? skipSepEndBy1(p, sep) : skipSepBy1(p, sep);
+
+        /// <summary>
         /// <para>
         /// The parser `ManyTill(p,endp)` repeatedly applies the parser `p` for as long as `endp`
         /// fails (without changing the parser state).
@@ -444,6 +512,15 @@
             FSharpFunc<Chars, Reply<T>> p,
             FSharpFunc<Chars, Reply<TEnd>> end)
             => manyTill(p, end);
+
+        /// <summary>
+        /// The parser `SkipManyTill(p,endp)` is an optimized implementation of
+        /// `Skip(ManyTill(p,endp))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipManyTill<T, TEnd>(
+            FSharpFunc<Chars, Reply<T>> p,
+            FSharpFunc<Chars, Reply<TEnd>> end)
+            => skipManyTill(p, end);
 
         /// <summary>
         /// <para>
@@ -459,6 +536,15 @@
             FSharpFunc<Chars, Reply<T>> p,
             FSharpFunc<Chars, Reply<TEnd>> end)
             => many1Till(p, end);
+
+        /// <summary>
+        /// The parser `SkipMany1Till(p,endp)` is an optimized implementation of
+        /// `Skip(Many1Till(p,endp))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1Till<T, TEnd>(
+            FSharpFunc<Chars, Reply<T>> p,
+            FSharpFunc<Chars, Reply<TEnd>> end)
+            => skipMany1Till(p, end);
 
         /// <summary>
         /// <para>
@@ -626,7 +712,7 @@
         /// <para>
         /// The parser `p.Return(f)` applies the parser `p` and returns the binary operation `f`.
         /// </para>
-        /// <para>`p.Return(f)` is mainly just a helper for `ChainL()` and `ChainL1()`.</para>
+        /// <para>`p.Return(f)` is a helper for `ChainL()` and `ChainR()`.</para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<Func<TOp, TOp, TOp>>> Return<T, TOp>(
             this FSharpFunc<Chars, Reply<T>> p,

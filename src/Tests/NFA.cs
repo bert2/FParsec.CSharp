@@ -4,7 +4,7 @@
     using System.Linq;
 
     public static class NFA {
-        // Executing the NFA
+        // NFA execution
 
         public static bool IsMatch(IState start, string text) => text
             .Aggregate(
@@ -17,27 +17,16 @@
 
         public static bool Matches(this IState start, string text) => IsMatch(start, text);
 
-        // Monoid implemention
+        // Monoid implemention for lazy construction
 
         public delegate IState ProtoState(IState exit);
         public static readonly ProtoState Zero = exit => exit;
         public static ProtoState Connect(ProtoState first, ProtoState second) => exit => first(second(exit));
         public static ProtoState Concat(IEnumerable<ProtoState> protos) => protos.Aggregate(Zero, Connect);
 
-        // Control structures
-
-        public static ProtoState MakeChar(char c) => Accept(new CharL(c));
-        public static ProtoState MakeAnyChar() => Accept(new AnyCharL());
-        public static ProtoState MakeCharRange(char min, char max) => Accept(new CharRangeL(min, max));
-        public static ProtoState MakeAlternation(ProtoState left, ProtoState right) => Branch(left, right);
-        public static ProtoState MakeZeroOrOne(ProtoState body) => Branch(body, Zero);
-        public static ProtoState MakeZeroOrMore(ProtoState body) => Loop(body);
-        public static ProtoState MakeOneOrMore(ProtoState body) => Loop(body, atLeastOnce: true);
-
-        // Generalizations
+        // NFA construction
 
         public static ProtoState Accept(ILetter letter) => exit => new State(letter, exit);
-
         public static ProtoState Branch(ProtoState left, ProtoState right) => exit => new Split(left(exit), right(exit));
 
         public static ProtoState Loop(ProtoState body, bool atLeastOnce = false) => exit => {
@@ -46,6 +35,14 @@
             _body = body(loop);
             return atLeastOnce ? _body : loop;
         };
+
+        public static ProtoState MakeChar(char c) => Accept(new CharL(c));
+        public static ProtoState MakeAnyChar() => Accept(new AnyCharL());
+        public static ProtoState MakeCharRange(char min, char max) => Accept(new CharRangeL(min, max));
+        public static ProtoState MakeAlternation(ProtoState left, ProtoState right) => Branch(left, right);
+        public static ProtoState MakeZeroOrOne(ProtoState body) => Branch(body, Zero);
+        public static ProtoState MakeZeroOrMore(ProtoState body) => Loop(body);
+        public static ProtoState MakeOneOrMore(ProtoState body) => Loop(body, atLeastOnce: true);
     }
 
     public interface IState {
@@ -86,9 +83,7 @@
         public override string ToString() => "Final";
     }
 
-    public interface ILetter {
-        bool Matches(char c);
-    }
+    public interface ILetter { bool Matches(char c); }
 
     public class CharL : ILetter {
         private readonly char c;

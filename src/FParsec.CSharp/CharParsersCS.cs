@@ -58,16 +58,31 @@
         public static FSharpFunc<Chars, Reply<char>> Letter => letter<Unit>();
 
         /// <summary>
+        /// Parses any char in the range 'a' - 'z' and 'A' - 'Z'. Returns the parsed char.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> AsciiLetter => asciiLetter<Unit>();
+
+        /// <summary>
         /// Parses any UTF-16 uppercase letter char identified by `System.Char.IsUpper`. Returns
         /// the parsed char.
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> Upper => upper<Unit>();
 
         /// <summary>
+        /// Parses any char in the range 'A' - 'Z'. Returns the parsed char.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> AsciiUpper => asciiUpper<Unit>();
+
+        /// <summary>
         /// Parses any UTF-16 lowercase letter char identified by `System.Char.IsLower`. Returns
         /// the parsed char.
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> Lower => lower<Unit>();
+
+        /// <summary>
+        /// Parses any char in the range 'a' - 'z'. Returns the parsed char.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> AsciiLower => asciiLower<Unit>();
 
         /// <summary>
         /// Parses any char in the range '0' - '9'. Returns the parsed char.

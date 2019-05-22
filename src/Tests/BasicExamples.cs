@@ -2,7 +2,6 @@ namespace Tests {
     using FParsec;
     using FParsec.CSharp;
     using Microsoft.FSharp.Core;
-    using Shouldly;
     using Xunit;
     using static FParsec.CSharp.CharParsersCS;
     using static FParsec.CSharp.PrimitivesCS;

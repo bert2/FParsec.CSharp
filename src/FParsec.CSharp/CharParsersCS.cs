@@ -15,25 +15,38 @@
         public static FSharpFunc<Chars, Reply<char>> AnyChar => anyChar<Unit>();
 
         /// <summary>
+        /// `SkipAnyChar` is an optimized implementation of `Skip(AnyChar)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipAnyChar => skipAnyChar<Unit>();
+
+        /// <summary>
         /// `CharP(c)` parses the char `c` and returns `c`. If `c = '\r'` or `c = '\n'` then
         /// `CharP(c)` will parse any one newline ("\n", "\r\n" or "\r") and return `c`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> CharP(char c) => pchar<Unit>(c);
 
         /// <summary>
-        /// `CharP(f)` parses any one char or newline for which the predicate function `f` returns
-        /// `true`. It returns the parsed char.
-        /// Any newline ("\n", "\r\n" or "\r") is converted to the single char '\n'.
-        /// Thus, to accept a newline `f('\n')` must return `true`. `f` will never be called
-        /// with '\r' and `CharP(f)` will never return the result '\r'.
+        /// `CharP(c,x)` is an optimized implementation of `CharP(c).Return(x)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> CharP(Func<char, bool> pred)
-            => satisfy<Unit>(pred.ToFSharpFunc());
+        public static FSharpFunc<Chars, Reply<T>> CharP<T>(char c, T x) => charReturn<T, Unit>(c, x);
 
         /// <summary>
         /// `Skip(c)` parses the char `c` and skips it, i.e. returns `(Unit)null`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> Skip(char c) => skipChar<Unit>(c);
+
+        /// <summary>
+        /// <para>
+        /// `CharP(f)` parses any one char or newline for which the predicate function `f` returns
+        /// `true`. It returns the parsed char.
+        /// </para>
+        /// <para>
+        /// Any newline ("\n", "\r\n" or "\r") is converted to the single char '\n'.
+        /// Thus, to accept a newline `f('\n')` must return `true`. `f` will never be called
+        /// with '\r' and `CharP(f)` will never return the result '\r'.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> CharP(Func<char, bool> pred) => satisfy<Unit>(pred.ToFSharpFunc());
 
         /// <summary>
         /// `AnyOf(s)` parses any char contained in the string `s`. It returns the parsed char. If

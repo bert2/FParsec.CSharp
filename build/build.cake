@@ -47,11 +47,11 @@ Task("Pack")
         msbuildSettings.Properties["PackageVersion"] = new[] { semVer.NuGetVersion };
         msbuildSettings.Properties["PackageReleaseNotes"] = new[] { relNotes };
         msbuildSettings.Properties["PackageDescription"] = new[] {
-$@"A thin C# wrapper for Parsec.
+$@"Parsec.CSharp is a thin C# wrapper for Parsec.
 
 Documentation: https://github.com/bert2/FParsec.CSharp
 
-Changed in v{semVer.NuGetVersion}: {relNotes}" };
+Release notes: {relNotes}" };
 
         DotNetCorePack(libDir, new DotNetCorePackSettings {
             Configuration = config,

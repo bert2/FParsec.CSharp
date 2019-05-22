@@ -310,9 +310,11 @@
             => opt(p).Map(x => x.GetValueOrDefault(defaultValue));
 
         /// <summary>
-        /// The parser `Opt_(p)` parses an optional occurrence of `p` as an `FSharpOption` value.
+        /// <para>The parser `Opt_(p)` parses an optional occurrence of `p` as an `FSharpOption` value.</para>
+        /// <para>
         /// `Opt_(p)` is an optimized implementation of
         /// `p.Map(FSharpOption.Some).Or(FSharpOption.None)`.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpOption<T>>> Opt_<T>(
             FSharpFunc<Chars, Reply<T>> p)
@@ -325,7 +327,7 @@
         /// <summary>
         /// <para>
         /// The parser `Many(p)` repeatedly applies the parser `p` until `p` fails.
-        /// It returns a list of the results returned by `p`.
+        /// Returns a list of the results returned by `p`.
         /// </para>
         /// <para>
         /// At the end of the sequence `p` must fail without changing the parser state and without
@@ -523,7 +525,7 @@
         /// The parser `ManyTill(p,endp)` repeatedly applies the parser `p` for as long as `endp`
         /// fails (without changing the parser state).
         /// </para>
-        /// <para>It returns a list of the results returned by `p`.</para>
+        /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> ManyTill<T, TEnd>(
             FSharpFunc<Chars, Reply<T>> p,
@@ -571,7 +573,7 @@
         /// <para>
         /// It returns the value obtained by *left* associative application of all functions
         /// returned by `op` to the results returned by `p`, i.e.
-        /// `f_n (... (f_2 (f_1 x_1 x_2) x_3) ...) x_n+1`, where `f_1` to `f_n` are the functions
+        /// `f_n(... f_2(f_1(x_1,x_2),x_3) ..., x_n+1)`, where `f_1` to `f_n` are the functions
         /// returned by the parser `op` and `x_1` to `x_n+1` are the values returned by `p`.
         /// </para>
         /// <para>
@@ -601,7 +603,7 @@
         /// <para>
         /// It returns the value obtained by *right* associative application of all functions
         /// returned by `op` to the results returned by `p`, i.e.
-        /// `f1 x_1 (f_2 x_2 (... (f_n x_n x_n+1) ...))`, where `f_1` to `f_n` are the functions
+        /// `f_1(x_1, f_2(x_2, ... f_n(x_n, x_n+1) ...))`, where `f_1` to `f_n` are the functions
         /// returned by the parser `op` and `x_1` to `x_n+1` are the values returned by `p`.
         /// </para>
         /// <para>
@@ -620,8 +622,8 @@
         public static FSharpFunc<Chars, Reply<T>> ChainR<T>(
             FSharpFunc<Chars, Reply<T>> p,
             FSharpFunc<Chars, Reply<Func<T, T, T>>> op,
-            T defaultVal)
-            => chainr(p, op.Map(f => f.ToFSharpFunc()), defaultVal);
+            T defaultValue)
+            => chainr(p, op.Map(f => f.ToFSharpFunc()), defaultValue);
 
         #endregion Repetition
 
@@ -750,7 +752,8 @@
         public static FSharpFunc<Chars, Reply<T>> FailFatally<T>(string error) => failFatally<T, Unit>(error);
 
         /// <summary>
-        /// The parser `Skip(p)` applies the parser `p` and skips its result, i.e. returns `Unit`.
+        /// The parser `Skip(p)` applies the parser `p` and skips its result, i.e. returns
+        /// `(Unit)null`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> Skip<T>(
             FSharpFunc<Chars, Reply<T>> p)

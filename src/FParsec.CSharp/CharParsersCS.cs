@@ -31,11 +31,6 @@
         public static FSharpFunc<Chars, Reply<T>> CharP<T>(char c, T x) => charReturn<T, Unit>(c, x);
 
         /// <summary>
-        /// `Skip(c)` parses the char `c` and skips it, i.e. returns `(Unit)null`.
-        /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Skip(char c) => skipChar<Unit>(c);
-
-        /// <summary>
         /// <para>
         /// `CharP(f)` parses any one char or newline for which the predicate function `f` returns
         /// `true`. It returns the parsed char.
@@ -49,6 +44,26 @@
         public static FSharpFunc<Chars, Reply<char>> CharP(Func<char, bool> pred) => satisfy<Unit>(pred.ToFSharpFunc());
 
         /// <summary>
+        /// `CharP(f,s)` is an optimized implementation of `CharP(f).Label(s)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> CharP(Func<char, bool> pred, string label) => satisfyL<Unit>(pred.ToFSharpFunc(), label);
+
+        /// <summary>
+        /// `Skip(c)` is an optimized implementation of `Skip(CharP(c))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> Skip(char c) => skipChar<Unit>(c);
+
+        /// <summary>
+        /// `Skip(f)` is an optimized implementation of `Skip(CharP(f))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> Skip(Func<char, bool> pred) => skipSatisfy<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>
+        /// `Skip(f,s)` is an optimized implementation of `Skip(f).Label(s)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> Skip(Func<char, bool> pred, string label) => skipSatisfyL<Unit>(pred.ToFSharpFunc(), label);
+
+        /// <summary>
         /// `AnyOf(s)` parses any char contained in the string `s`. It returns the parsed char. If
         /// `s` contains the char '\n', `AnyOf(s)` parses any newline ("\n", "\r\n" or "\r") and
         /// returns it as '\n'. Note that it does not make a difference whether or not `s`
@@ -57,12 +72,22 @@
         public static FSharpFunc<Chars, Reply<char>> AnyOf(IEnumerable<char> chars) => anyOf<Unit>(chars);
 
         /// <summary>
+        /// `SkipAnyOf(s)` is an optimized implementation of `Skip(AnyOf(s))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipAnyOf(IEnumerable<char> chars) => skipAnyOf<Unit>(chars);
+
+        /// <summary>
         /// `NoneOf(s)` parses any char not contained in the string `s`. It returns the parsed
         /// char. If `s` does not contain the char '\n', `NoneOf(s)` parses any newline
         /// ("\n", "\r\n" or "\r") and returns it as  as '\n'. Note that it does not make a 
         /// difference whether or not `s` contains '\r'; `NoneOf(s)` will never return '\r'.
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> NoneOf(IEnumerable<char> chars) => noneOf<Unit>(chars);
+
+        /// <summary>
+        /// `SkipNoneOf(s)` is an optimized implementation of `Skip(NoneOf(s))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipNoneOf(IEnumerable<char> chars) => skipNoneOf<Unit>(chars);
 
         /// <summary>
         /// Parses any UTF-16 letter char identified by `System.Char.IsLetter`. Returns the parsed

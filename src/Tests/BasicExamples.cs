@@ -50,6 +50,10 @@ namespace Tests {
 
         [Fact] public void ParseStringWithCharParserAtLeastOnce() => Many1Chars(Lower).ParseString("hello").ShouldBe("hello");
 
+        [Fact] public void AnyStringOfLengthN() => AnyString(3).ParseString("abcdef").ShouldBe("abc");
+
+        [Fact] public void RestOfTheLine() => Skip('a').And(RestOfLine()).ParseString("abc\ndef").ShouldBe("bc");
+
         #endregion Strings
 
         #region Numbers

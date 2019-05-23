@@ -156,6 +156,16 @@
         public static FSharpFunc<Chars, Reply<string>> StringCI(string s) => pstringCI<Unit>(s);
 
         /// <summary>
+        /// `StringP(s,x)` is an optimized implementation of `StringP(s).Return(x)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> StringP<T>(string s, T x) => stringReturn<T, Unit>(s, x);
+
+        /// <summary>
+        /// `StringCI(s,x)` is an optimized implementation of `StringCI(s).Return(x)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> StringCI<T>(string s, T x) => stringCIReturn<T, Unit>(s, x);
+
+        /// <summary>
         /// `Skip(s)` parses the char `s` and skips it, i.e. returns `(Unit)null`. `s` may not
         /// contain newline chars ('\n' or '\r').
         /// </summary>
@@ -166,6 +176,41 @@
         /// it , i.e. returns `(Unit)null`. `s` may not contain newline chars ('\n' or '\r').
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> SkipCI(string s) => skipStringCI<Unit>(s);
+
+        /// <summary>
+        /// <para>
+        /// `AnyString(n)` parses any sequence of `n` chars or newlines ("\n", "\r\n" or "\r").
+        /// It returns the parsed string.
+        /// </para>
+        /// <para>In the returned string all newlines are normalized to "\n".</para>
+        /// <para>
+        /// `AnyString(n)` is an atomic parser: either it succeeds or it fails without consuming
+        /// any input.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> AnyString(int length) => anyString<Unit>(length);
+
+        /// <summary>
+        /// `SkipAnyString(n)` is an optimized implementation of `Skip(AnyString(n))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipAnyString(int length) => skipAnyString<Unit>(length);
+
+        /// <summary>
+        /// <para>
+        /// `RestOfLine(skipNewline)` parses any chars before the end of the line and, if
+        /// `skipNewline` is `true`, skips to the beginning of the next line (if there is one).
+        /// </para>
+        /// <para>
+        /// Returns the parsed chars before the end of the line as a string (without a newline).
+        /// </para>
+        /// <para>A line is terminated by a newline ("\n", "\r\n" or "\r") or the end of the input stream.</para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> RestOfLine(bool skipNewline = false) => restOfLine<Unit>(skipNewline);
+
+        /// <summary>
+        /// `SkipRestOfLine(skipNewline)` is an optimized implementation of `Skip(RestOfLine(skipNewline))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipRestOfLine(bool skipNewline = false) => skipRestOfLine<Unit>(skipNewline);
 
         /// <summary>
         /// <para>

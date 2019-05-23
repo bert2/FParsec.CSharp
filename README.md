@@ -4,6 +4,22 @@
 
 FParsec.CSharp is a C# wrapper for the F# package [FParsec](https://github.com/stephan-tolksdorf/fparsec). FParsec is a parser combinator library with which you can implement parsers declaratively.
 
+* [Why FParsec.CSharp?](#why-fparseccsharp)
+* [Getting started](#getting-started)
+  * [Using FParsec.CSharp and FParsec together](#using-fparseccsharp-and-fparsec-together)
+* [Examples](#examples)
+  * [Simple JSON](#simple-json)
+  * [Simple XML](#simple-xml)
+  * [Glob patterns](#glob-patterns)
+  * [Arithmetic expressions](#arithmetic-expressions)
+  * [Simple regular expressions](#simple-regular-expressions)
+* [Hints](#hints)
+  * [Debugging](#debugging)
+  * [Aliasing awkward types](#aliasing-awkward-types)
+* [Alternatives](#alternatives)
+* [Where is the FParsec function `x`?](#where-is-the-fparsec-function-x)
+* [TODO](#todo)
+
 ## Why FParsec.CSharp?
 
 While using FParsec from C# is entirely possible in theory, it is very awkward in practice. Most of FParsec's elegance is lost in translation due to C#'s inferior type inference and its lack of custom operators.
@@ -291,3 +307,236 @@ FParsec.CSharp does not wrap all of FParsec's features yet. If you need an all-i
   * Not as fast as `FParsec`.
 * [Sprache](https://github.com/sprache/Sprache)
   * Is not as optimized as `Pidgin`.
+
+## Where is the FParsec function `x`?
+
+FParsec.CSharp does not mirror all of FParsec's functions exactly. Some are not (yet) implemented and some are just named differently.
+
+Below is a table that maps FParsec's parser functions, combinators, and helper functions to their FParsec.CSharp equivalent.
+
+The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for brewity.
+
+| FParsec | FParsec.CSharp |
+| --- | :--- |
+| `preturn` | `P<T> Return(T)` |
+| `pzero` | `P<T> Zero<T>()` |
+| `(>>=)` | `P<T2> P<T1>.And(Func<T1, P<T2>>)` |
+| `(>>%)` | `P<T2> P<T1>.Return(T2)` |
+| `(>>.)` | `P<T> P<Unit>.And(P<T>)` skips left parser automatically when it returns `Unit` |
+| `(.>>)` | `P<T> P<T>.And(P<Unit>)` skips right parser automatically when it returns `Unit` |
+| `(.>>.)` | `P<(T1,T2)> P<T1>.And(P<T2>)` if neither parser returns `Unit`,<br>`P<(Unit,Unit)> P<Unit>.And_(P<Unit>)` if any parser returns `Unit` |
+| `(|>>)` | `P<T2> P<T1>.Map(Func<T1, T2>)` |
+| `between` | `P<T2> Between(P<T1>, P<T2>, P<T3>)` (different argument order) |
+| `pipe2` | `P<TR> Pipe(P<T1>, P<T2>, Func<T1, T2, TR>)` |
+| `pipe3` | `P<TR> Pipe(P<T1>, P<T2>, P<T3>, Func<T1, T2, T3, TR>)` |
+| `pipe4` | `P<TR> Pipe(P<T1>, P<T2>, P<T3>, P<T4>, Func<T1, T2, T3, T4, TR>)` |
+| `pipe5` | `P<TR> Pipe(P<T1>, P<T2>, P<T3>, P<T4>, P<T5>, Func<T1, T2, T3, T4, T5, TR>)` |
+| `(<|>)` | `P<T> P<T>.Or(P<T>)` |
+| `choice` | `P<T> Choice(params P<T>[])` |
+| `choiceL` | `P<T> Choice(string, params P<T>[])` |
+| `(<|>%)` | `P<T> P<T>.Or(T)` |
+| `opt` | `P<FSharpOption<T>> Opt_(P<T>)`,<br>`P<T> Opt(P<T>)` unwraps the `FSharpOption<T>`,<br>`P<T> Opt(P<T>, T)` unwraps the `FSharpOption<T>` with default value |
+| `optional` | `P<Unit> Optional(P<T>)` |
+| `attempt` | `P<T> Try(P<T>)` |
+| `(>>=?)` | not implemented |
+| `(>>?)` | not implemented |
+| `(.>>?)` | not implemented |
+| `(.>>.?)` | not implemented |
+| `notEmpty` | `P<T> NotEmpty(P<T>)` |
+| `followedBy` | `P<Unit> FollowedBy(P<T>)` |
+| `followedByL` | `P<Unit> FollowedBy(P<T>, string)` |
+| `notFollowedBy` | `P<Unit> NotFollowedBy(P<T>)` |
+| `notFollowedByL` | `P<Unit> NotFollowedBy(P<T>, string)` |
+| `lookAhead` | `P<T> LookAhead(P<T>)` |
+| `(<?>)` | `P<T> P<T>.Label(string)` |
+| `(<??>)` | `P<T> P<T>.Label_(string)` |
+| `fail` | `P<T> Fail(string)` |
+| `failFatally` | `P<T> FailFatally(string)` |
+| `tuple2` | `P<(T1,T2)> Tuple(P<T1>, P<T2>)` |
+| `tuple3` | `P<(T1,T2,T3)> Tuple(P<T1>, P<T2>, P<T3>)` |
+| `tuple4` | `P<(T1,T2,T3,T4)> Tuple(P<T1>, P<T2>, P<T3>, P<T4>)` |
+| `tuple5` | `P<(T1,T2,T3,T4,T5)> Tuple(P<T1>, P<T2>, P<T3>, P<T4>, P<T5>)` |
+| `parray` | `P<T[]> Array(int, P<T>)` |
+| `skipArray` | `P<Unit> SkipArray(int, P<T>)` |
+| `many` | `P<FSharpList<T>> Many(P<T>)` |
+| `skipMany` | `P<Unit> SkipMany(P<T>)` |
+| `many1` | `P<FSharpList<T>> Many1(P<T>)` |
+| `skipMany1` | `P<Unit> SkipMany1(P<T>)` |
+| `sepBy` | `P<FSharpList<T>> Many(P<T>, P<TSep>)` |
+| `skipSepBy` | `P<Unit> SkipMany(P<T>, P<TSep>)` |
+| `sepBy1` | `P<FSharpList<T>> Many1(P<T>, P<TSep>)` |
+| `skipSepBy1` | `P<Unit> SkipMany1(P<T>, P<TSep>)` |
+| `sepEndBy` | `P<FSharpList<T>> Many(P<T>, P<TSep>, canEndWithSep: true)` |
+| `skipSepEndBy` | `P<Unit> SkipMany(P<T>, P<TSep>, canEndWithSep: true)` |
+| `sepEndBy1` | `P<FSharpList<T>> Many1(P<T>, P<TSep>, canEndWithSep: true)` |
+| `skipSepEndBy1` | `P<Unit> SkipMany1(P<T>, P<TSep>, canEndWithSep: true)` |
+| `manyTill` | `P<FSharpList<T>> ManyTill(P<T>, P<TEnd>)` |
+| `skipManyTill` | `P<Unit> SkipManyTill(P<T>, P<TEnd>)` |
+| `many1Till` | `P<FSharpList<T>> Many1Till(P<T>, P<TEnd>)` |
+| `skipMany1Till` | `P<Unit> SkipMany1Till(P<T>, P<TEnd>)` |
+| `chainl1` | `P<T> ChainL(P<T>, P<Func<T, T, T>>)` |
+| `chainl` | `P<T> ChainL(P<T>, P<Func<T, T, T>>, T)` |
+| `chainr1` | `P<T> ChainR(P<T>, P<Func<T, T, T>>)` |
+| `chainr` | `P<T> ChainR(P<T>, P<Func<T, T, T>>, T)` |
+| `createParserForwardedToRef` | not implemented |
+| `runParserOnString` | not yet implemented,<br>use `Reply<T> P<T>.ParseString(string)` |
+| `runParserOnSubstring` | not yet implemented,<br>use `Reply<T> P<T>.Parse(new CharStream<Unit>(string, int, int))` |
+| `runParserOnStream` | not yet implemented,<br>use `Reply<T> P<T>.Parse(new CharStream<Unit>(Stream, Encoding))` |
+| `runParserOnFile` | not yet implemented,<br>use `Reply<T> P<T>.ParseFile(string)` |
+| `run` | not yet implemented,<br>use `Reply<T> P<T>.ParseString(string)` |
+| `getPosition` | not yet implemented |
+| `getUserState` | not implemented |
+| `setUserState` | not implemented |
+| `updateUserState` | not implemented |
+| `userStateSatisfies` | not implemented |
+| `pchar` | `P<char> CharP(char)` |
+| `skipChar` | `P<Unit> Skip(char)` |
+| `charReturn` | `P<T> CharP(char, T)` |
+| `anyChar` | `P<char> AnyChar` |
+| `skipAnyChar` | `P<Unit> SkipAnyChar` |
+| `satisfy` | `P<char> CharP(Func<char, bool>)` |
+| `skipSatisfy` | `P<Unit> CharP(Func<char, bool>)` |
+| `satisfyL` | `P<char> CharP(Func<char, bool>, string)` |
+| `skipSatisfyL` | `P<Unit> CharP(Func<char, bool>, string)` |
+| `anyOf` | `P<char> AnyOf(IEnumerable<char>)` |
+| `skipAnyOf` | `P<Unit> SkipAnyOf(IEnumerable<char>)` |
+| `noneOf` | `P<char> NoneOf(IEnumerable<char>)` |
+| `skipNoneOf` | `P<Unit> SkipNoneOf(IEnumerable<char>)` |
+| `asciiUpper` | `P<char> AsciiUpper` |
+| `asciiLower` | `P<char> AsciiLower` |
+| `asciiLetter` | `P<char> AsciiLetter` |
+| `upper` | `P<char> Upper` |
+| `lower` | `P<char> Lower` |
+| `letter` | `P<char> Letter` |
+| `digit` | `P<char> Digit` |
+| `hex` | `P<char> Hex` |
+| `octal` | `P<char> Octal` |
+| `isAnyOf` | not implemented |
+| `isNoneOf` | not implemented |
+| `isAsciiUpper` | not implemented |
+| `isAsciiLower` | not implemented |
+| `isAsciiLetter` | not implemented |
+| `isUpper` | not implemented |
+| `isLower` | not implemented |
+| `isLetter` | not implemented |
+| `isDigit` | not implemented |
+| `isHex` | not implemented |
+| `isOctal` | not implemented |
+| `tab` | `P<char> Tab` |
+| `newline` | `P<char> Newline` |
+| `skipNewline` | not yet implemented |
+| `newlineReturn` | not yet implemented |
+| `unicodeNewline` | not yet implemented |
+| `skipUnicodeNewline` | not yet implemented |
+| `unicodeNewlineReturn` | not yet implemented |
+| `spaces` | `P<Unit> Spaces` |
+| `spaces1` | `P<Unit> Spaces1` |
+| `unicodeSpaces` | not yet implemented |
+| `unicodeSpaces1` | not yet implemented |
+| `eof` | `P<Unit> EOF` |
+| `pstring` | `P<string> StringP(string)` |
+| `skipString` | `P<Unit> Skip(string)` |
+| `stringReturn` | `P<T> StringP(string, T)` |
+| `pstringCI` | `P<string> StringCI(string)` |
+| `skipStringCI` | `P<Unit> SkipCI(string)` |
+| `stringCIReturn` | `P<T> StringP(string, T)` |
+| `anyString` | `P<string> AnyString(int)` |
+| `skipAnyString` | `P<Unit> SkipAnyString(int)` |
+| `restOfLine` | `P<string> RestOfLine(bool)` |
+| `skipRestOfLine` | `P<Unit> SkipRestOfLine(bool)` |
+| `charsTillString` | not yet implemented |
+| `skipCharsTillString` | not yet implemented |
+| `charsTillStringCI` | not yet implemented |
+| `skipCharsTillStringCI` | not yet implemented |
+| `manySatisfy` | not yet implemented |
+| `manySatisfy2` | not yet implemented |
+| `skipManySatisfy` | not yet implemented |
+| `skipManySatisfy2` | not yet implemented |
+| `many1Satisfy` | not yet implemented |
+| `many1Satisfy2` | not yet implemented |
+| `skipMany1Satisfy` | not yet implemented |
+| `skipMany1Satisfy2` | not yet implemented |
+| `many1SatisfyL` | not yet implemented |
+| `many1Satisfy2L` | not yet implemented |
+| `skipMany1SatisfyL` | not yet implemented |
+| `skipMany1Satisfy2L` | not yet implemented |
+| `manyMinMaxSatisfy` | not yet implemented |
+| `manyMinMaxSatisfy2` | not yet implemented |
+| `skipManyMinMaxSatisfy` | not yet implemented |
+| `skipManyMinMaxSatisfy2` | not yet implemented |
+| `manyMinMaxSatisfyL` | not yet implemented |
+| `manyMinMaxSatisfy2L` | not yet implemented |
+| `skipManyMinMaxSatisfyL` | not yet implemented |
+| `skipManyMinMaxSatisfy2L` | not yet implemented |
+| `regex` | not yet implemented |
+| `regexL` | not yet implemented |
+| `identifier` | not implemented |
+| `manyChars` | `P<string> ManyChars(P<char>)` |
+| `manyChars2` | not yet implemented |
+| `many1Chars` | `P<string> Many1Chars(P<char>)` |
+| `many1Chars2` | not yet implemented |
+| `manyCharsTill` | not yet implemented |
+| `manyCharsTill2` | not yet implemented |
+| `manyCharsTillApply` | not yet implemented |
+| `manyCharsTillApply2` | not yet implemented |
+| `many1CharsTill` | not yet implemented |
+| `many1CharsTill2` | not yet implemented |
+| `many1CharsTillApply` | not yet implemented |
+| `manyStrings` | not yet implemented |
+| `manyStrings2` | not yet implemented |
+| `many1Strings` | not yet implemented |
+| `many1Strings2` | not yet implemented |
+| `stringsSepBy` | not yet implemented |
+| `stringsSepBy1` | not yet implemented |
+| `skipped` | not yet implemented |
+| `withSkippedString` | not yet implemented |
+| `numberLiteral` | not implemented |
+| `numberLiteralE` | not implemented |
+| `pfloat` | `P<double> Float` |
+| `pint64` | `P<long> Long` |
+| `pint32` | `P<int> Int` |
+| `pint16` | not yet implemented |
+| `pint8` | not yet implemented |
+| `puint64` | not yet implemented |
+| `puint32` | not yet implemented |
+| `puint16` | not yet implemented |
+| `puint8` | not yet implemented |
+| `notFollowedByEof` | `P<Unit> NotFollowedByEOF` |
+| `followedByNewline` | `P<Unit> FollowedByNewline` |
+| `notFollowedByNewline` | `P<Unit> NotFollowedByNewline` |
+| `followedByString` | `P<Unit> FollowedBy(string)` |
+| `followedByStringCI` | `P<Unit> FollowedByCI(foo)` |
+| `notFollowedByString` | `P<Unit> NotFollowedBy(string)` |
+| `notFollowedByStringCI` | `P<Unit> NotFollowedByCI(string)` |
+| `nextCharSatisfies` | `P<Unit> NextCharSatisfies(Func<char, bool>)` |
+| `nextCharSatisfiesNot` | `P<Unit> NextCharSatisfiesNot(Func<char, bool>)` |
+| `next2CharsSatisfy` | `P<Unit> Next2CharsSatisfy(Func<char, char, bool>)` |
+| `next2CharsSatisfyNot` | `P<Unit> Next2CharsSatisfyNot(Func<char, char, bool>)` |
+| `previousCharSatisfies` | `P<Unit> PreviousCharSatisfies(Func<char, bool>)` |
+| `previousCharSatisfiesNot` | `P<Unit> PreviousCharSatisfiesNot(Func<char, bool>)` |
+| `foldCase` | not implemented |
+| `normalizeNewlines` | not implemented |
+| `floatToHexString` | not implemented |
+| `floatOfHexString` | not implemented |
+| `float32ToHexString` | not implemented |
+| `float32OfHexString` | not implemented |
+| `createStaticCharIndicatorFunction` | not implemented |
+| `createStaticCharRangeIndicatorFunction` | not implemented |
+| `createStaticIntIndicatorFunction` | not implemented |
+| `createStaticIntRangeIndicatorFunction` | not implemented |
+| `createStaticIntMapping` | not implemented |
+| `createStaticIntRangeMapping` | not implemented |
+| `createStaticStringMapping` | not implemented |
+
+## TODO
+
+* Wrap remaining char & string parsers!
+* Add paragraphs in XML doc!
+* Wrap `runParserOn...` functions!
+* Wrap parser position parser!
+* Add [source link](https://github.com/dotnet/sourcelink) support?
+* Wrap remaining helper functions?
+* Wrap `FSharpFunc<...>` with own type?
+  * Implement implicit conversions between the two
+  * Overload operators like `+` and `|` to use them as combinators
+* Support user state?

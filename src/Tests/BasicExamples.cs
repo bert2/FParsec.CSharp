@@ -268,7 +268,7 @@ namespace Tests {
                 CharP('+').Return((int x, int y) => x + y),
                 CharP('-').Return((int x, int y) => x - y));
 
-            ChainL1(Int, op)
+            ChainL(Int, op)
             .ParseString("1+2+3-4+5-6")
             .ShouldBe(1);
         }

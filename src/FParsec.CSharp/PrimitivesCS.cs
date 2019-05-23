@@ -567,7 +567,7 @@
 
         /// <summary>
         /// <para>
-        /// The parser `ChainL1(p,op)` parses one or more occurrences of `p` separated by `op` (in
+        /// The parser `ChainL(p,op)` parses one or more occurrences of `p` separated by `op` (in
         /// EBNF notation: `p (op p)*`).
         /// </para>
         /// <para>
@@ -581,13 +581,13 @@
         /// is returned directly.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> ChainL1<T>(
+        public static FSharpFunc<Chars, Reply<T>> ChainL<T>(
             FSharpFunc<Chars, Reply<T>> p,
             FSharpFunc<Chars, Reply<Func<T, T, T>>> op)
             => chainl1(p, op.Map(f => f.ToFSharpFunc()));
 
         /// <summary>
-        /// The parser `ChainL(p,op,x)` is equivalent to `ChainL1(p,op).Or(x)`.
+        /// The parser `ChainL(p,op,x)` is equivalent to `ChainL(p,op).Or(x)`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<T>> ChainL<T>(
             FSharpFunc<Chars, Reply<T>> p,
@@ -597,7 +597,7 @@
 
         /// <summary>
         /// <para>
-        /// The parser `ChainR1(p,op)` parses one or more occurrences of `p` separated by `op` (in
+        /// The parser `ChainR(p,op)` parses one or more occurrences of `p` separated by `op` (in
         /// EBNF notation: `p (op p)*`).
         /// </para>
         /// <para>
@@ -611,13 +611,13 @@
         /// is returned directly.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> ChainR1<T>(
+        public static FSharpFunc<Chars, Reply<T>> ChainR<T>(
             FSharpFunc<Chars, Reply<T>> p,
             FSharpFunc<Chars, Reply<Func<T, T, T>>> op)
             => chainr1(p, op.Map(f => f.ToFSharpFunc()));
 
         /// <summary>
-        /// The parser `ChainR(p,op,x)` is equivalent to `ChainR1(p,op).Or(x)`.
+        /// The parser `ChainR(p,op,x)` is equivalent to `ChainR(p,op).Or(x)`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<T>> ChainR<T>(
             FSharpFunc<Chars, Reply<T>> p,

@@ -62,6 +62,17 @@ namespace Tests {
 
         [Fact] public void StringUntilEnd() => ManyCharsTill(AnyChar, NL).ParseString("abc\ndef").ShouldBe("abc");
 
+        [Fact] public void ConcatManyStrings() => ManyStrings(AnyString(3).And(WS)).ParseString("abc def ghi").ShouldBe("abcdefghi");
+
+        [Fact] public void ConcatSeparatedStrings() => ManyStrings(AnyString(2), sep: ", ").ParseString("ab, cd").ShouldBe("ab, cd");
+
+        [Fact] public void SkippedChars() => SkipMany(Digit).WithSkipped().ParseString("123abc").ShouldBe("123");
+
+        [Fact] public void ResultAndSkippedChars() =>
+            Many(Int, sep: ',').WithSkipped()
+            .ParseString("1,2,3")
+            .ShouldBe(("1,2,3", new[] { 1, 2, 3 }.ToFSharpList()));
+
         #endregion Strings
 
         #region Numbers

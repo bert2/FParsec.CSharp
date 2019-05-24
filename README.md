@@ -481,14 +481,14 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `many1CharsTill` | `P<string> Many1CharsTill(P<char>, P<T>)` |
 | `many1CharsTill2` | not yet implemented |
 | `many1CharsTillApply` | not yet implemented |
-| `manyStrings` | not yet implemented |
+| `manyStrings` | `P<string> ManyStrings(P<string>)` |
 | `manyStrings2` | not yet implemented |
-| `many1Strings` | not yet implemented |
+| `many1Strings` | `P<string> Many1Strings(P<string>)` |
 | `many1Strings2` | not yet implemented |
-| `stringsSepBy` | not yet implemented |
-| `stringsSepBy1` | not yet implemented |
-| `skipped` | not yet implemented |
-| `withSkippedString` | not yet implemented |
+| `stringsSepBy` | `ManyStrings(P<string>, P<String>)` |
+| `stringsSepBy1` | `Many1Strings(P<string>, P<String>)` |
+| `skipped` | `P<string> P<Unit>.WithSkipped()` |
+| `withSkippedString` | `P<T2> P<T1>.WithSkipped(Func<string, T1, T2>)`,<br>`P<(string,T)> P<T>.WithSkipped()` |
 | `numberLiteral` | not implemented |
 | `numberLiteralE` | not implemented |
 | `pfloat` | `P<double> Float` |

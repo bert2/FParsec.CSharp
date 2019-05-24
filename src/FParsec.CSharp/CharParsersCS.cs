@@ -330,6 +330,91 @@
 
         /// <summary>
         /// <para>
+        /// `ManyStrings(p)` parses a sequence of *zero* or more strings with the string parser
+        /// `p`. It returns the strings in concatenated form.
+        /// </para>
+        /// <para>
+        /// `ManyStrings(p)` is an optimized implementation of `Many(p, string.Concat, "")`.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> ManyStrings(
+            FSharpFunc<Chars, Reply<string>> p)
+            => manyStrings(p);
+
+        /// <summary>
+        /// <para>
+        /// `ManyStrings(p,sep)` parses *zero* or more occurrences of the string parser `p`
+        /// separated by string parser `sep`.
+        /// </para>
+        /// <para>
+        /// It returns the strings parsed by `p` *and* `sep` in concatenated form.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> ManyStrings(
+            FSharpFunc<Chars, Reply<string>> p,
+            FSharpFunc<Chars, Reply<string>> sep)
+            => stringsSepBy(p, sep);
+
+        /// <summary>
+        /// <para>
+        /// `ManyStrings(p,s)` parses *zero* or more occurrences of the string parser `p`
+        /// separated by string `s`.
+        /// </para>
+        /// <para>
+        /// It returns the strings parsed by `p` *and* the string `s` in concatenated form.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> ManyStrings(
+            FSharpFunc<Chars, Reply<string>> p,
+            string sep)
+            => stringsSepBy(p, pstring<Unit>(sep));
+
+        /// <summary>
+        /// <para>
+        /// `Many1Strings(p)` parses a sequence of *one* or more strings with the string parser
+        /// `p`. It returns the strings in concatenated form.
+        /// </para>
+        /// <para>
+        /// Note that `Many1Strings(p)` does not require the first string to be non-empty.
+        /// </para>
+        /// <para>
+        /// `Many1Strings(p)` is an optimized implementation of `Many1(p, string.Concat)`.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Many1Strings(
+            FSharpFunc<Chars, Reply<string>> p)
+            => many1Strings(p);
+
+        /// <summary>
+        /// <para>
+        /// `Many1Strings(p,sep)` parses *one* or more occurrences of the string parser `p`
+        /// separated by string parser `sep`.
+        /// </para>
+        /// <para>
+        /// It returns the strings parsed by `p` *and* `sep` in concatenated form.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Many1Strings(
+            FSharpFunc<Chars, Reply<string>> p,
+            FSharpFunc<Chars, Reply<string>> sep)
+            => stringsSepBy(p, sep);
+
+        /// <summary>
+        /// <para>
+        /// `Many1Strings(p,s)` parses *one* or more occurrences of the string parser `p`
+        /// separated by string `s`.
+        /// </para>
+        /// <para>
+        /// It returns the strings parsed by `p` *and* the string `s` in concatenated form.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Many1Strings(
+            FSharpFunc<Chars, Reply<string>> p,
+            string sep)
+            => stringsSepBy(p, pstring<Unit>(sep));
+
+        /// <summary>
+        /// <para>
         /// `Regex(s)` matches the .NET regular expression given by the string `s` on the chars
         /// beginning at the current index in the input stream. It returns the string matched by
         /// the regular expression. If the regular expression does not match, the parser fails
@@ -354,6 +439,34 @@
         /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<string>> Regex(string pattern) => regex<Unit>(pattern);
+
+        /// <summary>
+        /// <para>
+        /// `p.WithSkipped()` applies the skipping parser `p` and returns the chars skipped over by
+        /// `p` as a string.
+        /// </para>
+        /// <para>All newlines ("\r\n", "\r" or "\n") are normalized to "\n".</para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> WithSkipped(
+            this FSharpFunc<Chars, Reply<Unit>> p)
+            => skipped(p);
+
+        /// <summary>
+        /// `p.WithSkipped(f)` applies the parser `p` and returns the result of `f(s,x)`, where `s`
+        /// is the string skipped over by `p` and `x` is the result returned by `p`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> WithSkipped<T, TResult>(
+            this FSharpFunc<Chars, Reply<T>> p,
+            Func<string, T, TResult> f)
+            => withSkippedString(f.ToFSharpFunc(), p);
+
+        /// <summary>
+        /// `p.WithSkipped()` applies the parser `p` and returns the tuple `(s,x)`, where `s` is
+        /// the string skipped over by `p` and `x` is the result returned by `p`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<(string, T)>> WithSkipped<T>(
+            this FSharpFunc<Chars, Reply<T>> p)
+            => withSkippedString(FSharpFunc.From<string, T, (string, T)>((s, x) => (s, x)), p);
 
         #endregion Strings
 

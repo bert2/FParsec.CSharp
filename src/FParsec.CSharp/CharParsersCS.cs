@@ -5,6 +5,9 @@
     using static CharParsers;
     using Chars = CharStream<Microsoft.FSharp.Core.Unit>;
 
+    /// <summary>
+    /// Provides predefined char and string parsers.
+    /// </summary>
     public static class CharParsersCS {
         #region Char
 
@@ -323,6 +326,12 @@
         public static FSharpFunc<Chars, Reply<Unit>> WS => Spaces;
 
         /// <summary>
+        /// Skips over any sequence of *zero* or more unicode whitespaces and registers any unicode
+        /// newline ("\n", "\r\n", "\r", "\u0085, "\u000C", "\u2028", or "\u2029") as a newline.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> UnicodeSpaces => unicodeSpaces<Unit>();
+
+        /// <summary>
         /// Skips over any sequence of *one* or more whitespaces (space (' '), tab('\t') or
         /// newline ("\n", "\r\n" or "\r")).
         /// </summary>
@@ -332,12 +341,51 @@
         public static FSharpFunc<Chars, Reply<Unit>> WS1 => Spaces1;
 
         /// <summary>
+        /// Skips over any sequence of *one* or more unicode whitespaces and registers any unicode
+        /// newline ("\n", "\r\n", "\r", "\u0085, "\u000C", "\u2028", or "\u2029") as a newline.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> UnicodeSpaces1 => unicodeSpaces1<Unit>();
+
+        /// <summary>
         /// Parses a newline ("\n", "\r\n" or "\r"). Returns '\n'. Is equivalent to `CharP('\n')`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> Newline => newline<Unit>();
 
         /// <summary>Short form for `Newline`.</summary>
         public static FSharpFunc<Chars, Reply<char>> NL => newline<Unit>();
+
+        /// <summary>
+        /// `NewlineReturn(x)` is an optimized implementation of `Newline.Return(x)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> NewlineReturn<T>(T x) => newlineReturn<T, Unit>(x);
+
+        /// <summary>
+        /// `SkipNewline` is an optimized implementation of `Skip(Newline)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipNewline => skipNewline<Unit>();
+
+        /// <summary>
+        /// <para>
+        /// Parses a unicode newline ("\n", "\r\n", "\r", "\u0085", "\u2028", or "\u2029") and
+        /// returns '\n'.
+        /// </para>
+        /// <para>
+        /// Note that this parser does not accept the formfeed char '\f' as a newline. In contrast
+        /// to most other parsers in FParsec this parser also increments the internal line count
+        /// for unicode newline characters other than '\n' and '\r'.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<char>> UnicodeNewline => unicodeNewline<Unit>();
+
+        /// <summary>
+        /// `UnicodeNewlineReturn(x)` is an optimized implementation of `UnicodeNewline.Return(x)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> UnicodeNewlineReturn<T>(T x) => unicodeNewlineReturn<T, Unit>(x);
+
+        /// <summary>
+        /// `SkipUnicodeNewline` is an optimized implementation of `Skip(UnicodeNewline)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipUnicodeNewline => skipUnicodeNewline<Unit>();
 
         /// <summary>
         /// Parses the tab char '\t' and returns '\t'. Note that a tab char is treated like any

@@ -424,15 +424,15 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `isOctal` | not implemented |
 | `tab` | `P<char> Tab` |
 | `newline` | `P<char> Newline` |
-| `skipNewline` | not yet implemented |
-| `newlineReturn` | not yet implemented |
-| `unicodeNewline` | not yet implemented |
-| `skipUnicodeNewline` | not yet implemented |
-| `unicodeNewlineReturn` | not yet implemented |
+| `skipNewline` | `P<Unit> SkipNewline` |
+| `newlineReturn` | `P<T> NewlineReturn(T)` |
+| `unicodeNewline` | `P<Unit> UnicodeNewline` |
+| `skipUnicodeNewline` | `P<Unit> SkipUnicodeNewline` |
+| `unicodeNewlineReturn` | `P<T> UnicodeNewlineReturn(T x)` |
 | `spaces` | `P<Unit> Spaces` |
 | `spaces1` | `P<Unit> Spaces1` |
-| `unicodeSpaces` | not yet implemented |
-| `unicodeSpaces1` | not yet implemented |
+| `unicodeSpaces` | `P<Unit> UnicodeSpaces` |
+| `unicodeSpaces1` | `P<Unit> UnicodeSpaces1` |
 | `eof` | `P<Unit> EOF` |
 | `pstring` | `P<string> StringP(string)` |
 | `skipString` | `P<Unit> Skip(string)` |

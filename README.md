@@ -317,7 +317,7 @@ Below is a table that maps FParsec's parser functions, combinators, and helper f
 The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for brewity.
 
 | FParsec | FParsec.CSharp |
-| --- | :--- |
+| :--- | :--- |
 | `preturn` | `P<T> Return(T)` |
 | `pzero` | `P<T> Zero<T>()` |
 | `(>>=)` | `P<T2> P<T1>.And(Func<T1, P<T2>>)` |
@@ -378,7 +378,6 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `chainl` | `P<T> ChainL(P<T>, P<Func<T, T, T>>, T)` |
 | `chainr1` | `P<T> ChainR(P<T>, P<Func<T, T, T>>)` |
 | `chainr` | `P<T> ChainR(P<T>, P<Func<T, T, T>>, T)` |
-| `createParserForwardedToRef` | not implemented |
 | `runParserOnString` | not yet implemented,<br>use `Reply<T> P<T>.ParseString(string)` |
 | `runParserOnSubstring` | not yet implemented,<br>use `Reply<T> P<T>.Parse(new CharStream<Unit>(string, int, int))` |
 | `runParserOnStream` | not yet implemented,<br>use `Reply<T> P<T>.Parse(new CharStream<Unit>(Stream, Encoding))` |
@@ -448,11 +447,11 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `skipCharsTillString` | not yet implemented |
 | `charsTillStringCI` | not yet implemented |
 | `skipCharsTillStringCI` | not yet implemented |
-| `manySatisfy` | not yet implemented |
+| `manySatisfy` | `P<string> ManyChars(Func<char, bool>)` |
 | `manySatisfy2` | not yet implemented |
 | `skipManySatisfy` | not yet implemented |
 | `skipManySatisfy2` | not yet implemented |
-| `many1Satisfy` | not yet implemented |
+| `many1Satisfy` | `P<string> Many1Chars(Func<char, bool>)` |
 | `many1Satisfy2` | not yet implemented |
 | `skipMany1Satisfy` | not yet implemented |
 | `skipMany1Satisfy2` | not yet implemented |
@@ -460,7 +459,7 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `many1Satisfy2L` | not yet implemented |
 | `skipMany1SatisfyL` | not yet implemented |
 | `skipMany1Satisfy2L` | not yet implemented |
-| `manyMinMaxSatisfy` | not yet implemented |
+| `manyMinMaxSatisfy` | `P<string> ManyChars(Func<char, bool>, int, int)` |
 | `manyMinMaxSatisfy2` | not yet implemented |
 | `skipManyMinMaxSatisfy` | not yet implemented |
 | `skipManyMinMaxSatisfy2` | not yet implemented |
@@ -475,11 +474,11 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `manyChars2` | not yet implemented |
 | `many1Chars` | `P<string> Many1Chars(P<char>)` |
 | `many1Chars2` | not yet implemented |
-| `manyCharsTill` | not yet implemented |
+| `manyCharsTill` | `P<string> ManyCharsTill(P<char>, P<T>)` |
 | `manyCharsTill2` | not yet implemented |
 | `manyCharsTillApply` | not yet implemented |
 | `manyCharsTillApply2` | not yet implemented |
-| `many1CharsTill` | not yet implemented |
+| `many1CharsTill` | `P<string> Many1CharsTill(P<char>, P<T>)` |
 | `many1CharsTill2` | not yet implemented |
 | `many1CharsTillApply` | not yet implemented |
 | `manyStrings` | not yet implemented |
@@ -520,13 +519,6 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `floatOfHexString` | not implemented |
 | `float32ToHexString` | not implemented |
 | `float32OfHexString` | not implemented |
-| `createStaticCharIndicatorFunction` | not implemented |
-| `createStaticCharRangeIndicatorFunction` | not implemented |
-| `createStaticIntIndicatorFunction` | not implemented |
-| `createStaticIntRangeIndicatorFunction` | not implemented |
-| `createStaticIntMapping` | not implemented |
-| `createStaticIntRangeMapping` | not implemented |
-| `createStaticStringMapping` | not implemented |
 
 ## TODO
 

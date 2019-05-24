@@ -9,7 +9,7 @@
     /// Provides predefined char and string parsers.
     /// </summary>
     public static class CharParsersCS {
-        #region Char
+        #region Chars
 
         /// <summary>
         /// `AnyChar` parses any single char or newline ("\n", "\r\n" or "\r").
@@ -141,9 +141,9 @@
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> Octal => octal<Unit>();
 
-        #endregion Char
+        #endregion Chars
 
-        #region String
+        #region Strings
 
         /// <summary>
         /// `StringP(s)` parses the string `s` and returns `s`.
@@ -245,9 +245,119 @@
             FSharpFunc<Chars, Reply<char>> p)
             => many1Chars(p);
 
-        #endregion String
+        /// <summary>
+        /// <para>
+        /// `ManyChars(f)` parses a sequence of *zero* or more chars that satisfy the predicate
+        /// function `f` (i.e.  chars for which `f` returns `true`). It returns the parsed chars as
+        /// a string.
+        /// </para>
+        /// <para>
+        /// Any newline ("\n", "\r\n" or "\r") is converted to the single char '\n'. Thus, to
+        /// accept a newline `f('\n')` must return `true`. `f` will never be called with '\r' and
+        /// the string returned by `ManyChars(f)` will never contain an '\r'.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> ManyChars(
+            Func<char, bool> pred)
+            => manySatisfy<Unit>(pred.ToFSharpFunc());
 
-        #region Number
+        /// <summary>
+        /// <para>
+        /// `Many1Chars(f)` parses a sequence of *one* or more chars that satisfy the predicate
+        /// function `f` (i.e. chars for which `f` returns `true`). It returns the parsed chars as
+        /// a string.
+        /// </para>
+        /// <para>
+        /// If the first char does not satisfy `f`, this parser fails without consuming input.
+        /// </para>
+        /// <para>
+        /// Any newline ("\n", "\r\n" or "\r") is converted to the single char '\n'. Thus, to
+        /// accept a newline `f('\n')` must return `true`. `f` will never be called with '\r' and
+        /// the string returned by `Many1Chars(f)` will never contain an '\r'.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Many1Chars(
+            Func<char, bool> pred)
+            => many1Satisfy<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>
+        /// <para>
+        /// `ManyChars(f,min,max)` parses a sequence of `min` or more chars that satisfy the
+        /// predicate function `f` (i.e. chars for which `f` returns `true`), but not more than
+        /// `max` chars. It returns the parsed chars as a string.
+        /// </para>
+        /// <para>
+        /// This parser is atomic, i.e. if the first `min` chars do not all satisfy `f`, the parser
+        /// fails without consuming any input.
+        /// </para>
+        /// <para>
+        /// Any newline ("\n", "\r\n" or "\r") is converted to the single char '\n'. Thus, to
+        /// accept a newline `f '\n'` must return `true`. `f` will never be called with '\r' and
+        /// the string returned by `ManyChars(f,min,max)` will never contain an '\r'.
+        /// </para>
+        /// <para>`ManyChars(f,min,max)` throws an `ArgumentOutOfRangeException` if `max` is negative.</para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> ManyChars(
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount)
+            => manyMinMaxSatisfy<Unit>(minCount, maxCount, pred.ToFSharpFunc());
+
+        /// <summary>
+        /// `ManyCharsTill(p,endp)` parses chars with the char parser `p` until the parser `endp`
+        /// succeeds. It stops after `endp` and returns the parsed chars as a string.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> ManyCharsTill<TEnd>(
+            FSharpFunc<Chars, Reply<char>> p,
+            FSharpFunc<Chars, Reply<TEnd>> endp)
+            => manyCharsTill(p, endp);
+
+        /// <summary>
+        /// <para>
+        /// `Many1CharsTill(p,endp)` parses one char with the char parser `p`. Then it parses more
+        /// chars with `p` until the parser `endp` succeeds. It stops after `endp` and returns the
+        /// parsed chars as a string.
+        /// </para>
+        /// <para>
+        /// `Many1CharsTill(p,endp)` is an optimized implementation of
+        /// `Pipe(p, ManyCharsTill(p,endp), (c,s) => s.Prepend(c))`.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Many1CharsTill<TEnd>(
+            FSharpFunc<Chars, Reply<char>> p,
+            FSharpFunc<Chars, Reply<TEnd>> endp)
+            => many1CharsTill(p, endp);
+
+        /// <summary>
+        /// <para>
+        /// `Regex(s)` matches the .NET regular expression given by the string `s` on the chars
+        /// beginning at the current index in the input stream. It returns the string matched by
+        /// the regular expression. If the regular expression does not match, the parser fails
+        /// without consuming input.
+        /// </para>
+        /// <para>
+        /// The `System.Text.RegularExpressions.Regex` object that is internally used to match the
+        /// pattern is constructed with the `RegexOptions` `MultiLine` and `ExplicitCapture`. In
+        /// order to ensure that the regular expression can only match at the beginning of a
+        /// string, "\\A" is automatically prepended to the pattern.
+        /// </para>
+        /// <para>
+        /// Newline chars ('\r' and '\n') in the pattern are interpreted literally. For example, an
+        /// '\n' char in the pattern will only match "\n", not "\r" or "\r\n". However, in the
+        /// returned string all newlines ("\n", "\r\n" or "\r") are normalized to "\n".
+        /// </para>
+        /// <para>
+        /// For large files the regular expression is *not* applied to a string containing *all*
+        /// the remaining chars in the stream. The number of chars that are guaranteed to be
+        /// visible to the regular expression is specified during construction of the `CharStream`.
+        /// If one of the `runParser` functions is used to run the parser, this number is 43690.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Regex(string pattern) => regex<Unit>(pattern);
+
+        #endregion Strings
+
+        #region Numbers
 
         /// <summary>
         /// <para>
@@ -438,7 +548,7 @@
         /// </summary>
         public static FSharpFunc<Chars, Reply<byte>> UByte => puint8<Unit>();
 
-        #endregion Number
+        #endregion Numbers
 
         #region Whitespace
 

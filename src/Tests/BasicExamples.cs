@@ -40,19 +40,27 @@ namespace Tests {
 
         [Fact] public void ParseString() => StringP("hello parser").ParseString("hello parser").ShouldBe("hello parser");
 
-        [Fact] public void ParseStringIgnoreCase() => StringCI("hello parser").ParseString("Hello PARSER").ShouldBe("Hello PARSER");
+        [Fact] public void StringIgnoreCase() => StringCI("hello parser").ParseString("Hello PARSER").ShouldBe("Hello PARSER");
 
-        [Fact] public void ParseAndSkipString() => Skip("abc").ParseString("abc").ShouldBe(null);
+        [Fact] public void SkipString() => Skip("abc").ParseString("abc").ShouldBe(null);
 
-        [Fact] public void ParseAndSkipStringIgnoreCase() => SkipCI("hello parser").ParseString("Hello PARSER").ShouldBe(null);
+        [Fact] public void SkipStringIgnoreCase() => SkipCI("hello parser").ParseString("Hello PARSER").ShouldBe(null);
 
-        [Fact] public void ParseStringWithCharParser() => ManyChars(Upper).ParseString("HELLO").ShouldBe("HELLO");
+        [Fact] public void StringWithCharParser() => ManyChars(Upper).ParseString("HELLO").ShouldBe("HELLO");
 
-        [Fact] public void ParseStringWithCharParserAtLeastOnce() => Many1Chars(Lower).ParseString("hello").ShouldBe("hello");
+        [Fact] public void StringWithCharParserAtLeastOnce() => Many1Chars(Lower).ParseString("hello").ShouldBe("hello");
+
+        [Fact] public void StringWithPredicate() => ManyChars(char.IsUpper).ParseString("HELLO").ShouldBe("HELLO");
+
+        [Fact] public void StringWithPredicateMinToMaxTimes() => ManyChars(char.IsUpper, 1, 9).ParseString("HELLO").ShouldBe("HELLO");
 
         [Fact] public void AnyStringOfLengthN() => AnyString(3).ParseString("abcdef").ShouldBe("abc");
 
         [Fact] public void RestOfTheLine() => Skip('a').And(RestOfLine()).ParseString("abc\ndef").ShouldBe("bc");
+
+        [Fact] public void StringWithRegularExpression() => Regex(@"\w\d").ParseString("a1").ShouldBe("a1");
+
+        [Fact] public void StringUntilEnd() => ManyCharsTill(AnyChar, NL).ParseString("abc\ndef").ShouldBe("abc");
 
         #endregion Strings
 

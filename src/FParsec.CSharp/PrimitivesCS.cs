@@ -538,8 +538,8 @@
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> SkipManyTill<T, TEnd>(
             FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TEnd>> end)
-            => skipManyTill(p, end);
+            FSharpFunc<Chars, Reply<TEnd>> endp)
+            => skipManyTill(p, endp);
 
         /// <summary>
         /// <para>
@@ -553,8 +553,8 @@
         /// </summary>
         public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1Till<T, TEnd>(
             FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TEnd>> end)
-            => many1Till(p, end);
+            FSharpFunc<Chars, Reply<TEnd>> endp)
+            => many1Till(p, endp);
 
         /// <summary>
         /// The parser `SkipMany1Till(p,endp)` is an optimized implementation of
@@ -562,8 +562,8 @@
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> SkipMany1Till<T, TEnd>(
             FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TEnd>> end)
-            => skipMany1Till(p, end);
+            FSharpFunc<Chars, Reply<TEnd>> endp)
+            => skipMany1Till(p, endp);
 
         /// <summary>
         /// <para>

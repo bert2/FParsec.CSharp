@@ -271,6 +271,18 @@ namespace Tests {
             .ShouldBe(null);
 
         [Fact]
+        public void ReduceMany() =>
+            Many(Digit.Map(c => c - '0'), (sum, x) => sum + x, 0)
+            .ParseString("01232456789")
+            .ShouldBe(47);
+
+        [Fact]
+        public void ReduceManyAtLeastOne() =>
+            Many1(AnyString(3).And(WS), string.Concat)
+            .ParseString("abc def ghi")
+            .ShouldBe("abcdefghi");
+
+        [Fact]
         public void ComputeExpressionDuringParsing() {
             var op = Choice(
                 CharP('+').Return((int x, int y) => x + y),

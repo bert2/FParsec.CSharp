@@ -1,5 +1,6 @@
 ﻿namespace FParsec.CSharp {
     using System;
+    using System.Linq;
     using Microsoft.FSharp.Collections;
     using Microsoft.FSharp.Core;
     using static CharParsers;
@@ -564,6 +565,23 @@
             FSharpFunc<Chars, Reply<T>> p,
             FSharpFunc<Chars, Reply<TEnd>> endp)
             => skipMany1Till(p, endp);
+
+        /// <summary>
+        /// `Many(p,f,x)` is a short form for `Many(p).Map(xs => xs.Aggregate(x, f))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> Many<T, TResult>(
+            FSharpFunc<Chars, Reply<T>> p,
+            Func<TResult, T, TResult> aggregate,
+            TResult seed)
+            => many(p).Map(xs => xs.Aggregate(seed, aggregate));
+
+        /// <summary>
+        /// `Many(p,f)` is a short form for `Many1(p).Map(xs => xs.Aggregate(f))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Many1<T>(
+            FSharpFunc<Chars, Reply<T>> p,
+            Func<T, T, T> aggregate)
+            => many1(p).Map(xs => xs.Aggregate(aggregate));
 
         /// <summary>
         /// <para>

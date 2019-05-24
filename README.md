@@ -495,12 +495,12 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `pfloat` | `P<double> Float` |
 | `pint64` | `P<long> Long` |
 | `pint32` | `P<int> Int` |
-| `pint16` | not yet implemented |
-| `pint8` | not yet implemented |
-| `puint64` | not yet implemented |
-| `puint32` | not yet implemented |
-| `puint16` | not yet implemented |
-| `puint8` | not yet implemented |
+| `pint16` | `P<short> Short` |
+| `pint8` | `P<sbyte> Byte` |
+| `puint64` | `P<ulong> ULong` |
+| `puint32` | `P<uint> UInt` |
+| `puint16` | `P<ushort> UShort` |
+| `puint8` | `P<byte> UByte` |
 | `notFollowedByEof` | `P<Unit> NotFollowedByEOF` |
 | `followedByNewline` | `P<Unit> FollowedByNewline` |
 | `notFollowedByNewline` | `P<Unit> NotFollowedByNewline` |
@@ -533,6 +533,7 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 * Wrap remaining char & string parsers!
 * Add paragraphs in XML doc!
 * Wrap `runParserOn...` functions!
+* Complete XML documentation!
 * Wrap parser position parser!
 * Add [source link](https://github.com/dotnet/sourcelink) support?
 * Wrap remaining helper functions?

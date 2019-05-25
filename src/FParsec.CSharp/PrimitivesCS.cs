@@ -652,6 +652,85 @@
             => attempt(p);
 
         /// <summary>
+        /// The parser `p1.AndTry(p2)` behaves like `p1.And(p2)`, except that it will backtrack to
+        /// the beginning if `p2` fails with a non-fatal error and without changing the parser
+        /// state, even if `p1` has changed the parser state.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<(T1, T2)>> AndTry<T1, T2>(
+            this FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2)
+            => op_DotGreaterGreaterDotQmark(p1, p2).Map(x => x.ToValueTuple());
+
+        /// <summary>
+        /// <para>
+        /// The parser `p1.AndTry(p2)` behaves like `p1.And(p2)`, except that it will backtrack to
+        /// the beginning if `p2` fails with a non-fatal error and without changing the parser
+        /// state, even if `p1` has changed the parser state.
+        /// </para>
+        /// <para>
+        /// Since `p2` is a skipping parser that returns `Unit`, its result will not be returned.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T1>> AndTry<T1>(
+            this FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<Unit>> p2)
+            => op_DotGreaterGreaterQmark(p1, p2);
+
+        /// <summary>
+        /// <para>
+        /// The parser `p1.AndTry(p2)` behaves like `p1.And(p2)`, except that it will backtrack to
+        /// the beginning if `p2` fails with a non-fatal error and without changing the parser
+        /// state, even if `p1` has changed the parser state.
+        /// </para>
+        /// <para>
+        /// Since `p1` is a skipping parser that returns `Unit`, its result will not be returned.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T2>> AndTry<T2>(
+            this FSharpFunc<Chars, Reply<Unit>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2)
+            => op_GreaterGreaterQmark(p1, p2);
+
+        /// <summary>
+        /// `p1.AndTry_(p2)` behaves like `p1.AndTry(p2)` except that it will always return both parser
+        /// results even if either of them returns `Unit`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<(T1, T2)>> AndTry_<T1, T2>(
+            this FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2)
+            => op_DotGreaterGreaterDotQmark(p1, p2).Map(x => x.ToValueTuple());
+
+        /// <summary>
+        /// The parser `p1.AndLTry(p2)` behaves like `p1.AndL(p2)`, except that it will backtrack
+        /// to the beginning if `p2` fails with a non-fatal error and without changing the parser
+        /// state, even if `p1` has changed the parser state.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T1>> AndLTry<T1, T2>(
+            this FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2)
+            => op_DotGreaterGreaterQmark(p1, p2);
+
+        /// <summary>
+        /// The parser `p1.AndRTry(p2)` behaves like `p1.AndR(p2)`, except that it will backtrack
+        /// to the beginning if `p2` fails with a non-fatal error and without changing the parser
+        /// state, even if `p1` has changed the parser state.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T2>> AndRTry<T1, T2>(
+            this FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2)
+            => op_GreaterGreaterQmark(p1, p2);
+
+        /// <summary>
+        /// The parser `p.AndTry(f)` behaves like `p.And(f)`, except that it will backtrack to the
+        /// beginning if the parser returned by `f` fails with a non-fatal error and without
+        /// changing the parser state, even if `p` has changed the parser state.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T2>> AndTry<T1, T2>(
+           this FSharpFunc<Chars, Reply<T1>> p1,
+           Func<T1, FSharpFunc<Chars, Reply<T2>>> p2)
+           => op_GreaterGreaterEqualsQmark(p1, p2.ToFSharpFunc());
+
+        /// <summary>
         /// <para>The parser `LookAhead(p)` parses `p` and restores the original parse state afterwards.</para>
         /// <para>
         /// In case `p` fails after changing the parser state, the error messages are wrapped in a

@@ -338,10 +338,10 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `opt` | `P<FSharpOption<T>> Opt_(P<T>)`,<br>`P<T> Opt(P<T>)` unwraps the `FSharpOption<T>`,<br>`P<T> Opt(P<T>, T)` unwraps the `FSharpOption<T>` with default value |
 | `optional` | `P<Unit> Optional(P<T>)` |
 | `attempt` | `P<T> Try(P<T>)` |
-| `(>>=?)` | not implemented |
-| `(>>?)` | not implemented |
-| `(.>>?)` | not implemented |
-| `(.>>.?)` | not implemented |
+| `(>>=?)` | `P<T2> P<T1>.AndTry(Func<T1, P<T2>>)` |
+| `(>>?)` | `P<T2> P<T1>.AndRTry(P<T2>)` skips left explicitly, <br>`P<T> P<Unit>.AndTry(P<T>)` skips left implicitly when it returns `Unit` |
+| `(.>>?)` | `P<T1> P<T1>.AndLTry(P<T2>)` skips right explicitly, <br>`P<T> P<T>.AndTry(P<Unit>)` skips right implicitly when it returns `Unit` |
+| `(.>>.?)` | `P<(T1,T2)> P<T1>.AndTry(P<T2>)` if neither side returns `Unit`,<br>`P<(Unit,Unit)> P<Unit>.AndTry_(P<Unit>)` if any side returns `Unit` |
 | `notEmpty` | `P<T> NotEmpty(P<T>)` |
 | `followedBy` | `P<Unit> FollowedBy(P<T>)` |
 | `followedByL` | `P<Unit> FollowedBy(P<T>, string)` |

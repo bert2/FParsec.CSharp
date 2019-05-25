@@ -378,6 +378,14 @@ namespace Tests {
             .ShouldBe(('1', '2'));
 
         [Fact]
+        public void LocalBacktracking() =>
+            Choice(
+                CharP('a').AndTry(Between('[', CharP('b'), ']')),
+                CharP('a').And(CharP('c')))
+            .ParseString("a[x]")
+            .ShouldBe<ErrorMessage.ExpectedString>("b");
+
+        [Fact]
         public void LookAheadAndBacktrack() {
             var keepLowerSkipUpper = LookAhead(Letter).And(c => char.IsLower(c)
                 ? ManyChars(Lower)

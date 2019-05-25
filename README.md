@@ -65,7 +65,7 @@ You have already seen one way to execute a parser above: `ParseString()`.
 
 `ParseFile(string)` will do the same for a given file path.
 
-If you need maximum control than `Reply<T> Parse(CharStream<Unit>)` is your best option. You can configure the `CharStream` yourself and inspect all the details of the `Reply` after parsing.
+If you need maximum control then `Reply<T> Parse(CharStream<Unit>)` is your best option. You can configure the `CharStream` yourself and inspect all the details of the `Reply` after parsing.
 
 #### Getting nicer error messages
 

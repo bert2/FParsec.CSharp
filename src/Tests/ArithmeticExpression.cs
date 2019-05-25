@@ -11,13 +11,11 @@
     public class ArithmeticExpression {
         #region Parser definitions
 
-        public static FSharpFunc<CharStream<Unit>, Reply<int>> Integer = Many1(Digit).Map(string.Concat).Map(int.Parse);
-
         private static readonly FSharpFunc<CharStream<Unit>, Reply<int>> BasicExprParser = new OPPBuilder<int, Unit>()
             .WithOperators(ops => ops
                 .AddInfix("+", 1, (x, y) => x + y)
                 .AddInfix("*", 2, (x, y) => x * y))
-            .WithTerms(Integer)
+            .WithTerms(Natural)
             .Build()
             .ExpressionParser;
 
@@ -25,7 +23,7 @@
             .WithOperators(ops => ops
                 .AddInfix("+", 1, (x, y) => x + y)
                 .AddInfix("*", 2, (x, y) => x * y))
-            .WithTerms(term => Choice(Integer, Between('(', term, ')')))
+            .WithTerms(term => Choice(Natural, Between('(', term, ')')))
             .Build()
             .ExpressionParser;
 
@@ -41,7 +39,7 @@
                     .AddPostfix("!", 40, Factorial))
                 .WithImplicitOperator(20, (x, y) => x * y)
                 .WithTerms(term => Choice(
-                    Integer.And(WS),
+                    Natural.And(WS),
                     Between(CharP('(').And(WS), term, CharP(')').And(WS))))
                 .Build()
                 .ExpressionParser);

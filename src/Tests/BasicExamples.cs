@@ -77,7 +77,9 @@ namespace Tests {
 
         #region Numbers
 
-        [Fact] public void ParseInt() => Int.ParseString("13").ShouldBe(13);
+        [Fact] public void NaturalNumber() => Natural.ParseString("123").ShouldBe(123);
+
+        [Fact] public void ParseInt() => Int.ParseString("-13").ShouldBe(-13);
 
         [Fact] public void ParseLong() => Long.ParseString("9223372036854775807").ShouldBe(9223372036854775807);
 

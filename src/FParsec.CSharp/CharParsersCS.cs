@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using Microsoft.FSharp.Core;
     using static CharParsers;
+    using static Primitives;
     using Chars = CharStream<Microsoft.FSharp.Core.Unit>;
 
     /// <summary>Provides predefined char and string parsers.</summary>
@@ -495,6 +496,23 @@
         #endregion Strings
 
         #region Numbers
+
+        /// <summary>
+        /// <para>
+        /// The parser `Natural` parses a sequence of one or more digits and converts them to an
+        /// `int`.
+        /// </para>
+        /// <para>
+        /// `Natural` fails if the value represented by the input string is greater than
+        /// `System.Int32.MaxValue`.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<int>> Natural =>
+            many1Chars(digit<Unit>())
+            .And(s => int.TryParse(s, out var n)
+                ? preturn<int, Unit>(n)
+                : fail<int, Unit>("number must be within range [0, 2147483647]"))
+            .Label("natural number");
 
         /// <summary>
         /// <para>

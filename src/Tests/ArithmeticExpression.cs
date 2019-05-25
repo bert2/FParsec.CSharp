@@ -155,7 +155,7 @@
         [Fact]
         public void WithWhitespace() =>
             ExprParser
-            .ParseString(" ( 1 + -2 ) * 3! ")
+            .ParseString(" ( 1 + -2 ) * 3 ! ")
             .ShouldBe(-6);
 
         #endregion Tests

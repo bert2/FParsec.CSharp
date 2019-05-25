@@ -120,13 +120,25 @@ namespace Tests {
             .ShouldBe('x');
 
         [Fact]
-        public void SkipLeftChar() =>
+        public void IgnoreLeftChar() =>
+            CharP('a').AndR(CharP('b'))
+            .ParseString("ab")
+            .ShouldBe('b');
+
+        [Fact]
+        public void IgnoreRightChar() =>
+            CharP('a').AndL(CharP('b'))
+            .ParseString("ab")
+            .ShouldBe('a');
+
+        [Fact]
+        public void IgnoreLeftCharImplicitly() =>
             Skip('a').And(CharP('b'))
             .ParseString("ab")
             .ShouldBe('b');
 
         [Fact]
-        public void SkipRightChar() =>
+        public void IgnoreRightCharImplicitly() =>
             CharP('a').And(Skip('b'))
             .ParseString("ab")
             .ShouldBe('a');

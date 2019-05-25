@@ -4,6 +4,7 @@
     using Microsoft.FSharp.Collections;
     using Microsoft.FSharp.Core;
 
+    /// <summary>Provides helpers to work with types from `FParsec` and `FSharpCore`.</summary>
     public static class Extensions {
         /// <summary>Applies the parser `p` to the input string.</summary>
         public static Reply<TResult> ParseString<TResult>(
@@ -23,15 +24,19 @@
            CharStream<Unit> chars)
            => p.Invoke(chars);
 
+        /// <summary>Creates an `FSharpList` from the `IEnumerable`.</summary>
         public static FSharpList<T> ToFSharpList<T>(this IEnumerable<T> source) => ListModule.OfSeq(source);
 
+        /// <summary>Unwraps the `FSharpOption` using an optional default value.</summary>
         public static T GetValueOrDefault<T>(
             this FSharpOption<T> opt,
             T defaultValue = default)
             => FSharpOption<T>.get_IsSome(opt) ? opt.Value : defaultValue;
 
+        /// <summary>Indicates whether the parser `Reply` has status `Ok`.</summary>
         public static bool IsOk<T>(this Reply<T> reply) => reply.Status == ReplyStatus.Ok;
 
+        /// <summary>Turns the `ErrorMessageList` into an `IEnumarable` of `ErrorMessage`s.</summary>
         public static IEnumerable<ErrorMessage> AsEnumerable(this ErrorMessageList errs) {
             if (errs == null) yield break;
 

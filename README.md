@@ -322,9 +322,9 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `pzero` | `P<T> Zero<T>()` |
 | `(>>=)` | `P<T2> P<T1>.And(Func<T1, P<T2>>)` |
 | `(>>%)` | `P<T2> P<T1>.Return(T2)` |
-| `(>>.)` | `P<T> P<Unit>.And(P<T>)` skips left parser automatically when it returns `Unit` |
-| `(.>>)` | `P<T> P<T>.And(P<Unit>)` skips right parser automatically when it returns `Unit` |
-| `(.>>.)` | `P<(T1,T2)> P<T1>.And(P<T2>)` if neither parser returns `Unit`,<br>`P<(Unit,Unit)> P<Unit>.And_(P<Unit>)` if any parser returns `Unit` |
+| `(>>.)` | `P<T2> P<T1>.AndR(P<T2>)` skips left explicitly, <br>`P<T> P<Unit>.And(P<T>)` skips left implicitly when it returns `Unit` |
+| `(.>>)` | `P<T1> P<T1>.AndL(P<T2>)` skips right explicitly, <br>`P<T> P<T>.And(P<Unit>)` skips right implicitly when it returns `Unit` |
+| `(.>>.)` | `P<(T1,T2)> P<T1>.And(P<T2>)` if neither side returns `Unit`,<br>`P<(Unit,Unit)> P<Unit>.And_(P<Unit>)` if any side returns `Unit` |
 | `(|>>)` | `P<T2> P<T1>.Map(Func<T1, T2>)` |
 | `between` | `P<T2> Between(P<T1>, P<T2>, P<T3>)` (different argument order) |
 | `pipe2` | `P<TR> Pipe(P<T1>, P<T2>, Func<T1, T2, TR>)` |
@@ -522,10 +522,9 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 
 ## TODO
 
-* Wrap remaining char & string parsers!
-* Add paragraphs in XML doc!
+* Wrap backtracking operators (`(>>?)` etc.)
 * Wrap `runParserOn...` functions!
-* Complete XML documentation!
+* Wrap remaining string parsers!
 * Wrap parser position parser!
 * Add [source link](https://github.com/dotnet/sourcelink) support?
 * Wrap remaining helper functions?

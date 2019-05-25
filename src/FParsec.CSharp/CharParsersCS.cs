@@ -5,9 +5,7 @@
     using static CharParsers;
     using Chars = CharStream<Microsoft.FSharp.Core.Unit>;
 
-    /// <summary>
-    /// Provides predefined char and string parsers.
-    /// </summary>
+    /// <summary>Provides predefined char and string parsers.</summary>
     public static class CharParsersCS {
         #region Chars
 
@@ -23,8 +21,11 @@
         public static FSharpFunc<Chars, Reply<Unit>> SkipAnyChar => skipAnyChar<Unit>();
 
         /// <summary>
-        /// `CharP(c)` parses the char `c` and returns `c`. If `c = '\r'` or `c = '\n'` then
-        /// `CharP(c)` will parse any one newline ("\n", "\r\n" or "\r") and return `c`.
+        /// <para>`CharP(c)` parses the char `c` and returns `c`.</para>
+        /// <para>
+        /// If `c = '\r'` or `c = '\n'` then `CharP(c)` will parse any one newline ("\n", "\r\n",
+        /// or "\r") and return `c`.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> CharP(char c) => pchar<Unit>(c);
 
@@ -67,10 +68,17 @@
         public static FSharpFunc<Chars, Reply<Unit>> Skip(Func<char, bool> pred, string label) => skipSatisfyL<Unit>(pred.ToFSharpFunc(), label);
 
         /// <summary>
-        /// `AnyOf(s)` parses any char contained in the string `s`. It returns the parsed char. If
-        /// `s` contains the char '\n', `AnyOf(s)` parses any newline ("\n", "\r\n" or "\r") and
-        /// returns it as '\n'. Note that it does not make a difference whether or not `s`
-        /// contains '\r'; `AnyOf(s)` will never return '\r'.
+        /// <para>
+        /// `AnyOf(s)` parses any char contained in the string `s`. It returns the parsed char.
+        /// </para>
+        /// <para>
+        /// If `s` contains the char '\n', `AnyOf(s)` parses any newline ("\n", "\r\n" or "\r") and
+        /// returns it as '\n'.
+        /// </para>
+        /// <para>
+        /// Note that it does not make a difference whether or not `s` contains '\r'; `AnyOf(s)`
+        /// will never return '\r'.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> AnyOf(IEnumerable<char> chars) => anyOf<Unit>(chars);
 
@@ -80,10 +88,18 @@
         public static FSharpFunc<Chars, Reply<Unit>> SkipAnyOf(IEnumerable<char> chars) => skipAnyOf<Unit>(chars);
 
         /// <summary>
+        /// <para>
         /// `NoneOf(s)` parses any char not contained in the string `s`. It returns the parsed
-        /// char. If `s` does not contain the char '\n', `NoneOf(s)` parses any newline
-        /// ("\n", "\r\n" or "\r") and returns it as  as '\n'. Note that it does not make a 
-        /// difference whether or not `s` contains '\r'; `NoneOf(s)` will never return '\r'.
+        /// char.
+        /// </para>
+        /// <para>
+        /// If `s` does not contain the char '\n', `NoneOf(s)` parses any newline ("\n", "\r\n", or
+        /// "\r") and returns it as  as '\n'.
+        /// </para>
+        /// <para>
+        /// Note that it does not make a difference whether or not `s` contains '\r'; `NoneOf(s)`
+        /// will never return '\r'.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> NoneOf(IEnumerable<char> chars) => noneOf<Unit>(chars);
 
@@ -146,15 +162,20 @@
         #region Strings
 
         /// <summary>
-        /// `StringP(s)` parses the string `s` and returns `s`.
+        /// <para>`StringP(s)` parses the string `s` and returns `s`.</para>
+        /// <para>
         /// It is an atomic parser: either it succeeds or it fails without consuming any input.
-        /// `s` may not contain newline chars ('\n' or '\r').
+        /// </para>
+        /// <para>`s` may not contain newline chars ('\n' or '\r').</para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<string>> StringP(string s) => pstring<Unit>(s);
 
         /// <summary>
+        /// <para>
         /// `StringCI(s)` parses any string that case-insensitively matches the string `s`.
-        /// It returns the *parsed* string. `s` may not contain newline chars ('\n' or '\r').
+        /// It returns the *parsed* string.
+        /// </para>
+        /// <para>`s` may not contain newline chars ('\n' or '\r').</para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<string>> StringCI(string s) => pstringCI<Unit>(s);
 
@@ -200,28 +221,31 @@
 
         /// <summary>
         /// <para>
-        /// `RestOfLine(skipNewline)` parses any chars before the end of the line and, if
-        /// `skipNewline` is `true`, skips to the beginning of the next line (if there is one).
+        /// `RestOfLine(b)` parses any chars before the end of the line and, if `b` is `true`,
+        /// skips to the beginning of the next line (if there is one).
         /// </para>
         /// <para>
         /// Returns the parsed chars before the end of the line as a string (without a newline).
         /// </para>
-        /// <para>A line is terminated by a newline ("\n", "\r\n" or "\r") or the end of the input stream.</para>
+        /// <para>
+        /// A line is terminated by a newline ("\n", "\r\n" or "\r") or the end of the input
+        /// stream.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<string>> RestOfLine(bool skipNewline = false) => restOfLine<Unit>(skipNewline);
 
         /// <summary>
-        /// `SkipRestOfLine(skipNewline)` is an optimized implementation of `Skip(RestOfLine(skipNewline))`.
+        /// `SkipRestOfLine(b)` is an optimized implementation of `Skip(RestOfLine(b))`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> SkipRestOfLine(bool skipNewline = false) => skipRestOfLine<Unit>(skipNewline);
 
         /// <summary>
         /// <para>
-        /// `ManyChars(cp)` parses a sequence of *zero* or more chars with the char parser `cp`. It
+        /// `ManyChars(p)` parses a sequence of *zero* or more chars with the char parser `p`. It
         /// returns the parsed chars as a string.
         /// </para>
         /// <para>
-        /// `ManyChars(cp)` is an optimized implementation of `Many(Try(cp))` that returns the
+        /// `ManyChars(p)` is an optimized implementation of `Many(Try(p))` that returns the
         /// chars as a string instead of a char list. The equivalence to `Many(Try(p))` instead of
         /// `Many(p)` implies that `ManyChars()` never fails.
         /// </para>
@@ -232,11 +256,11 @@
 
         /// <summary>
         /// <para>
-        /// `Many1Chars(cp)` parses a sequence of *one* or more chars with the char parser `cp`. It
+        /// `Many1Chars(p)` parses a sequence of *one* or more chars with the char parser `p`. It
         /// returns the parsed chars as a string.
         /// </para>
         /// <para>
-        /// `Many1Chars(cp)` is an optimized implementation of `Many1(Try(cp))` that returns the
+        /// `Many1Chars(p)` is an optimized implementation of `Many1(Try(p))` that returns the
         /// chars as a string instead of a char list. The equivalence to `Many1(Try(p))` instead of
         /// `Many1(p)` implies that `Many1Chars()` never fails after consuming input.
         /// </para>
@@ -737,8 +761,11 @@
         public static FSharpFunc<Chars, Reply<Unit>> SkipUnicodeNewline => skipUnicodeNewline<Unit>();
 
         /// <summary>
-        /// Parses the tab char '\t' and returns '\t'. Note that a tab char is treated like any
-        /// other non-newline char: the column number is incremented by (only) 1.
+        /// <para>Parses the tab char '\t' and returns '\t'.</para>
+        /// <para>
+        /// Note that a tab char is treated like any other non-newline char: the column number is
+        /// incremented by (only) 1.
+        /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> Tab => tab<Unit>();
 

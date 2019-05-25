@@ -7,6 +7,7 @@
     using static Primitives;
     using Chars = CharStream<Microsoft.FSharp.Core.Unit>;
 
+    /// <summary>Provides combinator functions.</summary>
     public static class PrimitivesCS {
         #region Sequence
 
@@ -25,8 +26,7 @@
         /// the result of `p1`.
         /// </para>
         /// <para>
-        /// Since `p2` is a skipping parser that returns `Unit` its result
-        /// will not be returned.
+        /// Since `p2` is a skipping parser that returns `Unit`, its result will not be returned.
         /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<T1>> And<T1>(
@@ -40,8 +40,7 @@
         /// the result of `p2`.
         /// </para>
         /// <para>
-        /// Since `p1` is a skipping parser that returns `Unit` its result
-        /// will not be returned.
+        /// Since `p1` is a skipping parser that returns `Unit`, its result will not be returned.
         /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<T2>> And<T2>(
@@ -50,35 +49,31 @@
             => op_GreaterGreaterDot(p1, p2);
 
         /// <summary>
-        /// <para>
-        /// The parser `p1.And(p2)` applies the parsers `p1` and `p2` in sequence and returns
-        /// the result of `p2`.
-        /// </para>
-        /// <para>
-        /// Since `p1` is a skipping parser that returns `Unit` its result
-        /// will not be returned. Although `p2` is skipping parser as well, its result will still
-        /// be returned instead of creating a new `Reply&lt;Unit&gt;`.
-        /// </para>
-        /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> And(
-            this FSharpFunc<Chars, Reply<Unit>> p1,
-            FSharpFunc<Chars, Reply<Unit>> p2)
-            => op_GreaterGreaterDot(p1, p2);
-
-        /// <summary>
-        /// <para>
-        /// The parser `p1.And_(p2)` applies the parsers `p1` and `p2` in sequence and returns
-        /// the results in a tuple.
-        /// </para>
-        /// <para>
-        /// `p1.And_(p2)` behaves like `p1.And(p2)` except that it will
-        /// always return both parser results even if either of them returns `Unit`.
-        /// </para>
+        /// `p1.And_(p2)` behaves like `p1.And(p2)` except that it will always return both parser
+        /// results even if either of them returns `Unit`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<(T1, T2)>> And_<T1, T2>(
             this FSharpFunc<Chars, Reply<T1>> p1,
             FSharpFunc<Chars, Reply<T2>> p2)
             => op_DotGreaterGreaterDot(p1, p2).Map(x => x.ToValueTuple());
+
+        /// <summary>
+        /// The parser `p1.AndL(p2)` applies the parsers `p1` and `p2` in sequence and returns the
+        /// result of `p1`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T1>> AndL<T1, T2>(
+            this FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2)
+            => op_DotGreaterGreater(p1, p2);
+
+        /// <summary>
+        /// The parser `p1.AndR(p2)` applies the parsers `p1` and `p2` in sequence and returns the
+        /// result of `p2`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T2>> AndR<T1, T2>(
+            this FSharpFunc<Chars, Reply<T1>> p1,
+            FSharpFunc<Chars, Reply<T2>> p2)
+            => op_GreaterGreaterDot(p1, p2);
 
         /// <summary>
         /// The parser `p.And(f)` first applies the parser `p` to the input, then applies the

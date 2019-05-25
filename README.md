@@ -4,21 +4,28 @@
 
 FParsec.CSharp is a C# wrapper for the F# package [FParsec](https://github.com/stephan-tolksdorf/fparsec). FParsec is a parser combinator library with which you can implement parsers declaratively.
 
-* [Why FParsec.CSharp?](#why-fparseccsharp)
-* [Getting started](#getting-started)
+- [Why FParsec.CSharp?](#why-fparseccsharp)
+- [Getting started](#getting-started)
+  * [Executing parsers](#executing-parsers)
+    + [Invoking the parser function directly](#invoking-the-parser-function-directly)
+    + [Getting nicer error messages](#getting-nicer-error-messages)
+  * [Handling parser results](#handling-parser-results)
+    + [Get result or exception](#get-result-or-exception)
+    + [Get result with custom error handling](#get-result-with-custom-error-handling)
+    + [Safe unwrapping](#safe-unwrapping)
   * [Using FParsec.CSharp and FParsec together](#using-fparseccsharp-and-fparsec-together)
-* [Examples](#examples)
+- [Examples](#examples)
   * [Simple JSON](#simple-json)
   * [Simple XML](#simple-xml)
   * [Glob patterns](#glob-patterns)
   * [Arithmetic expressions](#arithmetic-expressions)
   * [Simple regular expressions](#simple-regular-expressions)
-* [Hints](#hints)
+- [Hints](#hints)
   * [Debugging](#debugging)
   * [Aliasing awkward types](#aliasing-awkward-types)
-* [Alternatives](#alternatives)
-* [Where is the FParsec function `x`?](#where-is-the-fparsec-function-x)
-* [TODO](#todo)
+- [Alternatives](#alternatives)
+- [Where is the FParsec function `x`?](#where-is-the-fparsec-function-x)
+- [TODO](#todo)
 
 ## Why FParsec.CSharp?
 
@@ -47,6 +54,108 @@ var p = AnyChar.And(Digit);
 var r = p.ParseString("a1");
 System.Diagnostics.Debug.Assert(r.Result == ('a', '1'));
 ```
+
+### Executing parsers
+
+#### Invoking the parser function directly
+
+You have already seen one way to execute a parser above: `ParseString()`.
+
+`ParseString(string)` is a wrapper for `FSharpFunc<CharStream<Unit>, Reply<T>>.Invoke()` which constructs the `CharStream` for you from the given string.
+
+`ParseFile(string)` will do the same for a given file path.
+
+If you need maximum control than `Reply<T> Parse(CharStream<Unit>)` is your best option. You can configure the `CharStream` yourself and inspect all the details of the `Reply` after parsing.
+
+#### Getting nicer error messages
+
+Using `Invoke()`, `Parse()`, or any of its variants is generally not recommended. FParsec provides a better way to execute parsers that generates nicely formatted error messages: `Run()`.
+
+The extension `Run(string)` does the same as `ParseString(string)`, but also builds an error message from the `Reply`'s errors and the parser postion:
+
+```C#
+var result = Many1(Digit).AndR(Upper).Run("123a");
+
+// Don't be shocked: in the next section we will learn how to improve this.
+var msg = ((ParserResult<char, Unit>.Failure)result).Item1;
+
+Console.WriteLine(msg);
+```
+
+The above will print the following detailed parsing failure message:
+
+```
+Error in Ln: 1 Col: 4
+123a
+   ^
+Expecting: decimal digit or uppercase letter
+```
+
+`Run(string)` is actually just a short form for `RunOnString(string)`.
+
+Additionally, there are three more `Run...()` functions: `RunOnString(string, int, int)` (parse a substring), `RunOnStream()` (parse a `Stream`), and `RunOnFile()` (parse... well you get the idea).
+
+### Handling parser results
+
+FParsec's `ParserResult` is an F# discriminated union, which are awkward to work with in C#. FParsec.CSharp comes with extensions methods that hide those ugly details.
+
+#### Get result or exception
+
+The easiest way to get the parser result is to use `GetResult()`:
+
+```C#
+var d = Digit.Run("1").GetResult();
+Debug.Assert(d == '1');
+```
+
+`GetResult()` will throw an `InvalidOperationException` in case the parser failed. The exception will contain the detailed parsing failure message.
+
+#### Get result with custom error handling
+
+If you need more graceful error handling you can use `GetResult<T>(Func<string, T>)` which delegates error handling to the caller and provides the failure message to it:
+
+```C#
+// provide fallback value
+var d1 = Digit.Run("a").GetResult(_ => default);
+Debug.Assert(d2 == '\0');
+
+// throw your own exception
+var d2 = Digit.Run("a").GetResult(msg => throw new Exception($"whoops... {msg}"));
+
+// do anything as long as you return a fallback value or throw
+var d3 = Digit.Run("a").GetResult(_ => {
+    Console.WriteLine("oof");
+    return GetRandomChar();
+});
+```
+
+Additionally, the extensions `GetResultOrError<T>(Func<ParserError, T>)` and `GetResultOrFailure<T>(Func<ParserResult<T, Unit>.Failure, T>)` let you inspect the `ParserError` or `Failure` objects during error handling.
+
+#### Safe unwrapping
+
+Alternatively, you can can safely unwrap a `ParserResult<T, Unit>` into a tuple `(T result, string message)` using `UnwrapResult()` (which will never throw):
+
+```C#
+var (res, msg) = Digit.Run("a").UnwrapResult();
+Console.WriteLine(msg ?? $"Parser succeeded: {res}");
+```
+
+In case parsing succeeded the left side of the tuple will hold the parser's return value and the right side will be `null`.
+
+In case parsing failed the left side of the tuple will hold the return value type's `default` value and the right side will hold the detailed parser error message.
+
+Hence the safest way to check if the parser result tuple indicates failure is to check whether the right side is `null`.
+
+With C# 8.0 you can do that quite nicely using a `switch` expression and recursive patterns:
+
+```C#
+var response = Digit.Run("a").UnwrapResult() switch {
+    (var r, null) => $"Parser succeeded: {r}",
+    (_,    var m) => $"Parser failed: {m}"
+};
+```
+
+`UnwrapWithError()` and `UnwrapWithFailure()` work the same way, but return the `ParserError` or `ParserResult<TResult, Unit>.Failure` instance in the right side of the tuple.
 
 ### Using FParsec.CSharp and FParsec together
 
@@ -522,8 +631,6 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 
 ## TODO
 
-* Wrap backtracking operators (`(>>?)` etc.)
-* Wrap `runParserOn...` functions!
 * Wrap remaining string parsers!
 * Wrap parser position parser!
 * Add [source link](https://github.com/dotnet/sourcelink) support?

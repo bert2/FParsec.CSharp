@@ -1,7 +1,9 @@
 namespace Tests {
+    using System;
     using FParsec;
     using FParsec.CSharp;
     using Microsoft.FSharp.Core;
+    using Shouldly;
     using Xunit;
     using static FParsec.CSharp.CharParsersCS;
     using static FParsec.CSharp.PrimitivesCS;
@@ -486,5 +488,39 @@ namespace Tests {
             .ShouldBe<ErrorMessage.CompoundError>("the first two letters of the alphabet");
 
         #endregion Labels
+
+        #region Running parsers
+
+        [Fact]
+        public void RunAndUnwrapResult() =>
+            Digit.Run("1")
+            .UnwrapResult()
+            .ShouldBe(('1', null));
+
+        [Fact]
+        public void RunAndUnwrapErrorMessage() =>
+            Digit.Run("a")
+            .UnwrapResult()
+            .message.ShouldNotBeNull();
+
+        [Fact]
+        public void RunAndGetResult() =>
+            Digit.Run("1")
+            .GetResult()
+            .ShouldBe('1');
+
+        [Fact]
+        public void RunAndGetException() => new Action(() =>
+            Digit.Run("a")
+            .GetResult())
+            .ShouldThrow<InvalidOperationException>();
+
+        [Fact]
+        public void RunAndGetFallbackValue() =>
+            Digit.Run("a")
+            .GetResult(_ => default)
+            .ShouldBe('\0');
+
+        #endregion Running parsers
     }
 }

@@ -434,16 +434,16 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `(>>.)` | `P<T2> P<T1>.AndR(P<T2>)` skips left explicitly, <br>`P<T> P<Unit>.And(P<T>)` skips left implicitly when it returns `Unit` |
 | `(.>>)` | `P<T1> P<T1>.AndL(P<T2>)` skips right explicitly, <br>`P<T> P<T>.And(P<Unit>)` skips right implicitly when it returns `Unit` |
 | `(.>>.)` | `P<(T1,T2)> P<T1>.And(P<T2>)` if neither side returns `Unit`,<br>`P<(Unit,Unit)> P<Unit>.And_(P<Unit>)` if any side returns `Unit` |
-| `(\|>>)` | `P<T2> P<T1>.Map(Func<T1, T2>)` |
+| `(|>>)` | `P<T2> P<T1>.Map(Func<T1, T2>)` |
 | `between` | `P<T2> Between(P<T1>, P<T2>, P<T3>)` (different argument order) |
 | `pipe2` | `P<TR> Pipe(P<T1>, P<T2>, Func<T1, T2, TR>)` |
 | `pipe3` | `P<TR> Pipe(P<T1>, P<T2>, P<T3>, Func<T1, T2, T3, TR>)` |
 | `pipe4` | `P<TR> Pipe(P<T1>, P<T2>, P<T3>, P<T4>, Func<T1, T2, T3, T4, TR>)` |
 | `pipe5` | `P<TR> Pipe(P<T1>, P<T2>, P<T3>, P<T4>, P<T5>, Func<T1, T2, T3, T4, T5, TR>)` |
-| `(<|>)` | `P<T> P<T>.Or(P<T>)` |
+| `(<\|>)` | `P<T> P<T>.Or(P<T>)` |
 | `choice` | `P<T> Choice(params P<T>[])` |
 | `choiceL` | `P<T> Choice(string, params P<T>[])` |
-| `(<|>%)` | `P<T> P<T>.Or(T)` |
+| `(<\|>%)` | `P<T> P<T>.Or(T)` |
 | `opt` | `P<FSharpOption<T>> Opt_(P<T>)`,<br>`P<T> Opt(P<T>)` unwraps the `FSharpOption<T>`,<br>`P<T> Opt(P<T>, T)` unwraps the `FSharpOption<T>` with default value |
 | `optional` | `P<Unit> Optional(P<T>)` |
 | `attempt` | `P<T> Try(P<T>)` |

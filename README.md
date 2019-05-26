@@ -104,8 +104,8 @@ FParsec's `ParserResult` is an F# discriminated union, which are awkward to work
 The easiest way to get the parser result is to use `GetResult()`:
 
 ```C#
-var d = Digit.Run("1").GetResult();
-Debug.Assert(d == '1');
+var one = Digit.Run("1").GetResult();
+Debug.Assert(one == '1');
 ```
 
 `GetResult()` will throw an `InvalidOperationException` in case the parser failed. The exception will contain the detailed parsing failure message.
@@ -117,7 +117,7 @@ If you need more graceful error handling you can use `GetResult<T>(Func<string, 
 ```C#
 // provide fallback value
 var d1 = Digit.Run("a").GetResult(_ => default);
-Debug.Assert(d2 == '\0');
+Debug.Assert(d1 == '\0');
 
 // throw your own exception
 var d2 = Digit.Run("a").GetResult(msg => throw new Exception($"whoops... {msg}"));

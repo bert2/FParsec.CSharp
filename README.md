@@ -487,11 +487,11 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `chainl` | `P<T> ChainL(P<T>, P<Func<T, T, T>>, T)` |
 | `chainr1` | `P<T> ChainR(P<T>, P<Func<T, T, T>>)` |
 | `chainr` | `P<T> ChainR(P<T>, P<Func<T, T, T>>, T)` |
-| `runParserOnString` | not yet implemented,<br>use `Reply<T> P<T>.ParseString(string)` |
-| `runParserOnSubstring` | not yet implemented,<br>use `Reply<T> P<T>.Parse(new CharStream<Unit>(string, int, int))` |
-| `runParserOnStream` | not yet implemented,<br>use `Reply<T> P<T>.Parse(new CharStream<Unit>(Stream, Encoding))` |
-| `runParserOnFile` | not yet implemented,<br>use `Reply<T> P<T>.ParseFile(string)` |
-| `run` | not yet implemented,<br>use `Reply<T> P<T>.ParseString(string)` |
+| `runParserOnString` | `ParserResult<T> P<T>.RunOnString(string, string)` |
+| `runParserOnSubstring` | `ParserResult<T> P<T>.RunOnString(string, int, int, string)` |
+| `runParserOnStream` | `ParserResult<T> P<T>.RunOnStream(Stream, Encoding, string)` |
+| `runParserOnFile` | `ParserResult<T> P<T>.RunOnFile(string, Encoding)` |
+| `run` | `ParserResult<T> P<T>.Run(string)` |
 | `getPosition` | not yet implemented |
 | `getUserState` | not implemented |
 | `setUserState` | not implemented |
@@ -552,10 +552,10 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `skipAnyString` | `P<Unit> SkipAnyString(int)` |
 | `restOfLine` | `P<string> RestOfLine(bool)` |
 | `skipRestOfLine` | `P<Unit> SkipRestOfLine(bool)` |
-| `charsTillString` | not yet implemented |
-| `skipCharsTillString` | not yet implemented |
-| `charsTillStringCI` | not yet implemented |
-| `skipCharsTillStringCI` | not yet implemented |
+| `charsTillString` | `Reply<string> CharsTillString(string, int, bool)` |
+| `skipCharsTillString` | `Reply<Unit> SkipCharsTillString(string, int, bool)` |
+| `charsTillStringCI` | `Reply<string> CharsTillStringCI(string, int, bool)` |
+| `skipCharsTillStringCI` | `Reply<Unit> SkipCharsTillStringCI(string, int, bool)` |
 | `manySatisfy` | `P<string> ManyChars(Func<char, bool>)` |
 | `manySatisfy2` | not yet implemented |
 | `skipManySatisfy` | not yet implemented |
@@ -576,7 +576,7 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `manyMinMaxSatisfy2L` | not yet implemented |
 | `skipManyMinMaxSatisfyL` | not yet implemented |
 | `skipManyMinMaxSatisfy2L` | not yet implemented |
-| `regex` | not yet implemented |
+| `regex` | `Reply<string> Regex(string)` |
 | `regexL` | not yet implemented |
 | `identifier` | not implemented |
 | `manyChars` | `P<string> ManyChars(P<char>)` |

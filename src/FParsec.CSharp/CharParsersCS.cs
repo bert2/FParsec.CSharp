@@ -242,6 +242,61 @@
 
         /// <summary>
         /// <para>
+        /// `CharsTillString(s,n,b)` parses all chars before the first occurance of the string `s`
+        /// and, if `b` is `true`, skips over `s`. It returns the parsed chars before the string.
+        /// </para>
+        /// <para>
+        /// If more than `n` chars come before the first occurance of `s`, the parser *fails after
+        /// consuming* `n` chars.
+        /// </para>
+        /// <para>
+        /// Newlines ("\n", "\r\n" or "\r") are counted as single chars and in the returned string
+        /// all newlines are normalized to "\n".
+        /// </para>
+        /// <para>
+        /// `CharsTillString(s,n,b)` throws an `ArgumentOutOfRangeException` if `n` is negative.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> CharsTillString(string s, int maxCount, bool skipString = false)
+            => charsTillString<Unit>(s, skipString, maxCount);
+
+        /// <summary>
+        /// `SkipCharsTillString(s,n,b)` is an optimized implementation of
+        /// `Skip(CharsTillString(s,n,b))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipCharsTillString(string s, int maxCount, bool skipString = false)
+            => skipCharsTillString<Unit>(s, skipString, maxCount);
+
+        /// <summary>
+        /// <para>
+        /// `CharsTillStringCI(s,n,b)` parses all chars before the first case-insensitive occurance
+        /// of the string `s` and, if `b` is `true`, skips over it. It returns the parsed chars
+        /// before the string.
+        /// </para>
+        /// <para>
+        /// If more than `n` chars come before the first case-insensitive occurance of `s`, the
+        /// parser *fails* after consuming `n` chars.
+        /// </para>
+        /// <para>
+        /// Newlines ("\n", "\r\n" or "\r") are counted as single chars and in the returned string
+        /// all newlines are normalized to "\n".
+        /// </para>
+        /// <para>
+        /// `CharsTillStringCI(s,n,b)` throws an `ArgumentOutOfRangeException` if `n` is negative.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> CharsTillStringCI(string s, int maxCount, bool skipString = false)
+            => charsTillStringCI<Unit>(s, skipString, maxCount);
+
+        /// <summary>
+        /// `SkipCharsTillStringCI(s,n,b)` is an optimized implementation of
+        /// `Skip(CharsTillStringCI(s,n,b))`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipCharsTillStringCI(string s, int maxCount, bool skipString = false)
+            => skipCharsTillStringCI<Unit>(s, skipString, maxCount);
+
+        /// <summary>
+        /// <para>
         /// `ManyChars(p)` parses a sequence of *zero* or more chars with the char parser `p`. It
         /// returns the parsed chars as a string.
         /// </para>

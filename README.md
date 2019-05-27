@@ -506,7 +506,7 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `runParserOnStream` | `ParserResult<T> P<T>.RunOnStream(Stream, Encoding, string)` |
 | `runParserOnFile` | `ParserResult<T> P<T>.RunOnFile(string, Encoding)` |
 | `run` | `ParserResult<T> P<T>.Run(string)` |
-| `getPosition` | not yet implemented |
+| `getPosition` | `P<Position> PositionP` |
 | `getUserState` | not implemented |
 | `setUserState` | not implemented |
 | `updateUserState` | not implemented |

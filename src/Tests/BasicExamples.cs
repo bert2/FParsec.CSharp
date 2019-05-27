@@ -371,6 +371,12 @@ namespace Tests {
             .ParseString("")
             .ShouldBe<ErrorMessage.Expected>("any char");
 
+        [Fact]
+        public void CurrentParserPosition() =>
+            Digit.And(Lower).AndR(PositionP)
+            .ParseString("1aBC")
+            .ShouldBe(new Position(streamName: null, index: 2, line: 1, column: 3));
+
         #endregion Combinators (special)
 
         #region Combinators (backtracking, looking ahead & conditional parsing)

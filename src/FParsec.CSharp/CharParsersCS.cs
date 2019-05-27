@@ -158,6 +158,51 @@
         /// </summary>
         public static FSharpFunc<Chars, Reply<char>> Octal => octal<Unit>();
 
+        /// <summary>
+        /// `IsLetter(c)` is equivalent to `System.Char.IsLetter(c)`.
+        /// </summary>
+        public static bool IsLetter(char c) => isLetter(c);
+
+        /// <summary>
+        /// Returns `true` for any char in the range 'a' - 'z', 'A' - 'Z' and `false` for all other
+        /// chars.
+        /// </summary>
+        public static bool IsAsciiLetter(char c) => isAsciiLetter(c);
+
+        /// <summary>`IsUpper(c)` is equivalent to `System.Char.IsUpper(c)`.</summary>
+        public static bool IsUpper(char c) => isUpper(c);
+
+        /// <summary>
+        /// Returns `true` for any char in the range 'A' - 'Z' and `false` for all other chars.
+        /// </summary>
+        public static bool IsAsciiUpper(char c) => isAsciiUpper(c);
+
+        /// <summary>
+        /// `IsLower(c)` is equivalent to `System.Char.IsLower(c)`.
+        /// </summary>
+        public static bool IsLower(char c) => isLower(c);
+
+        /// <summary>
+        /// Returns `true` for any char in the range 'a' - 'z' and `false` for all other chars.
+        /// </summary>
+        public static bool IsAsciiLower(char c) => isAsciiLower(c);
+
+        /// <summary>
+        /// Returns `true` for any char in the range '0' - '9' and `false` for all other chars.
+        /// </summary>
+        public static bool IsDigit(char c) => isDigit(c);
+
+        /// <summary>
+        /// Returns `true` for any char in the range '0' - '9', 'a' - 'f', 'A' - 'F' and `false`
+        /// for all other chars.
+        /// </summary>
+        public static bool IsHex(char c) => isHex(c);
+
+        /// <summary>
+        /// Returns `true` for any char in the range '0' - '7' and `false` for all other chars.
+        /// </summary>
+        public static bool IsOctal(char c) => isOctal(c);
+
         #endregion Chars
 
         #region Strings

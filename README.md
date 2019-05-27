@@ -645,10 +645,12 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 
 ## TODO
 
-* Wrap remaining string parsers!
-* Wrap parser position parser!
+* Wrap remaining string parsers
+* Wrap remaining helper functions
+* Add more extensions to work with `Reply<T>`?
+* Rework examples to use the new parsers and combinators
+* Implement small script language example
 * Add [source link](https://github.com/dotnet/sourcelink) support?
-* Wrap remaining helper functions?
 * Wrap `FSharpFunc<...>` with own type?
   * Implement implicit conversions between the two
   * Overload operators like `+` and `|` to use them as combinators

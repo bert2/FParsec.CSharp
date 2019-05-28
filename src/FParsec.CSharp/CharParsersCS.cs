@@ -593,6 +593,15 @@
             this FSharpFunc<Chars, Reply<T>> p)
             => withSkippedString(FSharpFunc.From<string, T, (string, T)>((s, x) => (s, x)), p);
 
+        /// <summary>
+        /// <para>
+        /// `FoldCase(s)` returns a case-folded version of `s` with all chars mappend using the
+        /// (non-Turkic) Unicode 1-to-1 case folding mappings for chars below 0x10000.
+        /// </para>
+        /// <para>If the argument is `null`, `null` is returned.</para>
+        /// </summary>
+        public static string FoldCase(string s) => foldCase(s);
+
         #endregion Strings
 
         #region Numbers
@@ -803,6 +812,44 @@
         /// </summary>
         public static FSharpFunc<Chars, Reply<byte>> UByte => puint8<Unit>();
 
+        /// <summary>
+        /// Returns a hexadecimal string representation of the `double`.
+        /// </summary>
+        public static string DoubleToHexString(double x) => floatToHexString(x);
+
+        /// <summary>
+        /// <para>
+        /// Returns the `double` value represented by the given string in hexadecimal format.
+        /// </para>
+        /// <para>
+        /// Raises a `System.FormatException` in case the string representation is invalid.
+        /// </para>
+        /// <para>
+        /// Raises a `System.OverflowException` if the (absolute) value is too large to be
+        /// represented by a `double`.
+        /// </para>
+        /// </summary>
+        public static double DoubleOfHexString(string s) => floatOfHexString(s);
+
+        /// <summary>
+        /// Returns a hexadecimal string representation of the `float`.
+        /// </summary>
+        public static string FloatToHexString(float x) => float32ToHexString(x);
+
+        /// <summary>
+        /// <para>
+        /// Returns the `float` value represented by the given string in hexadecimal format.
+        /// </para>
+        /// <para>
+        /// Raises a `System.FormatException` in case the string representation is invalid.
+        /// </para>
+        /// <para>
+        /// Raises a `System.OverflowException` if the (absolute) value is too large to be
+        /// represented by a `float`.
+        /// </para>
+        /// </summary>
+        public static float FloatOfHexString(string s) => float32OfHexString(s);
+
         #endregion Numbers
 
         #region Whitespace
@@ -891,6 +938,15 @@
         /// The parser `EOF` only succeeds at the end of the input. It never consumes input.
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> EOF => eof<Unit>();
+
+        /// <summary>
+        /// <para>
+        /// `NormalizeNewlines(s)` returns a version of `s` with all occurances of "\r\n" and "\r"
+        /// replaced by "\n".
+        /// </para>
+        /// <para>If the argument is `null`, `null` is returned.</para>
+        /// </summary>
+        public static string NormalizeNewlines(string s) => normalizeNewlines(s);
 
         #endregion Whitespace
 

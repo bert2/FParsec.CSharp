@@ -636,20 +636,20 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `next2CharsSatisfyNot` | `P<Unit> Next2CharsSatisfyNot(Func<char, char, bool>)` |
 | `previousCharSatisfies` | `P<Unit> PreviousCharSatisfies(Func<char, bool>)` |
 | `previousCharSatisfiesNot` | `P<Unit> PreviousCharSatisfiesNot(Func<char, bool>)` |
-| `foldCase` | not implemented |
-| `normalizeNewlines` | not implemented |
-| `floatToHexString` | not implemented |
-| `floatOfHexString` | not implemented |
-| `float32ToHexString` | not implemented |
-| `float32OfHexString` | not implemented |
+| `foldCase` | `string FoldCase(string)` |
+| `normalizeNewlines` | `string NormalizeNewlines(string)` |
+| `floatToHexString` | `string DoubleToHexString(double)` |
+| `floatOfHexString` | `double DoubleOfHexString(string)` |
+| `float32ToHexString` | `string FloatToHexString(double)` |
+| `float32OfHexString` | `double FloatOfHexString(string)` |
 
 ## TODO
 
 * Wrap remaining string parsers
-* Wrap remaining helper functions
 * Add more extensions to work with `Reply<T>`?
 * Rework examples to use the new parsers and combinators
 * Implement small script language example
+* Wrap `numberLiteral` and `identifier` parsers?
 * Add [source link](https://github.com/dotnet/sourcelink) support?
 * Wrap `FSharpFunc<...>` with own type?
   * Implement implicit conversions between the two

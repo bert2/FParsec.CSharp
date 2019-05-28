@@ -375,6 +375,15 @@
             => manyChars(p);
 
         /// <summary>
+        /// `ManyChars(p1,p)` behaves like `ManyChars(p)`, except that it parses the first char
+        /// with `p1` instead of `p`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> ManyChars(
+            FSharpFunc<Chars, Reply<char>> p1,
+            FSharpFunc<Chars, Reply<char>> p)
+            => manyChars2(p1, p);
+
+        /// <summary>
         /// <para>
         /// `Many1Chars(p)` parses a sequence of *one* or more chars with the char parser `p`. It
         /// returns the parsed chars as a string.
@@ -388,6 +397,15 @@
         public static FSharpFunc<Chars, Reply<string>> Many1Chars(
             FSharpFunc<Chars, Reply<char>> p)
             => many1Chars(p);
+
+        /// <summary>
+        /// `Many1Chars(p1,p)` behaves like `Many1Chars(p)`, except that it parses the first char
+        /// with `p1` instead of `p`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Many1Chars(
+            FSharpFunc<Chars, Reply<char>> p1,
+            FSharpFunc<Chars, Reply<char>> p)
+            => many1Chars2(p1, p);
 
         /// <summary>
         /// <para>
@@ -404,6 +422,15 @@
         public static FSharpFunc<Chars, Reply<string>> ManyChars(
             Func<char, bool> pred)
             => manySatisfy<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>
+        /// `ManyChars(f1,f)` behaves like `ManyChars(f)`, except that the first char of the parsed
+        /// string must satisfy `f1` instead of `f`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> ManyChars2(
+            Func<char, bool> pred1,
+            Func<char, bool> pred)
+            => manySatisfy2<Unit>(pred1.ToFSharpFunc(), pred.ToFSharpFunc());
 
         /// <summary>
         /// <para>
@@ -423,6 +450,15 @@
         public static FSharpFunc<Chars, Reply<string>> Many1Chars(
             Func<char, bool> pred)
             => many1Satisfy<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>
+        /// `Many1Chars(f1,f)` behaves like `Many1Chars(f)`, except that the first char of the
+        /// parsed string must satisfy `f1` instead of `f`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Many1Chars2(
+            Func<char, bool> pred1,
+            Func<char, bool> pred)
+            => many1Satisfy2<Unit>(pred1.ToFSharpFunc(), pred.ToFSharpFunc());
 
         /// <summary>
         /// <para>
@@ -446,6 +482,17 @@
             int minCount,
             int maxCount)
             => manyMinMaxSatisfy<Unit>(minCount, maxCount, pred.ToFSharpFunc());
+
+        /// <summary>
+        /// `ManyChars(f1,f,min,max)` behaves like `ManyChars(f,min,max)`, except that the first
+        /// char of the parsed string must satisfy `f1` instead of `f`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> ManyChars(
+            Func<char, bool> pred1,
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount)
+            => manyMinMaxSatisfy2<Unit>(minCount, maxCount, pred1.ToFSharpFunc(), pred.ToFSharpFunc());
 
         /// <summary>
         /// `ManyCharsTill(p,endp)` parses chars with the char parser `p` until the parser `endp`

@@ -571,11 +571,11 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `charsTillStringCI` | `Reply<string> CharsTillStringCI(string, int, bool)` |
 | `skipCharsTillStringCI` | `Reply<Unit> SkipCharsTillStringCI(string, int, bool)` |
 | `manySatisfy` | `P<string> ManyChars(Func<char, bool>)` |
-| `manySatisfy2` | not yet implemented |
+| `manySatisfy2` | `P<string> ManyChars(Func<char, bool>, Func<char, bool>)` |
 | `skipManySatisfy` | not yet implemented |
 | `skipManySatisfy2` | not yet implemented |
 | `many1Satisfy` | `P<string> Many1Chars(Func<char, bool>)` |
-| `many1Satisfy2` | not yet implemented |
+| `many1Satisfy2` | `P<string> Many1Chars(Func<char, bool>, Func<char, bool>)` |
 | `skipMany1Satisfy` | not yet implemented |
 | `skipMany1Satisfy2` | not yet implemented |
 | `many1SatisfyL` | not yet implemented |
@@ -583,7 +583,7 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `skipMany1SatisfyL` | not yet implemented |
 | `skipMany1Satisfy2L` | not yet implemented |
 | `manyMinMaxSatisfy` | `P<string> ManyChars(Func<char, bool>, int, int)` |
-| `manyMinMaxSatisfy2` | not yet implemented |
+| `manyMinMaxSatisfy2` | `P<string> ManyChars(Func<char, bool>, Func<char, bool>, int, int)` |
 | `skipManyMinMaxSatisfy` | not yet implemented |
 | `skipManyMinMaxSatisfy2` | not yet implemented |
 | `manyMinMaxSatisfyL` | not yet implemented |
@@ -594,9 +594,9 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `regexL` | not yet implemented |
 | `identifier` | not implemented |
 | `manyChars` | `P<string> ManyChars(P<char>)` |
-| `manyChars2` | not yet implemented |
+| `manyChars2` | `P<string> ManyChars(P<char>, P<char>)` |
 | `many1Chars` | `P<string> Many1Chars(P<char>)` |
-| `many1Chars2` | not yet implemented |
+| `many1Chars2` | `P<string> Many1Chars(P<char>, P<char>)` |
 | `manyCharsTill` | `P<string> ManyCharsTill(P<char>, P<T>)` |
 | `manyCharsTill2` | not yet implemented |
 | `manyCharsTillApply` | not yet implemented |

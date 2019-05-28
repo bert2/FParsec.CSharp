@@ -1,6 +1,7 @@
 ﻿namespace FParsec.CSharp {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Microsoft.FSharp.Core;
     using static CharParsers;
     using static Primitives;
@@ -206,6 +207,24 @@
         #endregion Chars
 
         #region Strings
+
+        /// <summary>
+        /// The parser `Choice(strings)` is an optimized implementation of
+        /// `StringP(s1).Or(StringP(s2)).Or(StringP(...)).Or(StringP(sn))`, where `s1` ... `sn` are
+        /// the strings in the sequence `strings`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Choice(
+            params string[] strings)
+            => choice(strings.Select(s => StringP(s)));
+
+        /// <summary>
+        /// The parser `Choice(s,strings)` is an optimized implementation of
+        /// `Choice(strings).Label(s)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Choice(
+            string label,
+            params string[] strings)
+            => choiceL(strings.Select(s => StringP(s)), label);
 
         /// <summary>
         /// <para>`StringP(s)` parses the string `s` and returns `s`.</para>

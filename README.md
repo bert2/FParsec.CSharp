@@ -604,6 +604,7 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `many1CharsTill` | `P<string> Many1CharsTill(P<char>, P<T>)` |
 | `many1CharsTill2` | not yet implemented |
 | `many1CharsTillApply` | not yet implemented |
+| `many1CharsTillApply2` | not yet implemented |
 | `manyStrings` | `P<string> ManyStrings(P<string>)` |
 | `manyStrings2` | not yet implemented |
 | `many1Strings` | `P<string> Many1Strings(P<string>)` |

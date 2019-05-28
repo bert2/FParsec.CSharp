@@ -257,7 +257,7 @@
             => op_LessBarGreater(p1, p2);
 
         /// <summary>
-        /// The parser `OneOf(ps)` is an optimized implementation of `p1.Or(p2).Or(...).Or(pn)`,
+        /// The parser `Choice(ps)` is an optimized implementation of `p1.Or(p2).Or(...).Or(pn)`,
         /// where `p1` ... `pn` are the parsers in the sequence `ps`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<T>> Choice<T>(
@@ -265,7 +265,7 @@
             => choice(ps);
 
         /// <summary>
-        /// The parser `Choice(ps,s)` is an optimized implementation of `Choice(ps).Label(s)`.
+        /// The parser `Choice(s,ps)` is an optimized implementation of `Choice(ps).Label(s)`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<T>> Choice<T>(
             string label,

@@ -198,10 +198,16 @@ namespace Tests {
             .ShouldBe('b');
 
         [Fact]
-        public void OneOfMultipleChars() =>
-            Choice(CharP('a'), CharP('b'), CharP('c'))
-            .ParseString("b")
-            .ShouldBe('b');
+        public void OneOfMultipleStrings() =>
+            Choice(StringP("foo"), StringP("bar"), StringP("bazz"))
+            .ParseString("bar")
+            .ShouldBe("bar");
+
+        [Fact]
+        public void OneOfMultipleStringsShortform() =>
+            Choice("foo", "bar", "bazz")
+            .ParseString("bar")
+            .ShouldBe("bar");
 
         [Fact]
         public void AlternativeValue() =>

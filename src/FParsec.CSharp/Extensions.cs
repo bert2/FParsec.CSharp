@@ -251,6 +251,13 @@
 
         #region Handling `Reply`s
 
+        /// <summary>Deconstructs a `Reply`.</summary>
+        public static void Deconstruct<T>(this Reply<T> r, out ReplyStatus status, out T result, out ErrorMessageList error) {
+            status = r.Status;
+            result = r.Result;
+            error = r.Error;
+        }
+
         /// <summary>Indicates whether the parser `Reply` has status `Ok`.</summary>
         public static bool IsOk<T>(this Reply<T> reply) => reply.Status == ReplyStatus.Ok;
 
@@ -262,6 +269,12 @@
 
             foreach (var e in errs.Tail.AsEnumerable())
                 yield return e;
+        }
+
+        /// <summary>Deconstructs an `ErrorMessageList`.</summary>
+        public static void Deconstruct(this ErrorMessageList error, out ErrorMessage head, out ErrorMessageList tail) {
+            head = error.Head;
+            tail = error.Tail;
         }
 
         /// <summary>Workaround to access the bugged property `FParsec.ErrorMessage.Expected.String`.</summary>

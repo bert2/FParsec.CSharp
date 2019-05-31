@@ -4,6 +4,7 @@
     using System.Linq;
     using Microsoft.FSharp.Core;
     using static CharParsers;
+    using static FParsec.Error;
     using static Primitives;
     using Chars = CharStream<Microsoft.FSharp.Core.Unit>;
 
@@ -682,12 +683,13 @@
         /// `System.Int32.MaxValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<int>> Natural =>
-            many1Chars(digit<Unit>())
-            .And(s => int.TryParse(s, out var n)
-                ? preturn<int, Unit>(n)
-                : fail<int, Unit>("number must be within range [0, 2147483647]"))
-            .Label("natural number");
+        public static FSharpFunc<Chars, Reply<int>> Natural => FSharpFunc.From<Chars, Reply<int>>(chars =>
+            many1Chars(digit<Unit>()).Invoke(chars) switch {
+                (Ok, var r, _) => int.TryParse(r, out var n)
+                    ? new Reply<int>(n)
+                    : new Reply<int>(Error, messageError("Number must be below 2147483648")),
+                _ => new Reply<int>(Error, expected("natural number"))
+            });
 
         /// <summary>
         /// <para>

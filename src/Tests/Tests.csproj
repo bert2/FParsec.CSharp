@@ -7,7 +7,7 @@
 
     <AssemblyName>Tests</AssemblyName>
 
-    <LangVersion>default</LangVersion>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -81,6 +81,10 @@ namespace Tests {
 
         [Fact] public void NaturalNumber() => Natural.ParseString("123").ShouldBe(123);
 
+        [Fact] public void NaturalNumberReportsOverflow() => Natural.ParseString("9999999999").ShouldBe<ErrorMessage.Message>("Number must be below 2147483648");
+
+        [Fact] public void NaturalNumberReportsExpected() => Natural.ParseString("abc").ShouldBe<ErrorMessage.Expected>("natural number");
+
         [Fact] public void ParseInt() => Int.ParseString("-13").ShouldBe(-13);
 
         [Fact] public void ParseLong() => Long.ParseString("9223372036854775807").ShouldBe(9223372036854775807);

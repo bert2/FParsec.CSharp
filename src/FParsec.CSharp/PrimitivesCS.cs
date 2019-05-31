@@ -950,7 +950,7 @@
         /// <summary>
         /// The parser `PositionP` returns the current position in the input stream.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Position>> PositionP => getPosition<Unit>();
+        public static FSharpFunc<Chars, Reply<Position>> PositionP = getPosition<Unit>();
 
         #endregion Special
 

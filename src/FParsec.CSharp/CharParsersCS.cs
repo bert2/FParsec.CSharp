@@ -16,12 +16,12 @@
         /// `AnyChar` parses any single char or newline ("\n", "\r\n" or "\r").
         /// Returns the parsed char, or '\n' in case a newline was parsed.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> AnyChar => anyChar<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> AnyChar = anyChar<Unit>();
 
         /// <summary>
         /// `SkipAnyChar` is an optimized implementation of `Skip(AnyChar)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipAnyChar => skipAnyChar<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> SkipAnyChar = skipAnyChar<Unit>();
 
         /// <summary>
         /// <para>`CharP(c)` parses the char `c` and returns `c`.</para>
@@ -115,50 +115,50 @@
         /// Parses any UTF-16 letter char identified by `System.Char.IsLetter`. Returns the parsed
         /// char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Letter => letter<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> Letter = letter<Unit>();
 
         /// <summary>
         /// Parses any char in the range 'a' - 'z' and 'A' - 'Z'. Returns the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> AsciiLetter => asciiLetter<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> AsciiLetter = asciiLetter<Unit>();
 
         /// <summary>
         /// Parses any UTF-16 uppercase letter char identified by `System.Char.IsUpper`. Returns
         /// the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Upper => upper<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> Upper = upper<Unit>();
 
         /// <summary>
         /// Parses any char in the range 'A' - 'Z'. Returns the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> AsciiUpper => asciiUpper<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> AsciiUpper = asciiUpper<Unit>();
 
         /// <summary>
         /// Parses any UTF-16 lowercase letter char identified by `System.Char.IsLower`. Returns
         /// the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Lower => lower<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> Lower = lower<Unit>();
 
         /// <summary>
         /// Parses any char in the range 'a' - 'z'. Returns the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> AsciiLower => asciiLower<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> AsciiLower = asciiLower<Unit>();
 
         /// <summary>
         /// Parses any char in the range '0' - '9'. Returns the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Digit => digit<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> Digit = digit<Unit>();
 
         /// <summary>
         /// Parses any char in the range '0' - '9', 'a' - 'f' and 'A' - 'F'. Returns the parsed
         /// char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Hex => hex<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> Hex = hex<Unit>();
 
         /// <summary>
         /// Parses any char in the range '0' - '7'. Returns the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Octal => octal<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> Octal = octal<Unit>();
 
         /// <summary>
         /// `IsLetter(c)` is equivalent to `System.Char.IsLetter(c)`.
@@ -683,7 +683,7 @@
         /// `System.Int32.MaxValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<int>> Natural => FSharpFunc.From<Chars, Reply<int>>(chars =>
+        public static FSharpFunc<Chars, Reply<int>> Natural = FSharpFunc.From<Chars, Reply<int>>(chars =>
             many1Chars(digit<Unit>()).Invoke(chars) switch {
                 (Ok, var r, _) => int.TryParse(r, out var n)
                     ? new Reply<int>(n)
@@ -710,7 +710,7 @@
         /// greater than `System.Double.MaxValue` or less than `System.Double.MinValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<double>> Float => pfloat<Unit>();
+        public static FSharpFunc<Chars, Reply<double>> Float = pfloat<Unit>();
 
         /// <summary>
         /// <para>
@@ -731,7 +731,7 @@
         /// `System.Int64.MaxValue` or less than `System.Int64.MinValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<long>> Long => pint64<Unit>();
+        public static FSharpFunc<Chars, Reply<long>> Long = pint64<Unit>();
 
         /// <summary>
         /// <para>
@@ -752,7 +752,7 @@
         /// `System.UInt64.MaxValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<ulong>> ULong => puint64<Unit>();
+        public static FSharpFunc<Chars, Reply<ulong>> ULong = puint64<Unit>();
 
         /// <summary>
         /// <para>
@@ -773,7 +773,7 @@
         /// `System.Int32.MaxValue` or less than `System.Int32.MinValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<int>> Int => pint32<Unit>();
+        public static FSharpFunc<Chars, Reply<int>> Int = pint32<Unit>();
 
         /// <summary>
         /// <para>
@@ -794,7 +794,7 @@
         /// `System.UInt32.MaxValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<uint>> UInt => puint32<Unit>();
+        public static FSharpFunc<Chars, Reply<uint>> UInt = puint32<Unit>();
 
         /// <summary>
         /// <para>
@@ -815,7 +815,7 @@
         /// `System.Int16.MaxValue` or less than `System.Int16.MinValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<short>> Short => pint16<Unit>();
+        public static FSharpFunc<Chars, Reply<short>> Short = pint16<Unit>();
 
         /// <summary>
         /// <para>
@@ -836,7 +836,7 @@
         /// `System.UInt16.MaxValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<ushort>> UShort => puint16<Unit>();
+        public static FSharpFunc<Chars, Reply<ushort>> UShort = puint16<Unit>();
 
         /// <summary>
         /// <para>
@@ -857,7 +857,7 @@
         /// 127 or less than -128.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<sbyte>> Byte => pint8<Unit>();
+        public static FSharpFunc<Chars, Reply<sbyte>> Byte = pint8<Unit>();
 
         /// <summary>
         /// <para>
@@ -878,7 +878,7 @@
         /// 255.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<byte>> UByte => puint8<Unit>();
+        public static FSharpFunc<Chars, Reply<byte>> UByte = puint8<Unit>();
 
         /// <summary>
         /// Returns a hexadecimal string representation of the `double`.
@@ -926,39 +926,39 @@
         /// Skips over any sequence of *zero* or more whitespaces (space (' '), tab ('\t') or
         /// newline ("\n", "\r\n" or "\r")).
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Spaces => spaces<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> Spaces = spaces<Unit>();
 
         /// <summary>Short form for `Spaces`.</summary>
-        public static FSharpFunc<Chars, Reply<Unit>> WS => Spaces;
+        public static FSharpFunc<Chars, Reply<Unit>> WS = Spaces;
 
         /// <summary>
         /// Skips over any sequence of *zero* or more unicode whitespaces and registers any unicode
         /// newline ("\n", "\r\n", "\r", "\u0085, "\u000C", "\u2028", or "\u2029") as a newline.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> UnicodeSpaces => unicodeSpaces<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> UnicodeSpaces = unicodeSpaces<Unit>();
 
         /// <summary>
         /// Skips over any sequence of *one* or more whitespaces (space (' '), tab('\t') or
         /// newline ("\n", "\r\n" or "\r")).
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Spaces1 => spaces1<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> Spaces1 = spaces1<Unit>();
 
         /// <summary>Short form for `Spaces1`.</summary>
-        public static FSharpFunc<Chars, Reply<Unit>> WS1 => Spaces1;
+        public static FSharpFunc<Chars, Reply<Unit>> WS1 = Spaces1;
 
         /// <summary>
         /// Skips over any sequence of *one* or more unicode whitespaces and registers any unicode
         /// newline ("\n", "\r\n", "\r", "\u0085, "\u000C", "\u2028", or "\u2029") as a newline.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> UnicodeSpaces1 => unicodeSpaces1<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> UnicodeSpaces1 = unicodeSpaces1<Unit>();
 
         /// <summary>
         /// Parses a newline ("\n", "\r\n" or "\r"). Returns '\n'. Is equivalent to `CharP('\n')`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Newline => newline<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> Newline = newline<Unit>();
 
         /// <summary>Short form for `Newline`.</summary>
-        public static FSharpFunc<Chars, Reply<char>> NL => newline<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> NL = newline<Unit>();
 
         /// <summary>
         /// `NewlineReturn(x)` is an optimized implementation of `Newline.Return(x)`.
@@ -968,7 +968,7 @@
         /// <summary>
         /// `SkipNewline` is an optimized implementation of `Skip(Newline)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipNewline => skipNewline<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> SkipNewline = skipNewline<Unit>();
 
         /// <summary>
         /// <para>
@@ -981,7 +981,7 @@
         /// for unicode newline characters other than '\n' and '\r'.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> UnicodeNewline => unicodeNewline<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> UnicodeNewline = unicodeNewline<Unit>();
 
         /// <summary>
         /// `UnicodeNewlineReturn(x)` is an optimized implementation of `UnicodeNewline.Return(x)`.
@@ -991,7 +991,7 @@
         /// <summary>
         /// `SkipUnicodeNewline` is an optimized implementation of `Skip(UnicodeNewline)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipUnicodeNewline => skipUnicodeNewline<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> SkipUnicodeNewline = skipUnicodeNewline<Unit>();
 
         /// <summary>
         /// <para>Parses the tab char '\t' and returns '\t'.</para>
@@ -1000,12 +1000,12 @@
         /// incremented by (only) 1.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Tab => tab<Unit>();
+        public static FSharpFunc<Chars, Reply<char>> Tab = tab<Unit>();
 
         /// <summary>
         /// The parser `EOF` only succeeds at the end of the input. It never consumes input.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> EOF => eof<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> EOF = eof<Unit>();
 
         /// <summary>
         /// <para>
@@ -1024,18 +1024,18 @@
         /// `NotFollowedByEOF` is an optimized implementation of
         /// `NotFollowedBy(EOF, "end of input")`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedByEOF => notFollowedByEof<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedByEOF = notFollowedByEof<Unit>();
 
         /// <summary>
         /// `FollowedByNewline` is an optimized implementation of `FollowedBy(Newline, "newline")`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> FollowedByNewline => followedByNewline<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> FollowedByNewline = followedByNewline<Unit>();
 
         /// <summary>
         /// `NotFollowedByNewline` is an optimized implementation of
         /// `NotFollowedBy(Newline, "newline")`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedByNewline => notFollowedByNewline<Unit>();
+        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedByNewline = notFollowedByNewline<Unit>();
 
         /// <summary>
         /// `FollowedBy(s)` is an optimized implementation of `FollowedBy(StringP(s), $"'{s}'"))`.

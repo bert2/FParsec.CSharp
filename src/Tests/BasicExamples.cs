@@ -5,6 +5,7 @@ namespace Tests {
     using Microsoft.FSharp.Core;
     using Shouldly;
     using Xunit;
+    using static FParsec.CharParsers;
     using static FParsec.CSharp.CharParsersCS;
     using static FParsec.CSharp.PrimitivesCS;
     using Chars = FParsec.CharStream<Microsoft.FSharp.Core.Unit>;
@@ -536,6 +537,57 @@ namespace Tests {
             Digit.Run("a")
             .GetResult(_ => default)
             .ShouldBe('\0');
+
+        [Fact]
+        public void RunAndDeconstructSuccess() {
+            switch (Digit.Run("1")) {
+                case ParserResult<char, Unit>.Success('1', (index: 1, line:  1, column: 2, streamName: "")):
+                    break;
+                default:
+                    throw new Exception();
+            }
+        }
+
+        [Fact]
+        public void RunAndDeconstructFailureMessage() {
+            switch (Digit.Run("a")) {
+                case ParserResult<char, Unit>.Failure(var msg, _):
+                    msg.ShouldContain("Expecting: decimal digit");
+                    break;
+                default:
+                    throw new Exception();
+            }
+        }
+
+        [Fact]
+        public void RunAndDeconstructParserError() {
+            switch (Digit.Run("a")) {
+                case ParserResult<char, Unit>.Failure(_, ((ErrorMessage.Expected("decimal digit"), tail: null), _)):
+                    break;
+                default:
+                    throw new Exception();
+            }
+        }
+
+        [Fact]
+        public void ParseAndDeconstructSuccess() {
+            switch (Digit.ParseString("1")) {
+                case (ReplyStatus.Ok, '1', _):
+                    break;
+                default:
+                    throw new Exception();
+            }
+        }
+
+        [Fact]
+        public void ParseAndDeconstructFailure() {
+            switch (Digit.ParseString("a")) {
+                case (ReplyStatus.Error, _, (ErrorMessage.Expected("decimal digit"), tail: null)):
+                    break;
+                default:
+                    throw new Exception();
+            }
+        }
 
         #endregion Running parsers
     }

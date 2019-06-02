@@ -13,6 +13,7 @@ FParsec.CSharp is a C# wrapper for the F# package [FParsec](https://github.com/s
   * [Getting the result or an exception](#getting-the-result-or-an-exception)
   * [Getting the result with custom error handling](#getting-the-result-with-custom-error-handling)
   * [Safe unwrapping](#safe-unwrapping)
+  * [Deconstructing parser results (C# 8.0)](#deconstructing-parser-results-c-80)
 - [Using FParsec.CSharp and FParsec together](#using-fparseccsharp-and-fparsec-together)
   * [Working with FParsec parsers directly](#working-with-fparsec-parsers-directly)
   * [Specifying user state](#specifying-user-state)
@@ -164,6 +165,33 @@ var response = Digit.Run("a").UnwrapResult() switch {
 ```
 
 `UnwrapWithError()` and `UnwrapWithFailure()` work the same way, but return the `ParserError` or `ParserResult<TResult, Unit>.Failure` instance in the right side of the tuple.
+
+### Deconstructing parser results (C# 8.0)
+
+FParsec.CSharp extends the types involved with parser results with deconstructors so you can make use of C# 8.0's recursive patterns inside `switch` statements/expressions:
+
+```C#
+var response = Digit.Run("1") switch {
+    ParserResult<char, Unit>.Success(var c, _) => $"Parsed '{c}'.",
+    ParserResult<char, Unit>.Failure(_, (_, (_, _, var col, _))) => $"Some error at column {col}."
+};
+
+```
+
+```C#
+var response = Digit.ParseString("a") switch {
+    (ReplyStatus.Ok, var c, _) => $"Parsed '{c}'.",
+    (ReplyStatus.Error, _, (ErrorMessage.Expected err, _)) => $"Expected a {err.Label}.",
+    _ => "oof."
+};
+```
+
+You will need to import some of FParsec's namespaces for this to work:
+
+```
+using FParsec; // contains `ReplyStatus` and `ErrorMessage`
+using static FParsec.CharParsers; // contains `ParserResult`
+```
 
 ## Using FParsec.CSharp and FParsec together
 

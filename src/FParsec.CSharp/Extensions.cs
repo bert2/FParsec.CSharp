@@ -251,15 +251,8 @@
 
         #region Handling `Reply`s
 
-        /// <summary>Deconstructs a `Reply`.</summary>
-        public static void Deconstruct<T>(this Reply<T> r, out ReplyStatus status, out T result, out ErrorMessageList error) {
-            status = r.Status;
-            result = r.Result;
-            error = r.Error;
-        }
-
         /// <summary>Indicates whether the parser `Reply` has status `Ok`.</summary>
-        public static bool IsOk<T>(this Reply<T> reply) => reply.Status == ReplyStatus.Ok;
+        public static bool IsOk<TResult>(this Reply<TResult> reply) => reply.Status == ReplyStatus.Ok;
 
         /// <summary>Turns the `ErrorMessageList` into an `IEnumarable` of `ErrorMessage`s.</summary>
         public static IEnumerable<ErrorMessage> AsEnumerable(this ErrorMessageList errs) {
@@ -271,20 +264,130 @@
                 yield return e;
         }
 
-        /// <summary>Deconstructs an `ErrorMessageList`.</summary>
-        public static void Deconstruct(this ErrorMessageList error, out ErrorMessage head, out ErrorMessageList tail) {
-            head = error.Head;
-            tail = error.Tail;
-        }
-
-        /// <summary>Workaround to access the bugged property `FParsec.ErrorMessage.Expected.String`.</summary>
-        public static string GetString(this ErrorMessage e)
-            => (string)messageField.GetValue(e);
+        /// <summary>
+        /// Workaround to access the bugged properties
+        /// `FParsec.ErrorMessage.ExpectedString.String` and
+        /// `FParsec.ErrorMessage.UnexpectedString.String`.
+        /// </summary>
+        public static string GetString(this ErrorMessage e) => (string)messageField.GetValue(e);
 
         private static readonly FieldInfo messageField = typeof(ErrorMessage)
             .GetField("String", BindingFlags.Instance | BindingFlags.NonPublic);
 
         #endregion Handling `Reply`s
+
+        #region Deconstructors
+
+        /// <summary>Deconstructs a `Success` result.</summary>
+        public static void Deconstruct<TResult>(
+            this ParserResult<TResult, Unit>.Success success,
+            out TResult result,
+            out Position position) {
+            result = success.Result();
+            position = success.Position();
+        }
+
+        /// <summary>Deconstructs a `Failure` result.</summary>
+        public static void Deconstruct<TResult>(
+            this ParserResult<TResult, Unit>.Failure failure,
+            out string message,
+            out ParserError error) {
+            message = failure.Message();
+            error = failure.Error();
+        }
+
+        /// <summary>Deconstructs a `Reply`.</summary>
+        public static void Deconstruct<TResult>(
+            this Reply<TResult> reply,
+            out ReplyStatus status,
+            out TResult result,
+            out ErrorMessageList error) {
+            status = reply.Status;
+            result = reply.Result;
+            error = reply.Error;
+        }
+
+        /// <summary>Deconstructs a `ParserError`.</summary>
+        public static void Deconstruct(
+            this ParserError error,
+            out ErrorMessageList messages,
+            out Position position) {
+            messages = error.Messages;
+            position = error.Position;
+        }
+
+        /// <summary>Deconstructs an `ErrorMessageList`.</summary>
+        public static void Deconstruct(
+            this ErrorMessageList error,
+            out ErrorMessage head,
+            out ErrorMessageList tail) {
+            head = error.Head;
+            tail = error.Tail;
+        }
+
+        /// <summary>Deconstructs an `ErrorMessage`.</summary>
+        public static void Deconstruct(this ErrorMessage error, out ErrorMessageType type) => type = error.Type;
+
+        /// <summary>Deconstructs an `ErrorMessage.Expected` error.</summary>
+        public static void Deconstruct(this ErrorMessage.Expected error, out string label) => label = error.Label;
+
+        /// <summary>Deconstructs an `ErrorMessage.ExpectedString` error.</summary>
+        public static void Deconstruct(this ErrorMessage.ExpectedString error, out string @string) => @string = error.GetString();
+
+        /// <summary>Deconstructs an `ErrorMessage.ExpectedCaseInsensitiveString` error.</summary>
+        public static void Deconstruct(this ErrorMessage.ExpectedCaseInsensitiveString error, out string caseInsensitiveString)
+            => caseInsensitiveString = error.CaseInsensitiveString;
+
+        /// <summary>Deconstructs an `ErrorMessage.Unexpected` error.</summary>
+        public static void Deconstruct(this ErrorMessage.Unexpected error, out string label) => label = error.Label;
+
+        /// <summary>Deconstructs an `ErrorMessage.UnexpectedString` error.</summary>
+        public static void Deconstruct(this ErrorMessage.UnexpectedString error, out string @string) => @string = error.GetString();
+
+        /// <summary>Deconstructs an `ErrorMessage.ExpectedCaseInsensitiveString` error.</summary>
+        public static void Deconstruct(this ErrorMessage.UnexpectedCaseInsensitiveString error, out string caseInsensitiveString)
+            => caseInsensitiveString = error.CaseInsensitiveString;
+
+        /// <summary>Deconstructs an `ErrorMessage.Message` error.</summary>
+        public static void Deconstruct(this ErrorMessage.Message error, out string @string) => @string = error.String;
+
+        /// <summary>Deconstructs an `ErrorMessage.NestedError` error.</summary>
+        public static void Deconstruct(
+            this ErrorMessage.NestedError error,
+            out Position position,
+            out ErrorMessageList messages) {
+            position = error.Position;
+            messages = error.Messages;
+        }
+
+        /// <summary>Deconstructs an `ErrorMessage.CompoundError` error.</summary>
+        public static void Deconstruct(
+            this ErrorMessage.CompoundError error,
+            out string labelOfCompound,
+            out Position nestedErrorPosition,
+            out ErrorMessageList nestedErrorMessages) {
+            labelOfCompound = error.LabelOfCompound;
+            nestedErrorPosition = error.NestedErrorPosition;
+            nestedErrorMessages = error.NestedErrorMessages;
+        }
+
+        /// <summary>Deconstructs an `ErrorMessage.Other` error.</summary>
+        public static void Deconstruct(this ErrorMessage.Other error, out object data) => data = error.Data;
+
+        /// <summary>Deconstructs a `Position`.</summary>
+        public static void Deconstruct(
+            this Position position,
+            out long index,
+            out long line,
+            out long column,
+            out string streamName) {
+            index = position.Index;
+            line = position.Line;
+            column = position.Column;
+            streamName = position.StreamName;
+        }
+
+        #endregion Deconstructors
 
         /// <summary>Creates an `FSharpList` from the `IEnumerable`.</summary>
         public static FSharpList<T> ToFSharpList<T>(this IEnumerable<T> source) => ListModule.OfSeq(source);

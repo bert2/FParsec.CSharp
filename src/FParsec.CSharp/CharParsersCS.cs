@@ -210,8 +210,8 @@
         #region Strings
 
         /// <summary>
-        /// The parser `Choice(strings)` is an optimized implementation of
-        /// `StringP(s1).Or(StringP(s2)).Or(StringP(...)).Or(StringP(sn))`, where `s1` ... `sn` are
+        /// The parser `Choice(strings)` is a short form for
+        /// `Choice(StringP(s1), StringP(s2), StringP(...), StringP(sn))`, where `s1` ... `sn` are
         /// the strings in the sequence `strings`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<string>> Choice(
@@ -219,8 +219,9 @@
             => choice(strings.Select(s => StringP(s)));
 
         /// <summary>
-        /// The parser `Choice(s,strings)` is an optimized implementation of
-        /// `Choice(strings).Label(s)`.
+        /// The parser `Choice(label, strings)` is a short form for
+        /// `Choice(label, StringP(s1), StringP(s2), StringP(...), StringP(sn))`, where `s1` ...
+        /// `sn` are the strings in the sequence `strings`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<string>> Choice(
             string label,
@@ -505,6 +506,38 @@
             => manyCharsTill(p, endp);
 
         /// <summary>
+        /// `ManyCharsTill(p1,p,endp)` behaves like `ManyCharsTill(p,endp)`, except that it parses
+        /// the first char with `p1` instead of `p`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> ManyCharsTill<TEnd>(
+            FSharpFunc<Chars, Reply<char>> p1,
+            FSharpFunc<Chars, Reply<char>> p,
+            FSharpFunc<Chars, Reply<TEnd>> endp)
+            => manyCharsTill2(p1, p, endp);
+
+        /// <summary>
+        /// `ManyCharsTill(p,endp,f)` parses chars with the char parser `p` until the parser `endp`
+        /// succeeds. It stops after `endp` and returns the result of the function application
+        /// `f(s,b)`, where `s` is the parsed string and `b` is result returned by `endp`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> ManyCharsTill<T, TEnd>(
+            FSharpFunc<Chars, Reply<char>> p,
+            FSharpFunc<Chars, Reply<TEnd>> endp,
+            Func<string, TEnd, T> f)
+            => manyCharsTillApply(p, endp, f.ToFSharpFunc());
+
+        /// <summary>
+        /// `ManyCharsTill(p1,p,endp,f)` behaves like `ManyCharsTill(p,endp,f)`, except that it
+        /// parses the first char with `p1` instead of `p`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> ManyCharsTill<T, TEnd>(
+            FSharpFunc<Chars, Reply<char>> p1,
+            FSharpFunc<Chars, Reply<char>> p,
+            FSharpFunc<Chars, Reply<TEnd>> endp,
+            Func<string, TEnd, T> f)
+            => manyCharsTillApply2(p1, p, endp, f.ToFSharpFunc());
+
+        /// <summary>
         /// <para>
         /// `Many1CharsTill(p,endp)` parses one char with the char parser `p`. Then it parses more
         /// chars with `p` until the parser `endp` succeeds. It stops after `endp` and returns the
@@ -519,6 +552,39 @@
             FSharpFunc<Chars, Reply<char>> p,
             FSharpFunc<Chars, Reply<TEnd>> endp)
             => many1CharsTill(p, endp);
+
+        /// <summary>
+        /// `Many1CharsTill(p1,p,endp)` behaves like `Many1CharsTill(p,endp)`, except that it
+        /// parses the first char with `p1` instead of `p`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Many1CharsTill<TEnd>(
+            FSharpFunc<Chars, Reply<char>> p1,
+            FSharpFunc<Chars, Reply<char>> p,
+            FSharpFunc<Chars, Reply<TEnd>> endp)
+            => many1CharsTill2(p1, p, endp);
+
+        /// <summary>
+        /// `Many1CharsTill(p,endp,f)` parses one char with the char parser `p`. Then it parses
+        /// more chars with `p` until the parser `endp` succeeds. It stops after `endp` and returns
+        /// the result of the function application `f(s,b)`, where `s` is the parsed string and `b`
+        /// is result returned by `endp`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Many1CharsTill<T, TEnd>(
+            FSharpFunc<Chars, Reply<char>> p,
+            FSharpFunc<Chars, Reply<TEnd>> endp,
+            Func<string, TEnd, T> f)
+            => many1CharsTillApply(p, endp, f.ToFSharpFunc());
+
+        /// <summary>
+        /// `Many1CharsTill(p1,p,endp,f)` behaves like `Many1CharsTill(p,endp,f)`, except that it
+        /// parses the first char with `p1` instead of `p`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<T>> Many1CharsTill<T, TEnd>(
+            FSharpFunc<Chars, Reply<char>> p1,
+            FSharpFunc<Chars, Reply<char>> p,
+            FSharpFunc<Chars, Reply<TEnd>> endp,
+            Func<string, TEnd, T> f)
+            => many1CharsTillApply2(p1, p, endp, f.ToFSharpFunc());
 
         /// <summary>
         /// <para>

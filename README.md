@@ -625,18 +625,18 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `manyChars2` | `P<string> ManyChars(P<char>, P<char>)` |
 | `many1Chars` | `P<string> Many1Chars(P<char>)` |
 | `many1Chars2` | `P<string> Many1Chars(P<char>, P<char>)` |
-| `manyCharsTill` | `P<string> ManyCharsTill(P<char>, P<T>)` |
-| `manyCharsTill2` | not yet implemented |
-| `manyCharsTillApply` | not yet implemented |
-| `manyCharsTillApply2` | not yet implemented |
-| `many1CharsTill` | `P<string> Many1CharsTill(P<char>, P<T>)` |
-| `many1CharsTill2` | not yet implemented |
-| `many1CharsTillApply` | not yet implemented |
-| `many1CharsTillApply2` | not yet implemented |
+| `manyCharsTill` | `P<string> ManyCharsTill(P<char>, P<TEnd>)` |
+| `manyCharsTill2` | `P<string> ManyCharsTill(P<char>, P<char>, P<TEnd>)` |
+| `manyCharsTillApply` | `P<T> ManyCharsTill(P<char>, P<TEnd>, Func<string, TEnd, T>)` |
+| `manyCharsTillApply2` | `P<T> ManyCharsTill(P<char>, P<char>, P<TEnd>, Func<string, TEnd, T>)` |
+| `many1CharsTill` | `P<string> Many1CharsTill(P<char>, P<TEnd>)` |
+| `many1CharsTill2` | `P<string> Many1CharsTill(P<char>, P<char>, P<TEnd>)` |
+| `many1CharsTillApply` | `P<T> Many1CharsTill(P<char>, P<TEnd>, Func<string, TEnd, T>)` |
+| `many1CharsTillApply2` | `P<T> Many1CharsTill(P<char>, P<char>, P<TEnd>, Func<string, TEnd, T>)` |
 | `manyStrings` | `P<string> ManyStrings(P<string>)` |
-| `manyStrings2` | not yet implemented |
+| `manyStrings2` | not implemented |
 | `many1Strings` | `P<string> Many1Strings(P<string>)` |
-| `many1Strings2` | not yet implemented |
+| `many1Strings2` | not implemented |
 | `stringsSepBy` | `ManyStrings(P<string>, P<String>)` |
 | `stringsSepBy1` | `Many1Strings(P<string>, P<String>)` |
 | `skipped` | `P<string> P<Unit>.WithSkipped()` |
@@ -675,7 +675,6 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 ## TODO
 
 * Wrap remaining string parsers
-* Add more extensions to work with `Reply<T>`?
 * Rework examples to use the new parsers and combinators
 * Implement small script language example
 * Wrap `numberLiteral` and `identifier` parsers?

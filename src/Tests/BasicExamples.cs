@@ -209,7 +209,7 @@ namespace Tests {
             .ShouldBe("bar");
 
         [Fact]
-        public void OneOfMultipleStringsShortform() =>
+        public void OneOfMultipleStringsShortForm() =>
             Choice("foo", "bar", "bazz")
             .ParseString("bar")
             .ShouldBe("bar");

@@ -6,17 +6,19 @@
 var target = Argument("target", "Default");
 var config = Argument("configuration", "Release");
 var nugetKey = Argument<string>("nugetKey", null) ?? EnvironmentVariable("nuget_key");
-var lastCommit = EnvironmentVariable("APPVEYOR_REPO_COMMIT_MESSAGE");
+
 var rootDir = Directory("..");
 var srcDir = rootDir + Directory("src");
 var libDir = srcDir + Directory("FParsec.CSharp");
 var pkgDir = libDir + Directory($"bin/{config}");
+
+var lastCommitMsg = EnvironmentVariable("APPVEYOR_REPO_COMMIT_MESSAGE") ?? GitLogTip(rootDir).MessageShort;
+var currBranch = GitBranchCurrent(rootDir).FriendlyName;
 GitVersion semVer = null;
 
 Task("SemVer").Does(() => {
     semVer = GitVersion();
-    lastCommit = lastCommit ?? GitLogTip(rootDir).MessageShort;
-    Information($"{semVer.FullSemVer} ({lastCommit})");
+    Information($"{semVer.FullSemVer} ({lastCommitMsg})");
 });
 
 Task("Clean").Does(() =>
@@ -40,7 +42,7 @@ Task("Test")
 Task("Pack")
     .IsDependentOn("SemVer")
     .Does(() => {
-        var relNotes = FormatReleaseNotes(lastCommit);
+        var relNotes = FormatReleaseNotes(lastCommitMsg);
         Information($"Packing {semVer.NuGetVersion} ({relNotes})");
 
         var msbuildSettings = new DotNetCoreMSBuildSettings();
@@ -65,7 +67,12 @@ Release notes: {relNotes}" };
 Task("Release")
     .IsDependentOn("Pack")
     .Does(() => {
-        if (lastCommit.Contains("without release")) {
+        if (currBranch != "master") {
+            Information($"Will not release package built from branch '{currBranch}'.");
+            return;
+        }
+
+        if (lastCommitMsg.Contains("without release")) {
             Information($"Skipping release to nuget.org");
             return;
         }

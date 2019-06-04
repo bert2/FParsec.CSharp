@@ -545,9 +545,9 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `anyChar` | `P<char> AnyChar` |
 | `skipAnyChar` | `P<Unit> SkipAnyChar` |
 | `satisfy` | `P<char> CharP(Func<char, bool>)` |
-| `skipSatisfy` | `P<Unit> CharP(Func<char, bool>)` |
+| `skipSatisfy` | `P<Unit> Skip(Func<char, bool>)` |
 | `satisfyL` | `P<char> CharP(Func<char, bool>, string)` |
-| `skipSatisfyL` | `P<Unit> CharP(Func<char, bool>, string)` |
+| `skipSatisfyL` | `P<Unit> Skip(Func<char, bool>, string)` |
 | `anyOf` | `P<char> AnyOf(IEnumerable<char>)` |
 | `skipAnyOf` | `P<Unit> SkipAnyOf(IEnumerable<char>)` |
 | `noneOf` | `P<char> NoneOf(IEnumerable<char>)` |
@@ -600,20 +600,20 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `skipCharsTillStringCI` | `Reply<Unit> SkipCharsTillStringCI(string, int, bool)` |
 | `manySatisfy` | `P<string> ManyChars(Func<char, bool>)` |
 | `manySatisfy2` | `P<string> ManyChars(Func<char, bool>, Func<char, bool>)` |
-| `skipManySatisfy` | not yet implemented |
-| `skipManySatisfy2` | not yet implemented |
+| `skipManySatisfy` | `P<Unit> SkipManyChars(Func<char, bool>)` |
+| `skipManySatisfy2` | `P<Unit> SkipManyChars(Func<char, bool>, Func<char, bool>)` |
 | `many1Satisfy` | `P<string> Many1Chars(Func<char, bool>)` |
 | `many1Satisfy2` | `P<string> Many1Chars(Func<char, bool>, Func<char, bool>)` |
-| `skipMany1Satisfy` | not yet implemented |
-| `skipMany1Satisfy2` | not yet implemented |
+| `skipMany1Satisfy` | `P<Unit> SkipMany1Chars(Func<char, bool>)` |
+| `skipMany1Satisfy2` | `P<Unit> SkipMany1Chars(Func<char, bool>, Func<char, bool>)` |
 | `many1SatisfyL` | not yet implemented |
 | `many1Satisfy2L` | not yet implemented |
 | `skipMany1SatisfyL` | not yet implemented |
 | `skipMany1Satisfy2L` | not yet implemented |
 | `manyMinMaxSatisfy` | `P<string> ManyChars(Func<char, bool>, int, int)` |
 | `manyMinMaxSatisfy2` | `P<string> ManyChars(Func<char, bool>, Func<char, bool>, int, int)` |
-| `skipManyMinMaxSatisfy` | not yet implemented |
-| `skipManyMinMaxSatisfy2` | not yet implemented |
+| `skipManyMinMaxSatisfy` | `P<Unit> SkipManyChars(Func<char, bool>, int, int)` |
+| `skipManyMinMaxSatisfy2` | `P<Unit> SkipManyChars(Func<char, bool>, Func<char, bool>, int, int)` |
 | `manyMinMaxSatisfyL` | not yet implemented |
 | `manyMinMaxSatisfy2L` | not yet implemented |
 | `skipManyMinMaxSatisfyL` | not yet implemented |

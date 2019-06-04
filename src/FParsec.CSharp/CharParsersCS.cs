@@ -469,11 +469,27 @@
             => many1Satisfy<Unit>(pred.ToFSharpFunc());
 
         /// <summary>
+        /// `Many1Chars(f,s)` is an optimized implementation of `Many1Chars(f).Label(s)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Many1Chars(
+            Func<char, bool> pred,
+            string label)
+            => many1SatisfyL<Unit>(pred.ToFSharpFunc(), label);
+
+        /// <summary>
         /// `SkipMany1Chars(f)` is an optimized implementation of `Skip(Many1Chars(f))`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> SkipMany1Chars(
             Func<char, bool> pred)
             => skipMany1Satisfy<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>
+        /// `SkipMany1Chars(f,s)` is an optimized implementation of `SkipMany1Chars(f).Label(s)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1Chars(
+            Func<char, bool> pred,
+            string label)
+            => skipMany1SatisfyL<Unit>(pred.ToFSharpFunc(), label);
 
         /// <summary>
         /// `Many1Chars(f1,f)` behaves like `Many1Chars(f)`, except that the first char of the
@@ -485,12 +501,31 @@
             => many1Satisfy2<Unit>(pred1.ToFSharpFunc(), pred.ToFSharpFunc());
 
         /// <summary>
+        /// `Many1Chars(f1,f,s)` is an optimized implementation of `Many1Chars(f1,f).Label(s)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Many1Chars(
+            Func<char, bool> pred1,
+            Func<char, bool> pred,
+            string label)
+            => many1Satisfy2L<Unit>(pred1.ToFSharpFunc(), pred.ToFSharpFunc(), label);
+
+        /// <summary>
         /// `SkipMany1Chars(f1,f)` is an optimized implementation of `Skip(Many1Chars(f1,f))`.
         /// </summary>
         public static FSharpFunc<Chars, Reply<Unit>> SkipMany1Chars(
             Func<char, bool> pred1,
             Func<char, bool> pred)
             => skipMany1Satisfy2<Unit>(pred1.ToFSharpFunc(), pred.ToFSharpFunc());
+
+        /// <summary>
+        /// `SkipMany1Chars(f1,f,s)` is an optimized implementation of
+        /// `SkipMany1Chars(f1,f).Label(s)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1Chars(
+            Func<char, bool> pred1,
+            Func<char, bool> pred,
+            string label)
+            => skipMany1Satisfy2L<Unit>(pred1.ToFSharpFunc(), pred.ToFSharpFunc(), label);
 
         /// <summary>
         /// <para>
@@ -516,6 +551,17 @@
             => manyMinMaxSatisfy<Unit>(minCount, maxCount, pred.ToFSharpFunc());
 
         /// <summary>
+        /// `ManyChars(f,min,max,s)` is an optimized implementation of
+        /// `ManyChars(f,min,max).Label(s)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> ManyChars(
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount,
+            string label)
+            => manyMinMaxSatisfyL<Unit>(minCount, maxCount, pred.ToFSharpFunc(), label);
+
+        /// <summary>
         /// `SkipManyChars(f,min,max)` is an optimized implementation of
         /// `Skip(ManyChars(f,min,max))`.
         /// </summary>
@@ -524,6 +570,17 @@
             int minCount,
             int maxCount)
             => skipManyMinMaxSatisfy<Unit>(minCount, maxCount, pred.ToFSharpFunc());
+
+        /// <summary>
+        /// `SkipManyChars(f,min,max,s)` is an optimized implementation of
+        /// `SkipManyChars(f,min,max).Label(s)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipManyChars(
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount,
+            string label)
+            => skipManyMinMaxSatisfyL<Unit>(minCount, maxCount, pred.ToFSharpFunc(), label);
 
         /// <summary>
         /// `ManyChars(f1,f,min,max)` behaves like `ManyChars(f,min,max)`, except that the first
@@ -537,6 +594,18 @@
             => manyMinMaxSatisfy2<Unit>(minCount, maxCount, pred1.ToFSharpFunc(), pred.ToFSharpFunc());
 
         /// <summary>
+        /// `ManyChars(f1,f,min,max,s)` is an optimized implementation of
+        /// `ManyChars(f1,f,min,max).Label(s)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> ManyChars(
+            Func<char, bool> pred1,
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount,
+            string label)
+            => manyMinMaxSatisfy2L<Unit>(minCount, maxCount, pred1.ToFSharpFunc(), pred.ToFSharpFunc(), label);
+
+        /// <summary>
         /// `SkipManyChars(f1,f,min,max)` is an optimized implementation of
         /// `Skip(ManyChars(f1,f,min,max))`.
         /// </summary>
@@ -546,6 +615,18 @@
             int minCount,
             int maxCount)
             => skipManyMinMaxSatisfy2<Unit>(minCount, maxCount, pred1.ToFSharpFunc(), pred.ToFSharpFunc());
+
+        /// <summary>
+        /// `SkipManyChars(f1,f,min,max,s)` is an optimized implementation of
+        /// `SkipManyChars(f1,f,min,max).Label(s)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<Unit>> SkipManyChars(
+            Func<char, bool> pred1,
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount,
+            string label)
+            => skipManyMinMaxSatisfy2L<Unit>(minCount, maxCount, pred1.ToFSharpFunc(), pred.ToFSharpFunc(), label);
 
         /// <summary>
         /// `ManyCharsTill(p,endp)` parses chars with the char parser `p` until the parser `endp`
@@ -748,6 +829,11 @@
         /// </para>
         /// </summary>
         public static FSharpFunc<Chars, Reply<string>> Regex(string pattern) => regex<Unit>(pattern);
+
+        /// <summary>
+        /// `Regex(s,l)` is an optimized implementation of `Regex(s).Label(l)`.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<string>> Regex(string pattern, string label) => regexL<Unit>(pattern, label);
 
         /// <summary>
         /// <para>

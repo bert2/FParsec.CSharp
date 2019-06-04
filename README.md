@@ -606,20 +606,20 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `many1Satisfy2` | `P<string> Many1Chars(Func<char, bool>, Func<char, bool>)` |
 | `skipMany1Satisfy` | `P<Unit> SkipMany1Chars(Func<char, bool>)` |
 | `skipMany1Satisfy2` | `P<Unit> SkipMany1Chars(Func<char, bool>, Func<char, bool>)` |
-| `many1SatisfyL` | not yet implemented |
-| `many1Satisfy2L` | not yet implemented |
-| `skipMany1SatisfyL` | not yet implemented |
-| `skipMany1Satisfy2L` | not yet implemented |
+| `many1SatisfyL` | `P<string> Many1Chars(Func<char, bool>, string)` |
+| `many1Satisfy2L` | `P<string> Many1Chars(Func<char, bool>, Func<char, bool>, string)` |
+| `skipMany1SatisfyL` | `P<Unit> SkipMany1Chars(Func<char, bool>, string)` |
+| `skipMany1Satisfy2L` | `P<Unit> SkipMany1Chars(Func<char, bool>, Func<char, bool>, string)` |
 | `manyMinMaxSatisfy` | `P<string> ManyChars(Func<char, bool>, int, int)` |
 | `manyMinMaxSatisfy2` | `P<string> ManyChars(Func<char, bool>, Func<char, bool>, int, int)` |
 | `skipManyMinMaxSatisfy` | `P<Unit> SkipManyChars(Func<char, bool>, int, int)` |
 | `skipManyMinMaxSatisfy2` | `P<Unit> SkipManyChars(Func<char, bool>, Func<char, bool>, int, int)` |
-| `manyMinMaxSatisfyL` | not yet implemented |
-| `manyMinMaxSatisfy2L` | not yet implemented |
-| `skipManyMinMaxSatisfyL` | not yet implemented |
-| `skipManyMinMaxSatisfy2L` | not yet implemented |
+| `manyMinMaxSatisfyL` | `P<string> ManyChars(Func<char, bool>, int, int, string)` |
+| `manyMinMaxSatisfy2L` | `P<string> ManyChars(Func<char, bool>, Func<char, bool>, int, int, string)` |
+| `skipManyMinMaxSatisfyL` | `P<Unit> SkipManyChars(Func<char, bool>, int, int, string)` |
+| `skipManyMinMaxSatisfy2L` | `P<Unit> SkipManyChars(Func<char, bool>, Func<char, bool>, int, int, string)` |
 | `regex` | `Reply<string> Regex(string)` |
-| `regexL` | not yet implemented |
+| `regexL` | `Reply<string> Regex(string, string)` |
 | `identifier` | not implemented |
 | `manyChars` | `P<string> ManyChars(P<char>)` |
 | `manyChars2` | `P<string> ManyChars(P<char>, P<char>)` |
@@ -674,7 +674,6 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 
 ## TODO
 
-* Wrap remaining string parsers
 * Rework examples to use the new parsers and combinators
 * Implement small script language example
 * Wrap `numberLiteral` and `identifier` parsers?

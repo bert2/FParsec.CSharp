@@ -1,5 +1,4 @@
 ﻿namespace Tests {
-    using System.Linq;
     using System.Xml.Linq;
     using FParsec;
     using FParsec.CSharp;

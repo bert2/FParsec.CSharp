@@ -250,26 +250,32 @@ You can find lots of examples in the [test project](https://github.com/bert2/FPa
 ### Simple JSON
 
 ```C#
-FSharpFunc<CharStream<Unit>, Reply<object>> jvalue = null;
+FSharpFunc<CharStream<Unit>, Reply<JToken>> jvalue = null;
 
-var jnull = StringCI("null").Return((object)null);
-var jnum = Int.Map(i => (object)i);
+var jnull = StringCI("null", (JToken)null).Lbl("null");
+
+var jnum = Float.Map(i => (JToken)i).Lbl("number");
+
 var jbool = StringCI("true").Or(StringCI("false"))
-    .Map(b => (object)bool.Parse(b));
-var quotedString = Between('"', Many(NoneOf("\"")), '"')
-    .Map(string.Concat);
-var jstring = quotedString.Map(s => (object)s);
+    .Map(b => (JToken)bool.Parse(b))
+    .Lbl("bool");
+
+var quotedString = Between('"', ManyChars(NoneOf("\"")), '"');
+
+var jstring = quotedString.Map(s => (JToken)s).Lbl("string");
 
 var arrItems = Many(Rec(() => jvalue), sep: CharP(',').And(WS));
 var jarray = Between(CharP('[').And(WS), arrItems, CharP(']'))
-    .Map(elems => (object)new JArray(elems));
+    .Map(elems => (JToken)new JArray(elems))
+    .Lbl("array");
 
-var jidentifier = quotedString;
+var jidentifier = quotedString.Lbl("identifier");
 var jprop = jidentifier.And(WS).And(Skip(':')).And(WS).And(Rec(() => jvalue))
     .Map((name, value) => new JProperty(name, value));
 var objProps = Many(jprop, sep: CharP(',').And(WS));
 var jobject = Between(CharP('{').And(WS), objProps, CharP('}'))
-    .Map(props => (object)new JObject(props));
+    .Map(props => (JToken)new JObject(props))
+    .Lbl("object");
 
 jvalue = Choice(jnum, jbool, jnull, jstring, jarray, jobject).And(WS);
 
@@ -279,28 +285,28 @@ var simpleJsonParser = WS.And(jobject).And(WS).And(EOF).Map(o => (JObject)o);
 ### Simple XML
 
 ```C#
-var nameStart = Letter.Or(CharP('_'));
-var nameChar = Letter.Or(Digit).Or(AnyOf("-_."));
-var name = nameStart.And(Many(nameChar))
-    .Map((first, rest) => string.Concat(rest.Prepend(first)));
+var nameStart = Choice(Letter, CharP('_'));
+var nameChar = Choice(Letter, Digit, AnyOf("-_."));
+var name = ManyChars(nameStart, nameChar);
 
-var quotedString = Between('"', Many(NoneOf("\"")), '"')
-    .Map(string.Concat);
+var quotedString = Between('"', ManyChars(NoneOf("\"")), '"');
 var attribute = WS1.And(name).And(WS).And(Skip('=')).And(WS).And(quotedString)
     .Map((attrName, attrVal) => new XAttribute(attrName, attrVal));
 var attributes = Many(Try(attribute));
 
-FSharpFunc<CharStream<Unit>, Reply<XElement>> element = null;
+var nameWithAttrs = name.And(attributes).And(WS);
 
-var emptyElement = Between("<", name.And(attributes).And(WS), "/>")
+XElParser element = null;
+
+var emptyElement = Between("<", nameWithAttrs, "/>")
     .Map((elName, attrs) => new XElement(elName, attrs));
 
-var openingTag = Between('<', name.And(attributes).And(WS), '>');
-FSharpFunc<CharStream<Unit>, Reply<string>> closingTag(string tagName) => Between("</", StringP(tagName).And(WS), ">");
+var openingTag = Between('<', nameWithAttrs, '>');
+StringParser closingTag(string tagName) => Between("</", StringP(tagName).And(WS), ">");
 var childElements = Many1(Try(WS.And(Rec(() => element)).And(WS)))
-    .Map(attrs => (object)attrs);
-var text = Many(NoneOf("<"))
-    .Map(t => (object)string.Concat(t));
+    .Map(els => (object)els);
+var text = ManyChars(NoneOf("<"))
+    .Map(t => (object)t);
 var content = childElements.Or(text);
 var parentElement = openingTag.And(content).Map(Flat).And(x => closingTag(x.Item1).Return(x))
     .Map((elName, elAttrs, elContent) => new XElement(elName, elAttrs, elContent));
@@ -681,4 +687,5 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 * Wrap `FSharpFunc<...>` with own type?
   * Implement implicit conversions between the two
   * Overload operators like `+` and `|` to use them as combinators
+  * Implement implicit conversion between char/string and char/string parser?
 * Support user state?

@@ -15,28 +15,28 @@
         private static readonly XElParser SimpleXmlParser;
 
         static SimpleXml() {
-            var nameStart = Letter.Or(CharP('_'));
-            var nameChar = Letter.Or(Digit).Or(AnyOf("-_."));
-            var name = nameStart.And(Many(nameChar))
-                .Map((first, rest) => string.Concat(rest.Prepend(first)));
+            var nameStart = Choice(Letter, CharP('_'));
+            var nameChar = Choice(Letter, Digit, AnyOf("-_."));
+            var name = ManyChars(nameStart, nameChar);
 
-            var quotedString = Between('"', Many(NoneOf("\"")), '"')
-                .Map(string.Concat);
+            var quotedString = Between('"', ManyChars(NoneOf("\"")), '"');
             var attribute = WS1.And(name).And(WS).And(Skip('=')).And(WS).And(quotedString)
                 .Map((attrName, attrVal) => new XAttribute(attrName, attrVal));
             var attributes = Many(Try(attribute));
 
+            var nameWithAttrs = name.And(attributes).And(WS);
+
             XElParser element = null;
 
-            var emptyElement = Between("<", name.And(attributes).And(WS), "/>")
+            var emptyElement = Between("<", nameWithAttrs, "/>")
                 .Map((elName, attrs) => new XElement(elName, attrs));
 
-            var openingTag = Between('<', name.And(attributes).And(WS), '>');
+            var openingTag = Between('<', nameWithAttrs, '>');
             StringParser closingTag(string tagName) => Between("</", StringP(tagName).And(WS), ">");
             var childElements = Many1(Try(WS.And(Rec(() => element)).And(WS)))
-                .Map(attrs => (object)attrs);
-            var text = Many(NoneOf("<"))
-                .Map(t => (object)string.Concat(t));
+                .Map(els => (object)els);
+            var text = ManyChars(NoneOf("<"))
+                .Map(t => (object)t);
             var content = childElements.Or(text);
             var parentElement = openingTag.And(content).Map(Flat).And(x => closingTag(x.Item1).Return(x))
                 .Map((elName, elAttrs, elContent) => new XElement(elName, elAttrs, elContent));

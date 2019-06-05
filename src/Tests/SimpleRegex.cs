@@ -8,6 +8,8 @@
     using static FParsec.CSharp.PrimitivesCS;
 
     public class SimpleRegex {
+        #region Parser definition
+
         private static readonly FSharpFunc<CharStream<Unit>, Reply<IState>> SimpleRegexParser =
             Many(new OPPBuilder<NFA.ProtoState, Unit>()
                 .WithImplicitOperator(2, NFA.Connect)
@@ -29,7 +31,11 @@
                 .ExpressionParser)
             .And(EOF)
             .Map(NFA.Concat)
-            .Map(proto => proto(new Final()));
+            .Map(protoState => protoState(new Final()));
+
+        #endregion Parser definition
+
+        #region Tests
 
         [Fact]
         public void SingleChar() => SimpleRegexParser
@@ -84,5 +90,7 @@
             .ParseString("(a|b|c)+d*(ef|gh(.)+)?").OkResult()
             .Matches("abcabcghxxx")
             .ShouldBe(true);
+
+        #endregion Tests
     }
 }

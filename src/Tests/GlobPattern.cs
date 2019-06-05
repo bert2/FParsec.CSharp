@@ -8,6 +8,8 @@
     using static FParsec.CSharp.PrimitivesCS;
 
     public class GlobPattern {
+        #region Parser definition
+
         private static readonly FSharpFunc<CharStream<Unit>, Reply<IState>> GlobParser =
             Many(Choice(
                 Skip('?').Map(NFA.MakeAnyChar),
@@ -17,7 +19,11 @@
                 AnyChar.Map(NFA.MakeChar)))
             .And(EOF)
             .Map(NFA.Concat)
-            .Map(proto => proto(new Final()));
+            .Map(protoState => protoState(new Final()));
+
+        #endregion Parser definition
+
+        #region Tests
 
         [Fact]
         public void SingleChar() => GlobParser
@@ -60,5 +66,7 @@
             .ParseString(@"The * syntax allows wildcards (\? and \*) and character classes (\[0-9\]). [A-Z]ackslash \\ is the escape character?").OkResult()
             .Matches(@"The glob syntax allows wildcards (? and *) and character classes ([0-9]). Hackslash \ is the escape character!")
             .ShouldBe(true);
+
+        #endregion Tests
     }
 }

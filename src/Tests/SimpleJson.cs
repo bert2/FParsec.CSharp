@@ -13,24 +13,23 @@
         private static readonly FSharpFunc<CharStream<Unit>, Reply<JObject>> SimpleJsonParser;
 
         static SimpleJson() {
-            FSharpFunc<CharStream<Unit>, Reply<object>> jvalue = null;
+            FSharpFunc<CharStream<Unit>, Reply<JToken>> jvalue = null;
 
-            var jnull = StringCI("null").Return((object)null).Lbl("null");
+            var jnull = StringCI("null", (JToken)null).Lbl("null");
 
-            var jnum = Int.Map(i => (object)i).Lbl("integer");
+            var jnum = Float.Map(i => (JToken)i).Lbl("number");
 
             var jbool = StringCI("true").Or(StringCI("false"))
-                .Map(b => (object)bool.Parse(b))
+                .Map(b => (JToken)bool.Parse(b))
                 .Lbl("bool");
 
-            var quotedString = Between('"', Many(NoneOf("\"")), '"')
-                .Map(string.Concat);
+            var quotedString = Between('"', ManyChars(NoneOf("\"")), '"');
 
-            var jstring = quotedString.Map(s => (object)s).Lbl("string");
+            var jstring = quotedString.Map(s => (JToken)s).Lbl("string");
 
             var arrItems = Many(Rec(() => jvalue), sep: CharP(',').And(WS));
             var jarray = Between(CharP('[').And(WS), arrItems, CharP(']'))
-                .Map(elems => (object)new JArray(elems))
+                .Map(elems => (JToken)new JArray(elems))
                 .Lbl("array");
 
             var jidentifier = quotedString.Lbl("identifier");
@@ -38,7 +37,7 @@
                 .Map((name, value) => new JProperty(name, value));
             var objProps = Many(jprop, sep: CharP(',').And(WS));
             var jobject = Between(CharP('{').And(WS), objProps, CharP('}'))
-                .Map(props => (object)new JObject(props))
+                .Map(props => (JToken)new JObject(props))
                 .Lbl("object");
 
             jvalue = Choice(jnum, jbool, jnull, jstring, jarray, jobject).And(WS);
@@ -60,52 +59,49 @@
         public void BoolProperty() =>
             SimpleJsonParser
             .ParseString("{\"bool\":tRuE}")
-            .ShouldBe(new JObject(new JProperty("bool", true)));
+            .ShouldBe(new JObject { { "bool", true } });
 
         [Fact]
         public void StringProperty() =>
             SimpleJsonParser
             .ParseString("{\"str\":\"value\"}")
-            .ShouldBe(new JObject(new JProperty("str", "value")));
+            .ShouldBe(new JObject { { "str", "value" } });
 
         [Fact]
         public void NullProperty() =>
             SimpleJsonParser
             .ParseString("{\"nothing\":null}")
-            .ShouldBe(new JObject(new JProperty("nothing", null)));
+            .ShouldBe(new JObject { { "nothing", null } });
 
         [Fact]
         public void ArrayProperty() =>
             SimpleJsonParser
             .ParseString("{\"arr\":[\"test\",2,null,false,{}]}")
             .ShouldBe(
-                new JObject(
-                    new JProperty("arr", new JArray(
-                        "test",
-                        2,
-                        null,
-                        false,
-                        new JObject()))));
+                new JObject {
+                    { "arr", new JArray("test", 2, null, false, new JObject()) }
+                });
 
         [Fact]
         public void ObjectProperty() =>
             SimpleJsonParser
             .ParseString("{\"obj\":{\"x\":1}}")
             .ShouldBe(
-                new JObject(
-                    new JProperty("obj", new JObject(
-                        new JProperty("x", 1)))));
+                new JObject {
+                    { "obj", new JObject { { "x", 1 } } }
+                });
 
         [Fact]
         public void MultipleProperties() =>
             SimpleJsonParser
             .ParseString("{\"prop1\":\"val1\",\"prop2\":false,\"prop3\":null,\"prop4\":[1]}")
             .ShouldBe(
-                new JObject(
-                    new JProperty("prop1", "val1"),
-                    new JProperty("prop2", false),
-                    new JProperty("prop3", null),
-                    new JProperty("prop4", new[] { 1 })));
+                new JObject {
+                    { "prop1", "val1" },
+                    { "prop2", false },
+                    { "prop3", null },
+                    { "prop4", new JArray(1) }
+                });
 
         [Fact]
         public void WithWithspace() =>
@@ -113,7 +109,7 @@
             .ParseString(@"
                 {
                     ""my-property"" : ""my value"",
-                    ""prop1""       : 1           ,
+                    ""prop1""       : -1.2        ,
                     ""prop2""       : [
                                           false   ,
                                           true    ,
@@ -122,11 +118,12 @@
                     ""prop3""       : { }
                 }                                 ")
             .ShouldBe(
-                new JObject(
-                    new JProperty("my-property", "my value"),
-                    new JProperty("prop1", 1),
-                    new JProperty("prop2", new JArray(false, true, null)),
-                    new JProperty("prop3", new JObject())));
+                new JObject {
+                    { "my-property", "my value" },
+                    { "prop1", -1.2 },
+                    { "prop2", new JArray(false, true, null) },
+                    { "prop3", new JObject() }
+                });
 
         [Fact]
         public void ParsesWholeInput() =>
@@ -148,7 +145,7 @@
             .ParseString("{ \"prop\": x }")
             .ShouldBeErrors(
                 new ErrorMessage.Expected("null"),
-                new ErrorMessage.Expected("integer"),
+                new ErrorMessage.Expected("number"),
                 new ErrorMessage.Expected("string"),
                 new ErrorMessage.Expected("bool"),
                 new ErrorMessage.Expected("array"),

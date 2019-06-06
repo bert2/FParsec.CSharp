@@ -477,12 +477,12 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | :--- | :--- |
 | `preturn` | `P<T> Return(T)` |
 | `pzero` | `P<T> Zero<T>()` |
-| `(>>=)` | `P<T2> P<T1>.And(Func<T1, P<T2>>)` |
+| `(>>=)` | `P<TR> P<T1>.And(Func<T1, P<TR>>)`,<br>`P<TR> P<Unit>.And(Func<P<TR>>)` if left side returns `Unit`,<br>`P<TR> P<(T1,T2)>.And(Func<T1, T2, P<TR>>)` deconstructs left tuple result,<br>`P<TR> P<(T1,T2,T3)>.And(Func<T1, T2, T3, P<TR>>)` deconstructs left 3-tuple result |
 | `(>>%)` | `P<T2> P<T1>.Return(T2)` |
 | `(>>.)` | `P<T2> P<T1>.AndR(P<T2>)` skips left explicitly, <br>`P<T> P<Unit>.And(P<T>)` skips left implicitly when it returns `Unit` |
 | `(.>>)` | `P<T1> P<T1>.AndL(P<T2>)` skips right explicitly, <br>`P<T> P<T>.And(P<Unit>)` skips right implicitly when it returns `Unit` |
 | `(.>>.)` | `P<(T1,T2)> P<T1>.And(P<T2>)` if neither side returns `Unit`,<br>`P<(Unit,Unit)> P<Unit>.And_(P<Unit>)` if any side returns `Unit` |
-| `(\|>>)` | `P<T2> P<T1>.Map(Func<T1, T2>)` |
+| `(\|>>)` | `P<TR> P<T1>.Map(Func<T1, TR>)`,<br>`P<TR> P<Unit>.Map(Func<TR>)` if left side returns `Unit`,<br>`P<TR> P<(T1,T2)>.Map(Func<T1, T2, TR>)` deconstructs left tuple result,<br>`P<TR> P<(T1,T2,T3)>.Map(Func<T1, T2, T3, TR>)` deconstructs left 3-tuple result |
 | `between` | `P<T2> Between(P<T1>, P<T2>, P<T3>)` (different argument order) |
 | `pipe2` | `P<TR> Pipe(P<T1>, P<T2>, Func<T1, T2, TR>)` |
 | `pipe3` | `P<TR> Pipe(P<T1>, P<T2>, P<T3>, Func<T1, T2, T3, TR>)` |
@@ -680,7 +680,6 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 
 ## TODO
 
-* Rework examples to use the new parsers and combinators
 * Implement small script language example
 * Wrap `numberLiteral` and `identifier` parsers?
 * Add [source link](https://github.com/dotnet/sourcelink) support?

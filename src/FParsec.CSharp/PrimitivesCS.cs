@@ -81,9 +81,29 @@
         /// `f` to the input.
         /// </summary>
         public static FSharpFunc<Chars, Reply<T2>> And<T1, T2>(
-           this FSharpFunc<Chars, Reply<T1>> p1,
-           Func<T1, FSharpFunc<Chars, Reply<T2>>> p2)
-           => op_GreaterGreaterEquals(p1, p2.ToFSharpFunc());
+           this FSharpFunc<Chars, Reply<T1>> p,
+           Func<T1, FSharpFunc<Chars, Reply<T2>>> f)
+           => op_GreaterGreaterEquals(p, f.ToFSharpFunc());
+
+        /// <summary>
+        /// The parser `p.And(f)` first applies the parser `p` to the input, then applies the
+        /// function `f` to both values of the tuple returned by `p` and finally applies the parser
+        /// returned by `f` to the input.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> And<T1, T2, TResult>(
+           this FSharpFunc<Chars, Reply<(T1, T2)>> p,
+           Func<T1, T2, FSharpFunc<Chars, Reply<TResult>>> f)
+           => op_GreaterGreaterEquals(p, FSharpFunc.From<(T1, T2), FSharpFunc<Chars, Reply<TResult>>>(x => f(x.Item1, x.Item2)));
+
+        /// <summary>
+        /// The parser `p.And(f)` first applies the parser `p` to the input, then applies the
+        /// function `f` to all values of the 3-tuple returned by `p` and finally applies the
+        /// parser returned by `f` to the input.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> And<T1, T2, T3, TResult>(
+           this FSharpFunc<Chars, Reply<(T1, T2, T3)>> p,
+           Func<T1, T2, T3, FSharpFunc<Chars, Reply<TResult>>> f)
+           => op_GreaterGreaterEquals(p, FSharpFunc.From<(T1, T2, T3), FSharpFunc<Chars, Reply<TResult>>>(x => f(x.Item1, x.Item2, x.Item3)));
 
         /// <summary>
         /// The parser `Between(pOpen, p, pClose)` applies the parsers `pOpen`, `p` and `pClose` in

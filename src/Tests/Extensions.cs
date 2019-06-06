@@ -71,6 +71,10 @@
             .DeepEquals(reply.OkResult(), result)
             .ShouldBeTrue($"\nExpected:\t{result}\nActual:\t\t{reply.Result}");
 
+        internal static void ShouldBe(this XElement actual, XElement expected) => XNode
+            .DeepEquals(actual, expected)
+            .ShouldBeTrue($"\nExpected:\t{expected}\nActual:\t\t{actual}");
+
         internal static string Print(this ErrorMessageList errors) => string.Join(", ", errors
             .AsEnumerable()
             .Select(e => (string)getDebuggerDisplayMethod.Invoke(e, new object[0])));

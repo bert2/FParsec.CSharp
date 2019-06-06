@@ -287,31 +287,40 @@ var simpleJsonParser = WS.And(jobject).And(WS).And(EOF).Map(o => (JObject)o);
 ```C#
 var nameStart = Choice(Letter, CharP('_'));
 var nameChar = Choice(Letter, Digit, AnyOf("-_."));
-var name = ManyChars(nameStart, nameChar);
+var name = Many1Chars(nameStart, nameChar).And(WS);
 
 var quotedString = Between('"', ManyChars(NoneOf("\"")), '"');
-var attribute = WS1.And(name).And(WS).And(Skip('=')).And(WS).And(quotedString)
+var attribute = name.And(Skip('=')).And(WS).And(quotedString).And(WS)
+    .Lbl_("attribute")
     .Map((attrName, attrVal) => new XAttribute(attrName, attrVal));
-var attributes = Many(Try(attribute));
-
-var nameWithAttrs = name.And(attributes).And(WS);
+var attributes = Many(attribute);
 
 XElParser element = null;
 
-var emptyElement = Between("<", nameWithAttrs, "/>")
-    .Map((elName, attrs) => new XElement(elName, attrs));
+var elementStart = Skip('<').AndTry(name.Lbl("tag name")).And(attributes);
 
-var openingTag = Between('<', nameWithAttrs, '>');
-StringParser closingTag(string tagName) => Between("</", StringP(tagName).And(WS), ">");
-var childElements = Many1(Try(WS.And(Rec(() => element)).And(WS)))
-    .Map(els => (object)els);
-var text = ManyChars(NoneOf("<"))
-    .Map(t => (object)t);
-var content = childElements.Or(text);
-var parentElement = openingTag.And(content).Map(Flat).And(x => closingTag(x.Item1).Return(x))
-    .Map((elName, elAttrs, elContent) => new XElement(elName, elAttrs, elContent));
+StringParser closingTag(string tagName) => Between("</", StringP(tagName).And(WS), ">")
+    .Lbl_($"closing tag '</{tagName}>'");
 
-element = Try(emptyElement).Or(parentElement);
+ElContentParser textContent(string leadingWS) => NotEmpty(ManyChars(NoneOf("<"))
+    .Map(text => leadingWS + text)
+    .Map(x => (object)x)
+    .Lbl_("text content"));
+
+var childElement = Rec(() => element).Map(x => (object)x).Lbl_("child element");
+
+object EmptyContentToEmptyString(FSharpList<object> xs) => xs.IsEmpty ? (object)"" : xs;
+
+var elementContent = Many(WS.WithSkipped().AndTry(ws => Choice(textContent(ws), childElement)))
+    .Map(EmptyContentToEmptyString);
+
+XElParser elementEnd(string elName, AttrList elAttrs) =>
+    Choice(
+        Skip("/>").Return((object)null),
+        Skip(">").And(elementContent).And(WS).AndL(closingTag(elName)))
+    .Map(elContent => new XElement(elName, elContent, elAttrs));
+
+element = elementStart.And(elementEnd);
 
 var simpleXmlParser = element.And(WS).And(EOF);
 ```

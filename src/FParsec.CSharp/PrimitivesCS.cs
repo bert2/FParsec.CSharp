@@ -86,6 +86,16 @@
            => op_GreaterGreaterEquals(p, f.ToFSharpFunc());
 
         /// <summary>
+        /// The parser `p.And(f)` first applies the skipping parser `p` to the input, then executes
+        /// the parameterless function `f` and finally applies the parser returned by `f` to the
+        /// input.
+        /// </summary>
+        public static FSharpFunc<Chars, Reply<TResult>> And<TResult>(
+           this FSharpFunc<Chars, Reply<Unit>> p,
+           Func<FSharpFunc<Chars, Reply<TResult>>> f)
+           => op_GreaterGreaterEquals(p, FSharpFunc.From<Unit, FSharpFunc<Chars, Reply<TResult>>>(_ => f()));
+
+        /// <summary>
         /// The parser `p.And(f)` first applies the parser `p` to the input, then applies the
         /// function `f` to both values of the tuple returned by `p` and finally applies the parser
         /// returned by `f` to the input.

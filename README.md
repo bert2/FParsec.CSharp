@@ -27,8 +27,8 @@ FParsec.CSharp is a C# wrapper for the F# package [FParsec](https://github.com/s
 - [Hints](#hints)
   * [Debugging](#debugging)
   * [Aliasing awkward types](#aliasing-awkward-types)
-- [Alternatives](#alternatives)
 - [Where is the FParsec function `x`?](#where-is-the-fparsec-function-x)
+- [Credits](#credits)
 - [TODO](#todo)
 
 
@@ -38,7 +38,7 @@ While using FParsec from C# is entirely possible in theory, it is very awkward i
 
 FParsec.CSharp tries to alleviate that by wrapping FParsec's operators as extension functions.
 
-FParsec.CSharp does not try to hide any types from `FParsec` or `FSharp.Core`--the wrapper is thin and also avoids name collisions. That way you can always fallback to FParsec anytime you need some functionality not (yet) implemented by FParsec.CSharp.
+FParsec.CSharp does not try to hide any types from `FParsec` or `FSharp.Core`--the wrapper is thin and also avoids name collisions. That way you can always fallback to FParsec anytime you need some functionality not implemented by FParsec.CSharp.
 
 Based on the current implementation it should be easy to extend the wrapper yourself if needed. Pull requests are always welcome!
 
@@ -464,16 +464,6 @@ using JsonParser = Microsoft.FSharp.Core.FSharpFunc<FParsec.CharStream<Microsoft
 // ...
 ```
 
-## Alternatives
-
-FParsec.CSharp does not wrap all of FParsec's features yet. If you need an all-in-one solution then have a look at the following alternatives:
-
-* [Pidgin](https://github.com/benjamin-hodgson/Pidgin)
-  * Can also parse binary data.
-  * Not as fast as FParsec.
-* [Sprache](https://github.com/sprache/Sprache)
-  * Is not as optimized as `Pidgin`.
-
 ## Where is the FParsec function `x`?
 
 FParsec.CSharp does not mirror all of FParsec's functions exactly. Some are not (yet) implemented and some are just named differently.
@@ -686,6 +676,15 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `floatOfHexString` | `double DoubleOfHexString(string)` |
 | `float32ToHexString` | `string FloatToHexString(double)` |
 | `float32OfHexString` | `double FloatOfHexString(string)` |
+
+## Credits
+
+This library is based on the following works:
+
+* Obviously [FParsec](https://github.com/stephan-tolksdorf/fparsec), because FParsec.CSharp only _wraps_ FParsec and barely implements any logic on its own. FParsec is also where I nicked most of the XML documentation from.
+* [Pidgin](https://github.com/benjamin-hodgson/Pidgin) gave me the whole idea of thinking about a parser combinator API in C#. However, I'm not smart enough to build my own implementation and just wrapped FParsec instead.
+* The OPP's implicit operator implementation was stolen from [StackOverflow](https://stackoverflow.com/questions/29322892).
+* The NFA implementation was inspired by [Russ Cox' fantastic article on efficient regex matching](https://swtch.com/~rsc/regexp/regexp1.html).
 
 ## TODO
 

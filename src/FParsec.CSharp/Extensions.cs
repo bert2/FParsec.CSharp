@@ -1,14 +1,14 @@
-﻿namespace FParsec.CSharp {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Reflection;
-    using System.Text;
-    using Microsoft.FSharp.Collections;
-    using Microsoft.FSharp.Core;
-    using static FParsec.CharParsers;
-    using static FParsec.Error;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Text;
+using Microsoft.FSharp.Collections;
+using Microsoft.FSharp.Core;
+using static FParsec.CharParsers;
+using static FParsec.Error;
 
+namespace FParsec.CSharp {
     /// <summary>Provides helpers to work with types from `FParsec` and `FSharpCore`.</summary>
     public static class Extensions {
         #region Executing parsers

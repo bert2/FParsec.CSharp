@@ -1,11 +1,12 @@
-﻿namespace FParsec.CSharp {
-    using System;
-    using System.Linq;
-    using Microsoft.FSharp.Collections;
-    using Microsoft.FSharp.Core;
-    using static CharParsers;
-    using static Primitives;
-    using Chars = CharStream<Microsoft.FSharp.Core.Unit>;
+﻿using System;
+using System.Linq;
+using Microsoft.FSharp.Collections;
+using Microsoft.FSharp.Core;
+using static FParsec.CharParsers;
+using static FParsec.Primitives;
+
+namespace FParsec.CSharp {
+    using Chars = CharStream<Unit>;
 
     /// <summary>Provides combinator functions.</summary>
     public static class PrimitivesCS {

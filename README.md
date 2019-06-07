@@ -464,6 +464,18 @@ using JsonParser = Microsoft.FSharp.Core.FSharpFunc<FParsec.CharStream<Microsoft
 // ...
 ```
 
+Also make sure to place your import `usings` _outside_, and your alias `using`s _inside_ your namespace declaration. This will greatly reduce namespace noise in IntelliSense and simplify your alias definitions:
+
+```C#
+using System.Xml.Linq;
+using FParsec;
+using Microsoft.FSharp.Core;
+
+namespace Tests {
+    using XElParser = FSharpFunc<CharStream<Unit>, Reply<XElement>>;
+    // ...
+```
+
 ## Where is the FParsec function `x`?
 
 FParsec.CSharp does not mirror all of FParsec's functions exactly. Some are not (yet) implemented and some are just named differently.

@@ -1,10 +1,10 @@
-﻿namespace FParsec.CSharp {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using Microsoft.FSharp.Core;
-    using static Primitives;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using Microsoft.FSharp.Core;
+using static FParsec.Primitives;
 
+namespace FParsec.CSharp {
     /// <summary>The collection of operators used to build the OPP.</summary>
     public class Operators<TTerm, TAfterString> : IEnumerable<Operator<TTerm, TAfterString, Unit>> {
         private readonly HashSet<Operator<TTerm, TAfterString, Unit>> operators = new HashSet<Operator<TTerm, TAfterString, Unit>>();

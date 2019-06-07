@@ -1,13 +1,13 @@
-﻿namespace Tests {
-    using System;
-    using System.Linq;
-    using FParsec;
-    using FParsec.CSharp;
-    using Microsoft.FSharp.Core;
-    using Xunit;
-    using static FParsec.CSharp.CharParsersCS;
-    using static FParsec.CSharp.PrimitivesCS;
+﻿using System;
+using System.Linq;
+using FParsec;
+using FParsec.CSharp;
+using Microsoft.FSharp.Core;
+using Xunit;
+using static FParsec.CSharp.CharParsersCS;
+using static FParsec.CSharp.PrimitivesCS;
 
+namespace Tests {
     public class ArithmeticExpression {
         #region Parser definitions
 

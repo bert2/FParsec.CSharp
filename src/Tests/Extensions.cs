@@ -1,13 +1,13 @@
-﻿namespace Tests {
-    using System.Linq;
-    using System.Reflection;
-    using System.Xml.Linq;
-    using FParsec;
-    using FParsec.CSharp;
-    using Microsoft.FSharp.Collections;
-    using Newtonsoft.Json.Linq;
-    using Shouldly;
+﻿using System.Linq;
+using System.Reflection;
+using System.Xml.Linq;
+using FParsec;
+using FParsec.CSharp;
+using Microsoft.FSharp.Collections;
+using Newtonsoft.Json.Linq;
+using Shouldly;
 
+namespace Tests {
     internal static class Extensions {
         internal static TResult OkResult<TResult>(this Reply<TResult> reply) {
             reply.IsOk().ShouldBeTrue(reply.Error.Print());

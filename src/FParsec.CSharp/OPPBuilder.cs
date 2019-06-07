@@ -1,10 +1,9 @@
-﻿namespace FParsec.CSharp {
-    using System;
-    using System.Linq;
-    using FParsec;
-    using Microsoft.FSharp.Core;
-    using static FParsec.CSharp.PrimitivesCS;
+﻿using System;
+using System.Linq;
+using Microsoft.FSharp.Core;
+using static FParsec.CSharp.PrimitivesCS;
 
+namespace FParsec.CSharp {
     /// <summary>A helper to build `OperatorPrecedenceParser`s.</summary>
     public class OPPBuilder<TTerm, TAfterString> {
         // Split the OPP into two parts in order to deal with implicit operators

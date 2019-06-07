@@ -1,14 +1,15 @@
+using System;
+using FParsec;
+using FParsec.CSharp;
+using Microsoft.FSharp.Core;
+using Shouldly;
+using Xunit;
+using static FParsec.CharParsers;
+using static FParsec.CSharp.CharParsersCS;
+using static FParsec.CSharp.PrimitivesCS;
+
 namespace Tests {
-    using System;
-    using FParsec;
-    using FParsec.CSharp;
-    using Microsoft.FSharp.Core;
-    using Shouldly;
-    using Xunit;
-    using static FParsec.CharParsers;
-    using static FParsec.CSharp.CharParsersCS;
-    using static FParsec.CSharp.PrimitivesCS;
-    using Chars = FParsec.CharStream<Microsoft.FSharp.Core.Unit>;
+    using Chars = CharStream<Unit>;
 
     public class BasicExamples {
         #region Chars

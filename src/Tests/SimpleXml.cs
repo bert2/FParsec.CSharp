@@ -1,17 +1,17 @@
-﻿namespace Tests {
-    using System.Xml.Linq;
-    using FParsec;
-    using FParsec.CSharp;
-    using Xunit;
-    using static FParsec.CSharp.CharParsersCS;
-    using static FParsec.CSharp.PrimitivesCS;
-    using AttrList = Microsoft.FSharp.Collections.FSharpList<System.Xml.Linq.XAttribute>;
-    using ElContentParser = Microsoft.FSharp.Core.FSharpFunc<FParsec.CharStream<Microsoft.FSharp.Core.Unit>, FParsec.Reply<object>>;
-    using Chars = FParsec.CharStream<Microsoft.FSharp.Core.Unit>;
-    using StringParser = Microsoft.FSharp.Core.FSharpFunc<FParsec.CharStream<Microsoft.FSharp.Core.Unit>, FParsec.Reply<string>>;
-    using Unit = Microsoft.FSharp.Core.Unit;
-    using XElParser = Microsoft.FSharp.Core.FSharpFunc<FParsec.CharStream<Microsoft.FSharp.Core.Unit>, FParsec.Reply<System.Xml.Linq.XElement>>;
-    using Microsoft.FSharp.Collections;
+﻿using System.Xml.Linq;
+using FParsec;
+using FParsec.CSharp;
+using Microsoft.FSharp.Collections;
+using Microsoft.FSharp.Core;
+using Xunit;
+using static FParsec.CSharp.CharParsersCS;
+using static FParsec.CSharp.PrimitivesCS;
+
+namespace Tests {
+    using Chars = CharStream<Unit>;
+    using StringParser = FSharpFunc<CharStream<Unit>, Reply<string>>;
+    using XElContentParser = FSharpFunc<CharStream<Unit>, Reply<object>>;
+    using XElParser = FSharpFunc<CharStream<Unit>, Reply<XElement>>;
 
     public class SimpleXml {
         #region Parser definition
@@ -34,22 +34,22 @@
 
             var elementStart = Skip('<').AndTry(name.Lbl("tag name")).And(attributes);
 
-            StringParser closingTag(string tagName) => Between("</", StringP(tagName).And(WS), ">")
+            static StringParser closingTag(string tagName) => Between("</", StringP(tagName).And(WS), ">")
                 .Lbl_($"closing tag '</{tagName}>'");
 
-            ElContentParser textContent(string leadingWS) => NotEmpty(ManyChars(NoneOf("<"))
+            XElContentParser textContent(string leadingWS) => NotEmpty(ManyChars(NoneOf("<"))
                 .Map(text => leadingWS + text)
                 .Map(x => (object)x)
                 .Lbl_("text content"));
 
             var childElement = Rec(() => element).Map(x => (object)x).Lbl_("child element");
 
-            object EmptyContentToEmptyString(FSharpList<object> xs) => xs.IsEmpty ? (object)"" : xs;
+            static object EmptyContentToEmptyString(FSharpList<object> xs) => xs.IsEmpty ? (object)"" : xs;
 
             var elementContent = Many(WS.WithSkipped().AndTry(ws => Choice(textContent(ws), childElement)))
                 .Map(EmptyContentToEmptyString);
 
-            XElParser elementEnd(string elName, AttrList elAttrs) =>
+            XElParser elementEnd(string elName, FSharpList<XAttribute> elAttrs) =>
                 Choice(
                     Skip("/>").Return((object)null),
                     Skip(">").And(elementContent).And(WS).AndL(closingTag(elName)))

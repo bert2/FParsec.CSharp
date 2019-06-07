@@ -1,12 +1,13 @@
-﻿namespace FParsec.CSharp {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.FSharp.Core;
-    using static CharParsers;
-    using static FParsec.Error;
-    using static Primitives;
-    using Chars = CharStream<Microsoft.FSharp.Core.Unit>;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.FSharp.Core;
+using static FParsec.CharParsers;
+using static FParsec.Error;
+using static FParsec.Primitives;
+
+namespace FParsec.CSharp {
+    using Chars = CharStream<Unit>;
 
     /// <summary>Provides predefined char and string parsers.</summary>
     public static class CharParsersCS {
@@ -890,8 +891,8 @@
             many1Chars(digit<Unit>()).Invoke(chars) switch {
                 (Ok, var r, _) => int.TryParse(r, out var n)
                     ? new Reply<int>(n)
-                    : new Reply<int>(Error, messageError("Number must be below 2147483648")),
-                _ => new Reply<int>(Error, expected("natural number"))
+                    : new Reply<int>(Primitives.Error, messageError("Number must be below 2147483648")),
+                _ => new Reply<int>(Primitives.Error, expected("natural number"))
             });
 
         /// <summary>

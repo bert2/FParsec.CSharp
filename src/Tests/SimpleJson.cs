@@ -1,12 +1,12 @@
-﻿namespace Tests {
-    using FParsec;
-    using FParsec.CSharp;
-    using Microsoft.FSharp.Core;
-    using Newtonsoft.Json.Linq;
-    using Xunit;
-    using static FParsec.CSharp.CharParsersCS;
-    using static FParsec.CSharp.PrimitivesCS;
+﻿using FParsec;
+using FParsec.CSharp;
+using Microsoft.FSharp.Core;
+using Newtonsoft.Json.Linq;
+using Xunit;
+using static FParsec.CSharp.CharParsersCS;
+using static FParsec.CSharp.PrimitivesCS;
 
+namespace Tests {
     public class SimpleJson {
         #region Parser definition
 

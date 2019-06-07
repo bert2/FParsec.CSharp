@@ -703,8 +703,4 @@ This library is based on the following works:
 * Implement small script language example
 * Wrap `numberLiteral` and `identifier` parsers?
 * Add [source link](https://github.com/dotnet/sourcelink) support?
-* Wrap `FSharpFunc<...>` with own type?
-  * Implement implicit conversions between the two
-  * Overload operators like `+` and `|` to use them as combinators
-  * Implement implicit conversion between char/string and char/string parser?
 * Support user state?

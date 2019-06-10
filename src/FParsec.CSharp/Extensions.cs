@@ -23,7 +23,8 @@ namespace FParsec.CSharp {
 
         /// <summary>
         /// <para>
-        /// `p.RunOnString(s,name)` runs the parser `p` directly on the content of the string `s`.
+        /// `p.RunOnString(s,u,name)` runs the parser `p` directly on the content of the string
+        /// `s`, starting with the initial user state `u`.
         /// </para>
         /// <para>
         /// The `name` is used in error messages to describe the source of the input (e.g. a file
@@ -31,16 +32,18 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
         /// </summary>
-        public static ParserResult<TResult, Unit> RunOnString<TResult>(
-            this FSharpFunc<CharStream<Unit>, Reply<TResult>> p,
+        public static ParserResult<TResult, U> RunOnString<U, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<TResult>> p,
             string chars,
+            U userState = default,
             string streamName = null)
-            => runParserOnString(p, null, streamName, chars);
+            => runParserOnString(p, userState, streamName, chars);
 
         /// <summary>
         /// <para>
-        /// `p.RunOnString(s,index,count,name)` runs the parser `p` directly on the content of the
-        /// string `s` between the indices `index` (inclusive) and `index + count` (exclusive)
+        /// `p.RunOnString(s,index,count,u,name)` runs the parser `p` directly on the content of
+        /// the string `s` between the indices `index` (inclusive) and `index + count` (exclusive),
+        /// starting with the initial user state `u`.
         /// </para>
         /// <para>
         /// The `name` is used in error messages to describe the source of the input (e.g. a file
@@ -48,18 +51,19 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
         /// </summary>
-        public static ParserResult<TResult, Unit> RunOnString<TResult>(
-            this FSharpFunc<CharStream<Unit>, Reply<TResult>> p,
+        public static ParserResult<TResult, U> RunOnString<U, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<TResult>> p,
             string chars,
             int index,
             int length,
+            U userState = default,
             string streamName = null)
-            => runParserOnSubstring(p, null, streamName, chars, index, length);
+            => runParserOnSubstring(p, userState, streamName, chars, index, length);
 
         /// <summary>
         /// <para>
-        /// `p.RunOnStream(stream,enc,name)` runs the parser `p` on the content of the
-        /// `System.IO.Stream` `stream`.
+        /// `p.RunOnStream(stream,u,enc,name)` runs the parser `p` on the content of the
+        /// `System.IO.Stream` `stream`, starting with the initial user state `u`.
         /// </para>
         /// <para>
         /// The `name` is used in error messages to describe the source of the input (e.g. a file
@@ -71,17 +75,18 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
         /// </summary>
-        public static ParserResult<TResult, Unit> RunOnStream<TResult>(
-            this FSharpFunc<CharStream<Unit>, Reply<TResult>> p,
+        public static ParserResult<TResult, U> RunOnStream<U, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<TResult>> p,
             Stream byteStream,
+            U userState = default,
             Encoding encoding = null,
             string streamName = null)
-            => runParserOnStream(p, null, streamName, byteStream, encoding ?? Encoding.Default);
+            => runParserOnStream(p, userState, streamName, byteStream, encoding ?? Encoding.Default);
 
         /// <summary>
         /// <para>
-        /// `p.RunOnFile(path,enc)` runs the parser `p` on the content of the file at the given
-        /// `path`.
+        /// `p.RunOnFile(path,u,enc)` runs the parser `p` on the content of the file at the given
+        /// `path`, starting with the initial user state `u`.
         /// </para>
         /// <para>
         /// In case no unicode byte order mark is found, the file data is assumed to be encoded
@@ -89,11 +94,12 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
         /// </summary>
-        public static ParserResult<TResult, Unit> RunOnFile<TResult>(
-            this FSharpFunc<CharStream<Unit>, Reply<TResult>> p,
+        public static ParserResult<TResult, U> RunOnFile<U, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<TResult>> p,
             string path,
+            U userState = default,
             Encoding encoding = null)
-            => runParserOnFile(p, null, path, encoding ?? Encoding.Default);
+            => runParserOnFile(p, userState, path, encoding ?? Encoding.Default);
 
         /// <summary>Applies the parser `p` to the input string.</summary>
         public static Reply<TResult> ParseString<TResult>(
@@ -133,7 +139,7 @@ namespace FParsec.CSharp {
         /// <para>`m` will be `null` if parsing succeeded.</para>
         /// <para>`r` will be `default(TResult)` if parsing failed.</para>
         /// </summary>
-        public static (TResult result, string message) UnwrapResult<TResult>(this ParserResult<TResult, Unit> result) {
+        public static (TResult result, string message) UnwrapResult<U, TResult>(this ParserResult<TResult, U> result) {
             var (r, f) = result.UnwrapWithFailure();
             return (r, f?.Message());
         }
@@ -146,7 +152,7 @@ namespace FParsec.CSharp {
         /// <para>`e` will be `null` if parsing succeeded.</para>
         /// <para>`r` will be `default(TResult)` if parsing failed.</para>
         /// </summary>
-        public static (TResult result, ParserError error) UnwrapWithError<TResult>(this ParserResult<TResult, Unit> result) {
+        public static (TResult result, ParserError error) UnwrapWithError<U, TResult>(this ParserResult<TResult, U> result) {
             var (r, f) = result.UnwrapWithFailure();
             return (r, f?.Error());
         }
@@ -159,10 +165,10 @@ namespace FParsec.CSharp {
         /// <para>`f` will be `null` if parsing succeeded.</para>
         /// <para>`r` will be `default(TResult)` if parsing failed.</para>
         /// </summary>
-        public static (TResult result, ParserResult<TResult, Unit>.Failure failure) UnwrapWithFailure<TResult>(
-            this ParserResult<TResult, Unit> result)
+        public static (TResult result, ParserResult<TResult, U>.Failure failure) UnwrapWithFailure<U, TResult>(
+            this ParserResult<TResult, U> result)
             => result.IsSuccess
-                ? (result.ToSuccess().Result(), (ParserResult<TResult, Unit>.Failure)null)
+                ? (result.ToSuccess().Result(), (ParserResult<TResult, U>.Failure)null)
                 : (default, result.ToFailure());
 
         /// <summary>
@@ -172,7 +178,7 @@ namespace FParsec.CSharp {
         /// `InvalidOperationException` with the detailed parser error message.
         /// </para>
         /// </summary>
-        public static TResult GetResult<TResult>(this ParserResult<TResult, Unit> result)
+        public static TResult GetResult<U, TResult>(this ParserResult<TResult, U> result)
             => result.GetResult(msg => throw new InvalidOperationException(msg));
 
         /// <summary>
@@ -184,8 +190,8 @@ namespace FParsec.CSharp {
         /// fallback result value or throw an exception.
         /// </para>
         /// </summary>
-        public static TResult GetResult<TResult>(
-            this ParserResult<TResult, Unit> result,
+        public static TResult GetResult<U, TResult>(
+            this ParserResult<TResult, U> result,
             Func<string, TResult> handleMessage)
             => result.GetResultOrFailure(f => handleMessage(f.Message()));
 
@@ -198,8 +204,8 @@ namespace FParsec.CSharp {
         /// result value or throw an exception.
         /// </para>
         /// </summary>
-        public static TResult GetResultOrError<TResult>(
-            this ParserResult<TResult, Unit> result,
+        public static TResult GetResultOrError<U, TResult>(
+            this ParserResult<TResult, U> result,
             Func<ParserError, TResult> handleError)
             => result.GetResultOrFailure(f => handleError(f.Error()));
 
@@ -212,40 +218,46 @@ namespace FParsec.CSharp {
         /// result value or throw an exception.
         /// </para>
         /// </summary>
-        public static TResult GetResultOrFailure<TResult>(
-            this ParserResult<TResult, Unit> result,
-            Func<ParserResult<TResult, Unit>.Failure, TResult> handleFailure)
+        public static TResult GetResultOrFailure<U, TResult>(
+            this ParserResult<TResult, U> result,
+            Func<ParserResult<TResult, U>.Failure, TResult> handleFailure)
             => result.IsFailure
                 ? handleFailure(result.ToFailure())
                 : result.ToSuccess().Result();
 
         /// <summary>Wrapper for `ParserResult.Success.Item1`.</summary>
-        public static TResult Result<TResult>(this ParserResult<TResult, Unit>.Success success) => success.Item1;
+        public static TResult Result<U, TResult>(this ParserResult<TResult, U>.Success success) => success.Item1;
+
+        /// <summary>Wrapper for `ParserResult.Success.Item2`.</summary>
+        public static U UserState<U, TResult>(this ParserResult<TResult, U>.Success success) => success.Item2;
 
         /// <summary>Wrapper for `ParserResult.Success.Item3`.</summary>
-        public static Position Position<TResult>(this ParserResult<TResult, Unit>.Success success) => success.Item3;
+        public static Position Position<U, TResult>(this ParserResult<TResult, U>.Success success) => success.Item3;
 
         /// <summary>Wrapper for `ParserResult.Failure.Item1`.</summary>
-        public static string Message<TResult>(this ParserResult<TResult, Unit>.Failure failure) => failure.Item1;
+        public static string Message<U, TResult>(this ParserResult<TResult, U>.Failure failure) => failure.Item1;
 
         /// <summary>Wrapper for `ParserResult.Failure.Item2`.</summary>
-        public static ParserError Error<TResult>(this ParserResult<TResult, Unit>.Failure failure) => failure.Item2;
+        public static ParserError Error<U, TResult>(this ParserResult<TResult, U>.Failure failure) => failure.Item2;
+
+        /// <summary>Wrapper for `ParserResult.Failure.Item3`.</summary>
+        public static U UserState<U, TResult>(this ParserResult<TResult, U>.Failure failure) => failure.Item3;
 
         /// <summary>Unsafely cast the `ParserResult` to `ParserResult.Success`.</summary>
-        public static ParserResult<TResult, Unit>.Success ToSuccess<TResult>(this ParserResult<TResult, Unit> result)
-            => (ParserResult<TResult, Unit>.Success)result;
+        public static ParserResult<TResult, U>.Success ToSuccess<U, TResult>(this ParserResult<TResult, U> result)
+            => (ParserResult<TResult, U>.Success)result;
 
         /// <summary>Unsafely cast the `ParserResult` to `ParserResult.Failure`.</summary>
-        public static ParserResult<TResult, Unit>.Failure ToFailure<TResult>(this ParserResult<TResult, Unit> result)
-           => (ParserResult<TResult, Unit>.Failure)result;
+        public static ParserResult<TResult, U>.Failure ToFailure<U, TResult>(this ParserResult<TResult, U> result)
+           => (ParserResult<TResult, U>.Failure)result;
 
         /// <summary>Safely cast the `ParserResult` to `ParserResult.Success`.</summary>
-        public static ParserResult<TResult, Unit>.Success AsSuccess<TResult>(this ParserResult<TResult, Unit> result)
-            => result as ParserResult<TResult, Unit>.Success;
+        public static ParserResult<TResult, U>.Success AsSuccess<U, TResult>(this ParserResult<TResult, U> result)
+            => result as ParserResult<TResult, U>.Success;
 
         /// <summary>Safely cast the `ParserResult` to `ParserResult.Failure`.</summary>
-        public static ParserResult<TResult, Unit>.Failure AsFailure<TResult>(this ParserResult<TResult, Unit> result)
-            => result as ParserResult<TResult, Unit>.Failure;
+        public static ParserResult<TResult, U>.Failure AsFailure<U, TResult>(this ParserResult<TResult, U> result)
+            => result as ParserResult<TResult, U>.Failure;
 
         #endregion Handling `ParserResult`s
 
@@ -279,21 +291,25 @@ namespace FParsec.CSharp {
         #region Deconstructors
 
         /// <summary>Deconstructs a `Success` result.</summary>
-        public static void Deconstruct<TResult>(
-            this ParserResult<TResult, Unit>.Success success,
+        public static void Deconstruct<U, TResult>(
+            this ParserResult<TResult, U>.Success success,
             out TResult result,
+            out U userState,
             out Position position) {
             result = success.Result();
+            userState = success.UserState();
             position = success.Position();
         }
 
         /// <summary>Deconstructs a `Failure` result.</summary>
-        public static void Deconstruct<TResult>(
-            this ParserResult<TResult, Unit>.Failure failure,
+        public static void Deconstruct<U, TResult>(
+            this ParserResult<TResult, U>.Failure failure,
             out string message,
-            out ParserError error) {
+            out ParserError error,
+            out U userState) {
             message = failure.Message();
             error = failure.Error();
+            userState = failure.UserState();
         }
 
         /// <summary>Deconstructs a `Reply`.</summary>

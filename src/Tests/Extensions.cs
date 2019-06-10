@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
 using FParsec;
@@ -81,5 +82,7 @@ namespace Tests {
 
         private static readonly MethodInfo getDebuggerDisplayMethod = typeof(ErrorMessage)
             .GetMethod("GetDebuggerDisplay", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        internal static T Debug<T>(this T x, Func<T, T> f) => f(x);
     }
 }

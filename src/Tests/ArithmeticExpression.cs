@@ -11,7 +11,7 @@ namespace Tests {
     public class ArithmeticExpression {
         #region Parser definitions
 
-        private static readonly FSharpFunc<CharStream<Unit>, Reply<int>> BasicExprParser = new OPPBuilder<int, Unit>()
+        private static readonly FSharpFunc<CharStream<Unit>, Reply<int>> BasicExprParser = new OPPBuilder<Unit, int, Unit>()
             .WithOperators(ops => ops
                 .AddInfix("+", 1, (x, y) => x + y)
                 .AddInfix("*", 2, (x, y) => x * y))
@@ -19,7 +19,7 @@ namespace Tests {
             .Build()
             .ExpressionParser;
 
-        private static readonly FSharpFunc<CharStream<Unit>, Reply<int>> RecursiveExprParser = new OPPBuilder<int, Unit>()
+        private static readonly FSharpFunc<CharStream<Unit>, Reply<int>> RecursiveExprParser = new OPPBuilder<Unit, int, Unit>()
             .WithOperators(ops => ops
                 .AddInfix("+", 1, (x, y) => x + y)
                 .AddInfix("*", 2, (x, y) => x * y))
@@ -28,7 +28,7 @@ namespace Tests {
             .ExpressionParser;
 
         private static readonly FSharpFunc<CharStream<Unit>, Reply<int>> ExprParser =
-            WS.And(new OPPBuilder<int, Unit>()
+            WS.And(new OPPBuilder<Unit, int, Unit>()
                 .WithOperators(ops => ops
                     .AddInfix("+", 10, WS, (x, y) => x + y)
                     .AddInfix("-", 10, WS, (x, y) => x - y)

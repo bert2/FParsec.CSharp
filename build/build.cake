@@ -49,7 +49,7 @@ Task("Pack")
         msbuildSettings.Properties["PackageVersion"] = new[] { semVer.NuGetVersion };
         msbuildSettings.Properties["PackageReleaseNotes"] = new[] { relNotes };
         msbuildSettings.Properties["PackageDescription"] = new[] {
-$@"Parsec.CSharp is a thin C# wrapper for Parsec.
+$@"FParsec.CSharp is a thin C# wrapper for FParsec.
 
 Documentation: https://github.com/bert2/FParsec.CSharp
 

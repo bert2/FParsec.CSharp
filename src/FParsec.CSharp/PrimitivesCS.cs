@@ -6,8 +6,6 @@ using static FParsec.CharParsers;
 using static FParsec.Primitives;
 
 namespace FParsec.CSharp {
-    using Chars = CharStream<Unit>;
-
     /// <summary>Provides combinator functions.</summary>
     public static class PrimitivesCS {
         #region Sequence
@@ -16,9 +14,9 @@ namespace FParsec.CSharp {
         /// The parser `p1.And(p2)` applies the parsers `p1` and `p2` in sequence and returns
         /// the results in a tuple.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<(T1, T2)>> And<T1, T2>(
-            this FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<(T1, T2)>> And<U, T1, T2>(
+            this FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2)
             => op_DotGreaterGreaterDot(p1, p2).Map(x => x.ToValueTuple());
 
         /// <summary>
@@ -30,9 +28,9 @@ namespace FParsec.CSharp {
         /// Since `p2` is a skipping parser that returns `Unit`, its result will not be returned.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T1>> And<T1>(
-            this FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<Unit>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<T1>> And<U, T1>(
+            this FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<Unit>> p2)
             => op_DotGreaterGreater(p1, p2);
 
         /// <summary>
@@ -44,36 +42,36 @@ namespace FParsec.CSharp {
         /// Since `p1` is a skipping parser that returns `Unit`, its result will not be returned.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T2>> And<T2>(
-            this FSharpFunc<Chars, Reply<Unit>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<T2>> And<U, T2>(
+            this FSharpFunc<CharStream<U>, Reply<Unit>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2)
             => op_GreaterGreaterDot(p1, p2);
 
         /// <summary>
         /// `p1.And_(p2)` behaves like `p1.And(p2)` except that it will always return both parser
         /// results even if either of them returns `Unit`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<(T1, T2)>> And_<T1, T2>(
-            this FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<(T1, T2)>> And_<U, T1, T2>(
+            this FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2)
             => op_DotGreaterGreaterDot(p1, p2).Map(x => x.ToValueTuple());
 
         /// <summary>
         /// The parser `p1.AndL(p2)` applies the parsers `p1` and `p2` in sequence and returns the
         /// result of `p1`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T1>> AndL<T1, T2>(
-            this FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<T1>> AndL<U, T1, T2>(
+            this FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2)
             => op_DotGreaterGreater(p1, p2);
 
         /// <summary>
         /// The parser `p1.AndR(p2)` applies the parsers `p1` and `p2` in sequence and returns the
         /// result of `p2`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T2>> AndR<T1, T2>(
-            this FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<T2>> AndR<U, T1, T2>(
+            this FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2)
             => op_GreaterGreaterDot(p1, p2);
 
         /// <summary>
@@ -81,9 +79,9 @@ namespace FParsec.CSharp {
         /// function `f` to the result returned by `p` and finally applies the parser returned by
         /// `f` to the input.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T2>> And<T1, T2>(
-           this FSharpFunc<Chars, Reply<T1>> p,
-           Func<T1, FSharpFunc<Chars, Reply<T2>>> f)
+        public static FSharpFunc<CharStream<U>, Reply<T2>> And<U, T1, T2>(
+           this FSharpFunc<CharStream<U>, Reply<T1>> p,
+           Func<T1, FSharpFunc<CharStream<U>, Reply<T2>>> f)
            => op_GreaterGreaterEquals(p, f.ToFSharpFunc());
 
         /// <summary>
@@ -91,60 +89,60 @@ namespace FParsec.CSharp {
         /// the parameterless function `f` and finally applies the parser returned by `f` to the
         /// input.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> And<TResult>(
-           this FSharpFunc<Chars, Reply<Unit>> p,
-           Func<FSharpFunc<Chars, Reply<TResult>>> f)
-           => op_GreaterGreaterEquals(p, FSharpFunc.From<Unit, FSharpFunc<Chars, Reply<TResult>>>(_ => f()));
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> And<U, TResult>(
+           this FSharpFunc<CharStream<U>, Reply<Unit>> p,
+           Func<FSharpFunc<CharStream<U>, Reply<TResult>>> f)
+           => op_GreaterGreaterEquals(p, FSharpFunc.From<Unit, FSharpFunc<CharStream<U>, Reply<TResult>>>(_ => f()));
 
         /// <summary>
         /// The parser `p.And(f)` first applies the parser `p` to the input, then applies the
         /// function `f` to both values of the tuple returned by `p` and finally applies the parser
         /// returned by `f` to the input.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> And<T1, T2, TResult>(
-           this FSharpFunc<Chars, Reply<(T1, T2)>> p,
-           Func<T1, T2, FSharpFunc<Chars, Reply<TResult>>> f)
-           => op_GreaterGreaterEquals(p, FSharpFunc.From<(T1, T2), FSharpFunc<Chars, Reply<TResult>>>(x => f(x.Item1, x.Item2)));
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> And<U, T1, T2, TResult>(
+           this FSharpFunc<CharStream<U>, Reply<(T1, T2)>> p,
+           Func<T1, T2, FSharpFunc<CharStream<U>, Reply<TResult>>> f)
+           => op_GreaterGreaterEquals(p, FSharpFunc.From<(T1, T2), FSharpFunc<CharStream<U>, Reply<TResult>>>(x => f(x.Item1, x.Item2)));
 
         /// <summary>
         /// The parser `p.And(f)` first applies the parser `p` to the input, then applies the
         /// function `f` to all values of the 3-tuple returned by `p` and finally applies the
         /// parser returned by `f` to the input.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> And<T1, T2, T3, TResult>(
-           this FSharpFunc<Chars, Reply<(T1, T2, T3)>> p,
-           Func<T1, T2, T3, FSharpFunc<Chars, Reply<TResult>>> f)
-           => op_GreaterGreaterEquals(p, FSharpFunc.From<(T1, T2, T3), FSharpFunc<Chars, Reply<TResult>>>(x => f(x.Item1, x.Item2, x.Item3)));
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> And<U, T1, T2, T3, TResult>(
+           this FSharpFunc<CharStream<U>, Reply<(T1, T2, T3)>> p,
+           Func<T1, T2, T3, FSharpFunc<CharStream<U>, Reply<TResult>>> f)
+           => op_GreaterGreaterEquals(p, FSharpFunc.From<(T1, T2, T3), FSharpFunc<CharStream<U>, Reply<TResult>>>(x => f(x.Item1, x.Item2, x.Item3)));
 
         /// <summary>
         /// The parser `Between(pOpen, p, pClose)` applies the parsers `pOpen`, `p` and `pClose` in
         /// sequence. It returns the result of `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Between<TOpen, T, TClose>(
-            FSharpFunc<Chars, Reply<TOpen>> open,
-            FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TClose>> close)
+        public static FSharpFunc<CharStream<U>, Reply<T>> Between<U, TOpen, T, TClose>(
+            FSharpFunc<CharStream<U>, Reply<TOpen>> open,
+            FSharpFunc<CharStream<U>, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<TClose>> close)
             => between(open, close, p);
 
         /// <summary>
         /// The parser `Between(cOpen, p, cClose)` skips the char `cOpen`, then applies parser `p`,
         /// and then skips the char `cClose` in sequence. It returns the result of `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Between<T>(
+        public static FSharpFunc<CharStream<U>, Reply<T>> Between<U, T>(
             char open,
-            FSharpFunc<Chars, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             char close)
-            => between(pchar<Unit>(open), pchar<Unit>(close), p);
+            => between(pchar<U>(open), pchar<U>(close), p);
 
         /// <summary>
         /// The parser `Between(sOpen, p, sClose)` skips the string `sOpen`, then applies parser `p`,
         /// and then skips the string `sClose` in sequence. It returns the result of `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Between<T>(
+        public static FSharpFunc<CharStream<U>, Reply<T>> Between<U, T>(
             string open,
-            FSharpFunc<Chars, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             string close)
-            => between(pstring<Unit>(open), pstring<Unit>(close), p);
+            => between(pstring<U>(open), pstring<U>(close), p);
 
         /// <summary>
         /// <para>
@@ -155,17 +153,17 @@ namespace FParsec.CSharp {
         /// For example, `Array(3,p)` is equivalent to `Pipe(p,p,p,(a,b,c) => new[] {a,b,c})`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T[]>> Array<T>(
+        public static FSharpFunc<CharStream<U>, Reply<T[]>> Array<U, T>(
             int n,
-            FSharpFunc<Chars, Reply<T>> p)
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => parray(n, p);
 
         /// <summary>
         /// The parser `SkipArray(n,p)` is an optimized implementation of `Skip(Array(n,p))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipArray<T>(
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipArray<U, T>(
             int n,
-            FSharpFunc<Chars, Reply<T>> p)
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => skipArray(n, p);
 
         /// <summary>
@@ -175,9 +173,9 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>`Tuple(p1,p2)` is equivalent to `p1.And(p2)`.</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<(T1, T2)>> Tuple<T1, T2>(
-            FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<(T1, T2)>> Tuple<U, T1, T2>(
+            FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2)
             => tuple2(p1, p2).Map(x => x.ToValueTuple());
 
         /// <summary>
@@ -187,33 +185,33 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>`Tuple(p1,p2,p3)` is equivalent to `p1.And(p2).And(p3).Map(Flat)`.</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<(T1, T2, T3)>> Tuple<T1, T2, T3>(
-            FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2,
-            FSharpFunc<Chars, Reply<T3>> p3)
+        public static FSharpFunc<CharStream<U>, Reply<(T1, T2, T3)>> Tuple<U, T1, T2, T3>(
+            FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2,
+            FSharpFunc<CharStream<U>, Reply<T3>> p3)
             => tuple3(p1, p2, p3).Map(x => x.ToValueTuple());
 
         /// <summary>
         /// The parser `Tuple(p1,p2,p3,p4)` applies the parsers `p1`, `p2`, `p3` and `p4` in
         /// sequence and returns the results in a tuple.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<(T1, T2, T3, T4)>> Tuple<T1, T2, T3, T4>(
-            FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2,
-            FSharpFunc<Chars, Reply<T3>> p3,
-            FSharpFunc<Chars, Reply<T4>> p4)
+        public static FSharpFunc<CharStream<U>, Reply<(T1, T2, T3, T4)>> Tuple<U, T1, T2, T3, T4>(
+            FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2,
+            FSharpFunc<CharStream<U>, Reply<T3>> p3,
+            FSharpFunc<CharStream<U>, Reply<T4>> p4)
             => tuple4(p1, p2, p3, p4).Map(x => x.ToValueTuple());
 
         /// <summary>
         /// The parser `Tuple(p1,p2,p3,p4,p5)` applies the parsers `p1`, `p2`, `p3`, `p4` and `p5`
         /// in sequence and returns the results in a tuple.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<(T1, T2, T3, T4, T5)>> Tuple<T1, T2, T3, T4, T5>(
-            FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2,
-            FSharpFunc<Chars, Reply<T3>> p3,
-            FSharpFunc<Chars, Reply<T4>> p4,
-            FSharpFunc<Chars, Reply<T5>> p5)
+        public static FSharpFunc<CharStream<U>, Reply<(T1, T2, T3, T4, T5)>> Tuple<U, T1, T2, T3, T4, T5>(
+            FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2,
+            FSharpFunc<CharStream<U>, Reply<T3>> p3,
+            FSharpFunc<CharStream<U>, Reply<T4>> p4,
+            FSharpFunc<CharStream<U>, Reply<T5>> p5)
             => tuple5(p1, p2, p3, p4, p5).Map(x => x.ToValueTuple());
 
         /// <summary>
@@ -221,9 +219,9 @@ namespace FParsec.CSharp {
         /// the result of the function application `f(a,b)`, where `a`, `b` and `c` are the results
         /// returned by `p1` and `p2`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> Pipe<T1, T2, TResult>(
-            FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2,
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> Pipe<U, T1, T2, TResult>(
+            FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2,
             Func<T1, T2, TResult> f)
             => pipe2(p1, p2, f.ToFSharpFunc());
 
@@ -232,10 +230,10 @@ namespace FParsec.CSharp {
         /// returns the result of the function application `f(a,b,c)`, where `a`, `b` and `c` are
         /// the results returned by `p1`, `p2` and `p3`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> Pipe<T1, T2, T3, TResult>(
-            FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2,
-            FSharpFunc<Chars, Reply<T3>> p3,
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> Pipe<U, T1, T2, T3, TResult>(
+            FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2,
+            FSharpFunc<CharStream<U>, Reply<T3>> p3,
             Func<T1, T2, T3, TResult> f)
             => pipe3(p1, p2, p3, f.ToFSharpFunc());
 
@@ -244,11 +242,11 @@ namespace FParsec.CSharp {
         /// sequence. It returns the result of the function application `f(a,b,c,d)`, where `a`,
         /// `b`, `c` and `d` are the results returned by `p1`, `p2`, `p3` and `p4`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> Pipe<T1, T2, T3, T4, TResult>(
-            FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2,
-            FSharpFunc<Chars, Reply<T3>> p3,
-            FSharpFunc<Chars, Reply<T4>> p4,
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> Pipe<U, T1, T2, T3, T4, TResult>(
+            FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2,
+            FSharpFunc<CharStream<U>, Reply<T3>> p3,
+            FSharpFunc<CharStream<U>, Reply<T4>> p4,
             Func<T1, T2, T3, T4, TResult> f)
             => pipe4(p1, p2, p3, p4, f.ToFSharpFunc());
 
@@ -257,12 +255,12 @@ namespace FParsec.CSharp {
         /// in sequence. It returns the result of the function application `f(a,b,c,d,e)`, where
         /// `a`, `b`, `c`, `d` and `e` are the results returned by `p1`, `p2`, `p3`, `p4` and `p5`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> Pipe<T1, T2, T3, T4, T5, TResult>(
-            FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2,
-            FSharpFunc<Chars, Reply<T3>> p3,
-            FSharpFunc<Chars, Reply<T4>> p4,
-            FSharpFunc<Chars, Reply<T5>> p5,
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> Pipe<U, T1, T2, T3, T4, T5, TResult>(
+            FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2,
+            FSharpFunc<CharStream<U>, Reply<T3>> p3,
+            FSharpFunc<CharStream<U>, Reply<T4>> p4,
+            FSharpFunc<CharStream<U>, Reply<T5>> p5,
             Func<T1, T2, T3, T4, T5, TResult> f)
             => pipe5(p1, p2, p3, p4, p5, f.ToFSharpFunc());
 
@@ -282,32 +280,32 @@ namespace FParsec.CSharp {
         /// `p2` will not be applied.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Or<T>(
-            this FSharpFunc<Chars, Reply<T>> p1,
-            FSharpFunc<Chars, Reply<T>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<T>> Or<U, T>(
+            this FSharpFunc<CharStream<U>, Reply<T>> p1,
+            FSharpFunc<CharStream<U>, Reply<T>> p2)
             => op_LessBarGreater(p1, p2);
 
         /// <summary>
         /// The parser `Choice(ps)` is an optimized implementation of `p1.Or(p2).Or(...).Or(pn)`,
         /// where `p1` ... `pn` are the parsers in the sequence `ps`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Choice<T>(
-            params FSharpFunc<Chars, Reply<T>>[] ps)
+        public static FSharpFunc<CharStream<U>, Reply<T>> Choice<U, T>(
+            params FSharpFunc<CharStream<U>, Reply<T>>[] ps)
             => choice(ps);
 
         /// <summary>
         /// The parser `Choice(s,ps)` is an optimized implementation of `Choice(ps).Label(s)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Choice<T>(
+        public static FSharpFunc<CharStream<U>, Reply<T>> Choice<U, T>(
             string label,
-            params FSharpFunc<Chars, Reply<T>>[] ps)
+            params FSharpFunc<CharStream<U>, Reply<T>>[] ps)
             => choiceL(ps, label);
 
         /// <summary>
         /// The parser `p.Or(x)` is an optimized implementation of `p.Or(Return(x))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Or<T>(
-            this FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<T>> Or<U, T>(
+            this FSharpFunc<CharStream<U>, Reply<T>> p,
             T x)
             => op_LessBarGreaterPercent(p, x);
 
@@ -315,24 +313,24 @@ namespace FParsec.CSharp {
         /// The parser `Optional(p)` skips over an optional occurrence of `p`. `Optional(p)` is an
         /// optimized implementation of `p.Return((Unit)null).Or((Unit)null)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Optional<T>(
-            FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> Optional<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => optional(p);
 
         /// <summary>
         /// The parser `Opt(p)` behaves like `Opt_(p)` but also unwraps the `FSharpOption` value.
         /// In case `Opt(p)` did not parse anything the result type's `default` value is returned.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Opt<T>(
-            FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<T>> Opt<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => opt(p).Map(x => x.GetValueOrDefault());
 
         /// <summary>
         /// The parser `Opt(p,d)` behaves like `Opt_(p)` but also unwraps the `FSharpOption` value.
         /// In case `Opt(p,d)` did not parse anything then `d` is returned.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Opt<T>(
-            FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<T>> Opt<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             T defaultValue)
             => opt(p).Map(x => x.GetValueOrDefault(defaultValue));
 
@@ -343,8 +341,8 @@ namespace FParsec.CSharp {
         /// `p.Map(FSharpOption.Some).Or(FSharpOption.None)`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<FSharpOption<T>>> Opt_<T>(
-            FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<FSharpOption<T>>> Opt_<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => opt(p);
 
         #endregion Choice
@@ -365,8 +363,8 @@ namespace FParsec.CSharp {
         /// if `p` succeeds without changing the parser state.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many<T>(
-            FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<FSharpList<T>>> Many<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => many(p);
 
         /// <summary>
@@ -380,11 +378,11 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many<T>(
-            FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<FSharpList<T>>> Many<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             char sep,
             bool canEndWithSep = false)
-            => canEndWithSep ? sepEndBy(p, pchar<Unit>(sep)) : sepBy(p, pchar<Unit>(sep));
+            => canEndWithSep ? sepEndBy(p, pchar<U>(sep)) : sepBy(p, pchar<U>(sep));
 
         /// <summary>
         /// <para>
@@ -397,11 +395,11 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many<T>(
-            FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<FSharpList<T>>> Many<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             string sep,
             bool canEndWithSep = false)
-            => canEndWithSep ? sepEndBy(p, pstring<Unit>(sep)) : sepBy(p, pstring<Unit>(sep));
+            => canEndWithSep ? sepEndBy(p, pstring<U>(sep)) : sepBy(p, pstring<U>(sep));
 
         /// <summary>
         /// <para>
@@ -414,43 +412,43 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many<T, TSep>(
-            FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TSep>> sep,
+        public static FSharpFunc<CharStream<U>, Reply<FSharpList<T>>> Many<U, T, TSep>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<TSep>> sep,
             bool canEndWithSep = false)
             => canEndWithSep ? sepEndBy(p, sep) : sepBy(p, sep);
 
         /// <summary>
         /// The parser `SkipMany(p)` is an optimized implementation of `Skip(Many(p))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipMany<T>(
-            FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipMany<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => skipMany(p);
 
         /// <summary>
         /// The parser `SkipMany(p,c)` is an optimized implementation of `Skip(Many(p,c))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipMany<T>(
-            FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipMany<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             char sep,
             bool canEndWithSep = false)
-            => canEndWithSep ? skipSepEndBy(p, pchar<Unit>(sep)) : skipSepBy(p, pchar<Unit>(sep));
+            => canEndWithSep ? skipSepEndBy(p, pchar<U>(sep)) : skipSepBy(p, pchar<U>(sep));
 
         /// <summary>
         /// The parser `SkipMany(p,s)` is an optimized implementation of `Skip(Many(p,s))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipMany<T>(
-            FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipMany<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             string sep,
             bool canEndWithSep = false)
-            => canEndWithSep ? skipSepEndBy(p, pstring<Unit>(sep)) : skipSepBy(p, pstring<Unit>(sep));
+            => canEndWithSep ? skipSepEndBy(p, pstring<U>(sep)) : skipSepBy(p, pstring<U>(sep));
 
         /// <summary>
         /// The parser `SkipMany(p,sep)` is an optimized implementation of `Skip(Many(p,sep))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipMany<T, TSep>(
-            FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TSep>> sep,
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipMany<U, T, TSep>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<TSep>> sep,
             bool canEndWithSep = false)
             => canEndWithSep ? skipSepEndBy(p, sep) : skipSepBy(p, sep);
 
@@ -458,8 +456,8 @@ namespace FParsec.CSharp {
         /// The parser `Many1(p)` behaves like `Many(p)`, except that it requires `p` to succeed at
         /// least one time.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T>(
-            FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<FSharpList<T>>> Many1<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => many1(p);
 
         /// <summary>
@@ -473,11 +471,11 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T>(
-            FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<FSharpList<T>>> Many1<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             char sep,
             bool canEndWithSep = false)
-            => canEndWithSep ? sepEndBy1(p, pchar<Unit>(sep)) : sepBy1(p, pchar<Unit>(sep));
+            => canEndWithSep ? sepEndBy1(p, pchar<U>(sep)) : sepBy1(p, pchar<U>(sep));
 
         /// <summary>
         /// <para>
@@ -490,11 +488,11 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T>(
-            FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<FSharpList<T>>> Many1<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             string sep,
             bool canEndWithSep = false)
-            => canEndWithSep ? sepEndBy1(p, pstring<Unit>(sep)) : sepBy1(p, pstring<Unit>(sep));
+            => canEndWithSep ? sepEndBy1(p, pstring<U>(sep)) : sepBy1(p, pstring<U>(sep));
 
         /// <summary>
         /// <para>
@@ -507,43 +505,43 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1<T, TSep>(
-            FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TSep>> sep,
+        public static FSharpFunc<CharStream<U>, Reply<FSharpList<T>>> Many1<U, T, TSep>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<TSep>> sep,
             bool canEndWithSep = false)
             => canEndWithSep ? sepEndBy1(p, sep) : sepBy1(p, sep);
 
         /// <summary>
         /// The parser `SkipMany1(p)` is an optimized implementation of `Skip(Many1(p))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1<T>(
-            FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipMany1<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => skipMany1(p);
 
         /// <summary>
         /// The parser `SkipMany1(p,c)` is an optimized implementation of `Skip(Many1(p,c))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1<T>(
-            FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipMany1<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             char sep,
             bool canEndWithSep = false)
-            => canEndWithSep ? skipSepEndBy1(p, pchar<Unit>(sep)) : skipSepBy1(p, pchar<Unit>(sep));
+            => canEndWithSep ? skipSepEndBy1(p, pchar<U>(sep)) : skipSepBy1(p, pchar<U>(sep));
 
         /// <summary>
         /// The parser `SkipMany1(p,s)` is an optimized implementation of `Skip(Many1(p,s))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1<T>(
-            FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipMany1<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             string sep,
             bool canEndWithSep = false)
-            => canEndWithSep ? skipSepEndBy1(p, pstring<Unit>(sep)) : skipSepBy1(p, pstring<Unit>(sep));
+            => canEndWithSep ? skipSepEndBy1(p, pstring<U>(sep)) : skipSepBy1(p, pstring<U>(sep));
 
         /// <summary>
         /// The parser `SkipMany1(p,sep)` is an optimized implementation of `Skip(Many1(p,sep))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1<T, TSep>(
-            FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TSep>> sep,
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipMany1<U, T, TSep>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<TSep>> sep,
             bool canEndWithSep = false)
             => canEndWithSep ? skipSepEndBy1(p, sep) : skipSepBy1(p, sep);
 
@@ -554,18 +552,18 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>Returns a list of the results returned by `p`.</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<FSharpList<T>>> ManyTill<T, TEnd>(
-            FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TEnd>> end)
+        public static FSharpFunc<CharStream<U>, Reply<FSharpList<T>>> ManyTill<U, T, TEnd>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<TEnd>> end)
             => manyTill(p, end);
 
         /// <summary>
         /// The parser `SkipManyTill(p,endp)` is an optimized implementation of
         /// `Skip(ManyTill(p,endp))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipManyTill<T, TEnd>(
-            FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TEnd>> endp)
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipManyTill<U, T, TEnd>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<TEnd>> endp)
             => skipManyTill(p, endp);
 
         /// <summary>
@@ -578,25 +576,25 @@ namespace FParsec.CSharp {
         /// `Pipe(p, ManyTill(p,endp), FSharpList.Cons)`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<FSharpList<T>>> Many1Till<T, TEnd>(
-            FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TEnd>> endp)
+        public static FSharpFunc<CharStream<U>, Reply<FSharpList<T>>> Many1Till<U, T, TEnd>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<TEnd>> endp)
             => many1Till(p, endp);
 
         /// <summary>
         /// The parser `SkipMany1Till(p,endp)` is an optimized implementation of
         /// `Skip(Many1Till(p,endp))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1Till<T, TEnd>(
-            FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<TEnd>> endp)
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipMany1Till<U, T, TEnd>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<TEnd>> endp)
             => skipMany1Till(p, endp);
 
         /// <summary>
         /// `Many(p,f,x)` is a short form for `Many(p).Map(xs => xs.Aggregate(x, f))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> Many<T, TResult>(
-            FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> Many<U, T, TResult>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             Func<TResult, T, TResult> aggregate,
             TResult seed)
             => many(p).Map(xs => xs.Aggregate(seed, aggregate));
@@ -604,8 +602,8 @@ namespace FParsec.CSharp {
         /// <summary>
         /// `Many(p,f)` is a short form for `Many1(p).Map(xs => xs.Aggregate(f))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Many1<T>(
-            FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<T>> Many1<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             Func<T, T, T> aggregate)
             => many1(p).Map(xs => xs.Aggregate(aggregate));
 
@@ -625,17 +623,17 @@ namespace FParsec.CSharp {
         /// is returned directly.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> ChainL<T>(
-            FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<Func<T, T, T>>> op)
+        public static FSharpFunc<CharStream<U>, Reply<T>> ChainL<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<Func<T, T, T>>> op)
             => chainl1(p, op.Map(f => f.ToFSharpFunc()));
 
         /// <summary>
         /// The parser `ChainL(p,op,x)` is equivalent to `ChainL(p,op).Or(x)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> ChainL<T>(
-            FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<Func<T, T, T>>> op,
+        public static FSharpFunc<CharStream<U>, Reply<T>> ChainL<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<Func<T, T, T>>> op,
             T defaultVal)
             => chainl(p, op.Map(f => f.ToFSharpFunc()), defaultVal);
 
@@ -655,17 +653,17 @@ namespace FParsec.CSharp {
         /// is returned directly.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> ChainR<T>(
-            FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<Func<T, T, T>>> op)
+        public static FSharpFunc<CharStream<U>, Reply<T>> ChainR<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<Func<T, T, T>>> op)
             => chainr1(p, op.Map(f => f.ToFSharpFunc()));
 
         /// <summary>
         /// The parser `ChainR(p,op,x)` is equivalent to `ChainR(p,op).Or(x)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> ChainR<T>(
-            FSharpFunc<Chars, Reply<T>> p,
-            FSharpFunc<Chars, Reply<Func<T, T, T>>> op,
+        public static FSharpFunc<CharStream<U>, Reply<T>> ChainR<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
+            FSharpFunc<CharStream<U>, Reply<Func<T, T, T>>> op,
             T defaultValue)
             => chainr(p, op.Map(f => f.ToFSharpFunc()), defaultValue);
 
@@ -678,8 +676,8 @@ namespace FParsec.CSharp {
         /// state or with a fatal error, `Try(p)` will backtrack to the original parser state and
         /// report a non-fatal error.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Try<T>(
-            FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<T>> Try<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => attempt(p);
 
         /// <summary>
@@ -687,9 +685,9 @@ namespace FParsec.CSharp {
         /// the beginning if `p2` fails with a non-fatal error and without changing the parser
         /// state, even if `p1` has changed the parser state.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<(T1, T2)>> AndTry<T1, T2>(
-            this FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<(T1, T2)>> AndTry<U, T1, T2>(
+            this FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2)
             => op_DotGreaterGreaterDotQmark(p1, p2).Map(x => x.ToValueTuple());
 
         /// <summary>
@@ -702,9 +700,9 @@ namespace FParsec.CSharp {
         /// Since `p2` is a skipping parser that returns `Unit`, its result will not be returned.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T1>> AndTry<T1>(
-            this FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<Unit>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<T1>> AndTry<U, T1>(
+            this FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<Unit>> p2)
             => op_DotGreaterGreaterQmark(p1, p2);
 
         /// <summary>
@@ -717,18 +715,18 @@ namespace FParsec.CSharp {
         /// Since `p1` is a skipping parser that returns `Unit`, its result will not be returned.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T2>> AndTry<T2>(
-            this FSharpFunc<Chars, Reply<Unit>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<T2>> AndTry<U, T2>(
+            this FSharpFunc<CharStream<U>, Reply<Unit>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2)
             => op_GreaterGreaterQmark(p1, p2);
 
         /// <summary>
         /// `p1.AndTry_(p2)` behaves like `p1.AndTry(p2)` except that it will always return both parser
         /// results even if either of them returns `Unit`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<(T1, T2)>> AndTry_<T1, T2>(
-            this FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<(T1, T2)>> AndTry_<U, T1, T2>(
+            this FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2)
             => op_DotGreaterGreaterDotQmark(p1, p2).Map(x => x.ToValueTuple());
 
         /// <summary>
@@ -736,9 +734,9 @@ namespace FParsec.CSharp {
         /// to the beginning if `p2` fails with a non-fatal error and without changing the parser
         /// state, even if `p1` has changed the parser state.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T1>> AndLTry<T1, T2>(
-            this FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<T1>> AndLTry<U, T1, T2>(
+            this FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2)
             => op_DotGreaterGreaterQmark(p1, p2);
 
         /// <summary>
@@ -746,9 +744,9 @@ namespace FParsec.CSharp {
         /// to the beginning if `p2` fails with a non-fatal error and without changing the parser
         /// state, even if `p1` has changed the parser state.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T2>> AndRTry<T1, T2>(
-            this FSharpFunc<Chars, Reply<T1>> p1,
-            FSharpFunc<Chars, Reply<T2>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<T2>> AndRTry<U, T1, T2>(
+            this FSharpFunc<CharStream<U>, Reply<T1>> p1,
+            FSharpFunc<CharStream<U>, Reply<T2>> p2)
             => op_GreaterGreaterQmark(p1, p2);
 
         /// <summary>
@@ -756,9 +754,9 @@ namespace FParsec.CSharp {
         /// beginning if the parser returned by `f` fails with a non-fatal error and without
         /// changing the parser state, even if `p` has changed the parser state.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T2>> AndTry<T1, T2>(
-           this FSharpFunc<Chars, Reply<T1>> p1,
-           Func<T1, FSharpFunc<Chars, Reply<T2>>> p2)
+        public static FSharpFunc<CharStream<U>, Reply<T2>> AndTry<U, T1, T2>(
+           this FSharpFunc<CharStream<U>, Reply<T1>> p1,
+           Func<T1, FSharpFunc<CharStream<U>, Reply<T2>>> p2)
            => op_GreaterGreaterEqualsQmark(p1, p2.ToFSharpFunc());
 
         /// <summary>
@@ -769,8 +767,8 @@ namespace FParsec.CSharp {
         /// turned into normal errors.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> LookAhead<T>(
-            FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<T>> LookAhead<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => lookAhead(p);
 
         /// <summary>
@@ -785,16 +783,16 @@ namespace FParsec.CSharp {
         /// message.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> FollowedBy<T>(
-            FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> FollowedBy<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => followedBy(p);
 
         /// <summary>
         /// The parser `FollowedBy(p,s)` behaves like `FollowedBy(p)`, except that it returns an
         /// `Expected s` error message when the parser `p` fails.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> FollowedBy<T>(
-            FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> FollowedBy<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             string label)
             => followedByL(p, label);
 
@@ -811,16 +809,16 @@ namespace FParsec.CSharp {
         /// message.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedBy<T>(
-            FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> NotFollowedBy<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => notFollowedBy(p);
 
         /// <summary>
         /// The parser `NotFollowedBy(p,s)` behaves like `NotFollowedBy(p)`, except that it returns
         /// an `Unexpected s` error message when the parser `p` fails.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedBy<T>(
-            FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> NotFollowedBy<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p,
             string label)
             => notFollowedByL(p, label);
 
@@ -832,21 +830,29 @@ namespace FParsec.CSharp {
         /// The parser `Zero()` always fails with an empty error message list, i.e. an unspecified
         /// error.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Zero<T>() => pzero<T, Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<T>> Zero<T>() => pzero<T, Unit>();
+
+        /// <summary>`ZeroU()` behaves like `Zero()`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<T>> ZeroU<U, T>() => pzero<T, U>();
 
         /// <summary>
         /// The parser `Return(x)` always succeeds with the result `x` (without changing the parser
         /// state).
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> Return<TResult>(
+        public static FSharpFunc<CharStream<Unit>, Reply<TResult>> Return<TResult>(
             TResult result)
             => preturn<TResult, Unit>(result);
+
+        /// <summary>`ReturnU(x)` behaves like `Return(x)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> ReturnU<U, TResult>(
+            TResult result)
+            => preturn<TResult, U>(result);
 
         /// <summary>
         /// The parser `p.Return(x)` applies the parser `p` and returns the result `x`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> Return<T, TResult>(
-            this FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> Return<U, T, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<T>> p,
             TResult result)
             => op_GreaterGreaterPercent(p, result);
 
@@ -856,8 +862,8 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>`p.Return(f)` is a helper for `ChainL()` and `ChainR()`.</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Func<TOp, TOp, TOp>>> Return<T, TOp>(
-            this FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<Func<TOp, TOp, TOp>>> Return<U, T, TOp>(
+            this FSharpFunc<CharStream<U>, Reply<T>> p,
             Func<TOp, TOp, TOp> result)
             => op_GreaterGreaterPercent(p, result);
 
@@ -865,21 +871,27 @@ namespace FParsec.CSharp {
         /// The parser `Fail(s)` always fails with a `messageError s`. The error message will be
         /// displayed together with other error messages generated for the same input position.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Fail<T>(string error) => fail<T, Unit>(error);
+        public static FSharpFunc<CharStream<Unit>, Reply<T>> Fail<T>(string error) => fail<T, Unit>(error);
+
+        /// <summary>`FailU(s)` behaves like `Fail(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<T>> FailU<U, T>(string error) => fail<T, U>(error);
 
         /// <summary>
         /// The parser `FailFatally(s)` always fails with a `messageError s`. It signals a
         /// FatalError, so that no error recovery is attempted (except via backtracking
         /// constructs).
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> FailFatally<T>(string error) => failFatally<T, Unit>(error);
+        public static FSharpFunc<CharStream<Unit>, Reply<T>> FailFatally<T>(string error) => failFatally<T, Unit>(error);
+
+        /// <summary>`FailFatallyU(s)` behaves like `FailFatally(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<T>> FailFatallyU<U, T>(string error) => failFatally<T, U>(error);
 
         /// <summary>
         /// The parser `Skip(p)` applies the parser `p` and skips its result, i.e. returns
         /// `(Unit)null`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Skip<T>(
-            FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> Skip<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => p.Return((Unit)null);
 
         /// <summary>
@@ -894,16 +906,16 @@ namespace FParsec.CSharp {
         /// defined last using `Rec(() => ...)`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Rec<T>(
-            Func<FSharpFunc<Chars, Reply<T>>> p)
-            => FSharpFunc.From((Chars cs) => p().Invoke(cs));
+        public static FSharpFunc<CharStream<U>, Reply<T>> Rec<U, T>(
+            Func<FSharpFunc<CharStream<U>, Reply<T>>> p)
+            => FSharpFunc.From((CharStream<U> cs) => p().Invoke(cs));
 
         /// <summary>
         /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(x)`, where `x`
         /// is the result returned by `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> Map<T, TResult>(
-            this FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> Map<U, T, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<T>> p,
             Func<T, TResult> map)
             => op_BarGreaterGreater(p, map.ToFSharpFunc());
 
@@ -911,8 +923,8 @@ namespace FParsec.CSharp {
         /// The parser `p.Map(f)` applies the parser `p` and returns the result `f()`. Hence the 
         /// result of the `Unit`-returning parser `p` will be ignored.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> Map<TResult>(
-            this FSharpFunc<Chars, Reply<Unit>> p,
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> Map<U, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<Unit>> p,
             Func<TResult> map)
             => op_BarGreaterGreater(p, FSharpFunc.From<Unit, TResult>(_ => map()));
 
@@ -920,8 +932,8 @@ namespace FParsec.CSharp {
         /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(x,y)`, where `x`
         /// and `y` are items of the tuple result `(x,y)` returned by `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> Map<T1, T2, TResult>(
-            this FSharpFunc<Chars, Reply<(T1, T2)>> p,
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> Map<U, T1, T2, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<(T1, T2)>> p,
             Func<T1, T2, TResult> map)
             => op_BarGreaterGreater(p, FSharpFunc.From<(T1, T2), TResult>(x => map(x.Item1, x.Item2)));
 
@@ -929,8 +941,8 @@ namespace FParsec.CSharp {
         /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(x, y, z)`, where
         /// `x`, `y` and `z` are items of the tuple result `(x,y,z)` returned by `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> Map<T1, T2, T3, TResult>(
-            this FSharpFunc<Chars, Reply<(T1, T2, T3)>> p,
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> Map<U, T1, T2, T3, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<(T1, T2, T3)>> p,
             Func<T1, T2, T3, TResult> map)
             => op_BarGreaterGreater(p, FSharpFunc.From<(T1, T2, T3), TResult>(x => map(x.Item1, x.Item2, x.Item3)));
 
@@ -938,8 +950,8 @@ namespace FParsec.CSharp {
         /// The parser `NotEmpty(p)` behaves like `p`, except that it fails when `p` succeeds
         /// without consuming input or changing the parser state in any other way.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> NotEmpty<T>(
-            FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<T>> NotEmpty<U, T>(
+            FSharpFunc<CharStream<U>, Reply<T>> p)
             => notEmpty(p);
 
         /// <summary>
@@ -957,11 +969,11 @@ namespace FParsec.CSharp {
         /// `Letter.Debug(cs => {}, (cs, r) => {}).And(Digit)`
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Debug<T>(
-            this FSharpFunc<Chars, Reply<T>> p,
-            Action<Chars> before,
-            Action<Chars, Reply<T>> after)
-            => FSharpFunc.From((Chars cs) => {
+        public static FSharpFunc<CharStream<U>, Reply<T>> Debug<U, T>(
+            this FSharpFunc<CharStream<U>, Reply<T>> p,
+            Action<CharStream<U>> before,
+            Action<CharStream<U>, Reply<T>> after)
+            => FSharpFunc.From((CharStream<U> cs) => {
                 before(cs);
                 var r = p.Invoke(cs);
                 after(cs, r);
@@ -981,7 +993,28 @@ namespace FParsec.CSharp {
         /// <summary>
         /// The parser `PositionP` returns the current position in the input stream.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Position>> PositionP = getPosition<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<Position>> PositionP = getPosition<Unit>();
+
+        /// <summary>`PositionU()` behaves like `PositionP()`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Position>> PositionU<U>() => getPosition<U>();
+
+        /// <summary>The parser `GetUserState()` returns the current user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<U>> GetUserState<U>() => getUserState<U>();
+
+        /// <summary>The parser `SetUserState(u)` sets the user state to `u`.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SetUserState<U>(U x) => setUserState(x);
+
+        /// <summary>
+        /// The parser `UpdateUserState(f)` sets the user state to the result of the function
+        /// application `f(u)`, where `u` is the current user state.
+        /// </summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> UpdateUserState<U>(Func<U, U> f) => updateUserState(f.ToFSharpFunc());
+
+        /// <summary>
+        /// The parser `UserStateSatisfies(f)` succeeds if the predicate function `f` returns
+        /// `true` when applied to the current user state.
+        /// </summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> UserStateSatisfies<U>(Func<U, bool> pred) => userStateSatisfies(pred.ToFSharpFunc());
 
         #endregion Special
 
@@ -991,14 +1024,14 @@ namespace FParsec.CSharp {
         /// The parser `p.Label(s)` applies the parser `p`. If `p` does not change the parser state
         /// (usually because `p` failed), the error messages are replaced with `expected s`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Label<T>(
-            this FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<T>> Label<U, T>(
+            this FSharpFunc<CharStream<U>, Reply<T>> p,
             string label)
             => op_LessQmarkGreater(p, label);
 
         /// <summary>Short form for `Label()`.</summary>
-        public static FSharpFunc<Chars, Reply<T>> Lbl<T>(
-            this FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<T>> Lbl<U, T>(
+            this FSharpFunc<CharStream<U>, Reply<T>> p,
             string label)
             => op_LessQmarkGreater(p, label);
 
@@ -1008,14 +1041,14 @@ namespace FParsec.CSharp {
         /// a `CompoundError` message is generated with both the given string `s` and the error 
         /// messages generated by `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Label_<T>(
-            this FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<T>> Label_<U, T>(
+            this FSharpFunc<CharStream<U>, Reply<T>> p,
             string label)
             => op_LessQmarkQmarkGreater(p, label);
 
         /// <summary>Short form for `Label_()`.</summary>
-        public static FSharpFunc<Chars, Reply<T>> Lbl_<T>(
-            this FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<T>> Lbl_<U, T>(
+            this FSharpFunc<CharStream<U>, Reply<T>> p,
             string label)
             => op_LessQmarkQmarkGreater(p, label);
 

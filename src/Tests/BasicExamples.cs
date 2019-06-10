@@ -542,7 +542,7 @@ namespace Tests {
         [Fact]
         public void RunAndDeconstructSuccess() {
             switch (Digit.Run("1")) {
-                case ParserResult<char, Unit>.Success('1', (index: 1, line:  1, column: 2, streamName: "")):
+                case ParserResult<char, Unit>.Success('1', _, (index: 1, line:  1, column: 2, streamName: "")):
                     break;
                 default:
                     throw new Exception();
@@ -552,7 +552,7 @@ namespace Tests {
         [Fact]
         public void RunAndDeconstructFailureMessage() {
             switch (Digit.Run("a")) {
-                case ParserResult<char, Unit>.Failure(var msg, _):
+                case ParserResult<char, Unit>.Failure(var msg, _, _):
                     msg.ShouldContain("Expecting: decimal digit");
                     break;
                 default:
@@ -563,7 +563,7 @@ namespace Tests {
         [Fact]
         public void RunAndDeconstructParserError() {
             switch (Digit.Run("a")) {
-                case ParserResult<char, Unit>.Failure(_, ((ErrorMessage.Expected("decimal digit"), tail: null), _)):
+                case ParserResult<char, Unit>.Failure(_, ((ErrorMessage.Expected("decimal digit"), tail: null), _), _):
                     break;
                 default:
                     throw new Exception();
@@ -591,5 +591,40 @@ namespace Tests {
         }
 
         #endregion Running parsers
+
+        #region User state
+
+        [Fact] public void Set() {
+            switch (SetUserState(12).RunOnString("", 0)) {
+                case ParserResult<Unit, int>.Success(_, 12, _):
+                    break;
+                default:
+                    throw new Exception();
+            }
+        }
+
+        [Fact] public void UpdateAndRead() {
+            var countedLetter = LetterU<int>().And(UpdateUserState<int>(cnt => cnt + 1));
+
+            SkipMany(countedLetter).And(GetUserState<int>())
+            .RunOnString("abcd", 0).GetResult()
+            .ShouldBe(4);
+        }
+
+        [Fact] public void CheckNestingLevel() {
+            FSharpFunc<CharStream<int>, Reply<Unit>> expr = null;
+            var parens = Between('(', Rec(() => expr), ')');
+            var empty = ReturnU<int, Unit>(null);
+            expr = Choice(
+                parens.AndR(UpdateUserState<int>(depth => depth + 1)),
+                empty);
+
+            expr.AndR(UserStateSatisfies<int>(depth => depth < 3))
+            .RunOnString("((()))", 0)
+            .IsFailure
+            .ShouldBeTrue();
+        }
+
+        #endregion User state
     }
 }

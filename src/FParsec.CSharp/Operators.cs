@@ -6,43 +6,43 @@ using static FParsec.Primitives;
 
 namespace FParsec.CSharp {
     /// <summary>The collection of operators used to build the OPP.</summary>
-    public class Operators<TTerm, TAfterString> : IEnumerable<Operator<TTerm, TAfterString, Unit>> {
-        private readonly HashSet<Operator<TTerm, TAfterString, Unit>> operators = new HashSet<Operator<TTerm, TAfterString, Unit>>();
+    public class Operators<TUserState, TTerm, TAfterString> : IEnumerable<Operator<TTerm, TAfterString, TUserState>> {
+        private readonly HashSet<Operator<TTerm, TAfterString, TUserState>> operators = new HashSet<Operator<TTerm, TAfterString, TUserState>>();
 
-        private static readonly FSharpFunc<CharStream<Unit>, Reply<TAfterString>> stop = preturn<TAfterString, Unit>(default);
+        private static readonly FSharpFunc<CharStream<TUserState>, Reply<TAfterString>> stop = preturn<TAfterString, TUserState>(default);
 
         #region AddInfix()
 
         /// <summary>Adds an infix operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddInfix(
+        public Operators<TUserState, TTerm, TAfterString> AddInfix(
             string operatorString,
             int precedence,
             Func<TTerm, TTerm, TTerm> map)
             => AddInfix(operatorString, precedence, Associativity.Left, stop, map);
 
         /// <summary>Adds an infix operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddInfix(string operatorString,
+        public Operators<TUserState, TTerm, TAfterString> AddInfix(string operatorString,
             int precedence,
             Associativity associativity,
             Func<TTerm, TTerm, TTerm> map)
             => AddInfix(operatorString, precedence, associativity, stop, map);
 
         /// <summary>Adds an infix operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddInfix(
+        public Operators<TUserState, TTerm, TAfterString> AddInfix(
             string operatorString,
             int precedence,
-            FSharpFunc<CharStream<Unit>, Reply<TAfterString>> afterStringParser,
+            FSharpFunc<CharStream<TUserState>, Reply<TAfterString>> afterStringParser,
             Func<TTerm, TTerm, TTerm> map)
             => AddInfix(operatorString, precedence, Associativity.Left, afterStringParser, map);
 
         /// <summary>Adds an infix operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddInfix(
+        public Operators<TUserState, TTerm, TAfterString> AddInfix(
             string operatorString,
             int precedence,
             Associativity associativity,
-            FSharpFunc<CharStream<Unit>, Reply<TAfterString>> afterStringParser,
+            FSharpFunc<CharStream<TUserState>, Reply<TAfterString>> afterStringParser,
             Func<TTerm, TTerm, TTerm> map) {
-            _ = operators.Add(new InfixOperator<TTerm, TAfterString, Unit>(
+            _ = operators.Add(new InfixOperator<TTerm, TAfterString, TUserState>(
                 operatorString,
                 afterStringParser,
                 precedence,
@@ -56,14 +56,14 @@ namespace FParsec.CSharp {
         #region AddPrefix()
 
         /// <summary>Adds a prefix operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddPrefix(
+        public Operators<TUserState, TTerm, TAfterString> AddPrefix(
             string operatorString,
             int precedence,
             Func<TTerm, TTerm> map)
             => AddPrefix(operatorString, precedence, false, stop, map);
 
         /// <summary>Adds a prefix operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddPrefix(
+        public Operators<TUserState, TTerm, TAfterString> AddPrefix(
             string operatorString,
             int precedence,
             bool isAssociative,
@@ -71,21 +71,21 @@ namespace FParsec.CSharp {
             => AddPrefix(operatorString, precedence, isAssociative, stop, map);
 
         /// <summary>Adds a prefix operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddPrefix(
+        public Operators<TUserState, TTerm, TAfterString> AddPrefix(
             string operatorString,
             int precedence,
-            FSharpFunc<CharStream<Unit>, Reply<TAfterString>> afterStringParser,
+            FSharpFunc<CharStream<TUserState>, Reply<TAfterString>> afterStringParser,
             Func<TTerm, TTerm> map)
             => AddPrefix(operatorString, precedence, false, afterStringParser, map);
 
         /// <summary>Adds a prefix operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddPrefix(
+        public Operators<TUserState, TTerm, TAfterString> AddPrefix(
             string operatorString,
             int precedence,
             bool isAssociative,
-            FSharpFunc<CharStream<Unit>, Reply<TAfterString>> afterStringParser,
+            FSharpFunc<CharStream<TUserState>, Reply<TAfterString>> afterStringParser,
             Func<TTerm, TTerm> map) {
-            _ = operators.Add(new PrefixOperator<TTerm, TAfterString, Unit>(
+            _ = operators.Add(new PrefixOperator<TTerm, TAfterString, TUserState>(
                 operatorString,
                 afterStringParser,
                 precedence,
@@ -99,29 +99,29 @@ namespace FParsec.CSharp {
         #region AddPostfix()
 
         /// <summary>Adds a postfix operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddPostfix(string operatorString, int precedence, Func<TTerm, TTerm> map)
+        public Operators<TUserState, TTerm, TAfterString> AddPostfix(string operatorString, int precedence, Func<TTerm, TTerm> map)
             => AddPostfix(operatorString, precedence, false, stop, map);
 
         /// <summary>Adds a postfix operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddPostfix(string operatorString, int precedence, bool isAssociative, Func<TTerm, TTerm> map)
+        public Operators<TUserState, TTerm, TAfterString> AddPostfix(string operatorString, int precedence, bool isAssociative, Func<TTerm, TTerm> map)
             => AddPostfix(operatorString, precedence, isAssociative, stop, map);
 
         /// <summary>Adds a postfix operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddPostfix(
+        public Operators<TUserState, TTerm, TAfterString> AddPostfix(
             string operatorString,
             int precedence,
-            FSharpFunc<CharStream<Unit>, Reply<TAfterString>> afterStringParser,
+            FSharpFunc<CharStream<TUserState>, Reply<TAfterString>> afterStringParser,
             Func<TTerm, TTerm> map)
             => AddPostfix(operatorString, precedence, false, afterStringParser, map);
 
         /// <summary>Adds a postfix operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddPostfix(
+        public Operators<TUserState, TTerm, TAfterString> AddPostfix(
             string operatorString,
             int precedence,
             bool isAssociative,
-            FSharpFunc<CharStream<Unit>, Reply<TAfterString>> afterStringParser,
+            FSharpFunc<CharStream<TUserState>, Reply<TAfterString>> afterStringParser,
             Func<TTerm, TTerm> map) {
-            _ = operators.Add(new PostfixOperator<TTerm, TAfterString, Unit>(
+            _ = operators.Add(new PostfixOperator<TTerm, TAfterString, TUserState>(
                 operatorString,
                 afterStringParser,
                 precedence,
@@ -135,7 +135,7 @@ namespace FParsec.CSharp {
         #region AddTernary()
 
         /// <summary>Adds a ternary operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddTernary(
+        public Operators<TUserState, TTerm, TAfterString> AddTernary(
             string leftString,
             string rightString,
             int precedence,
@@ -144,15 +144,15 @@ namespace FParsec.CSharp {
             => AddTernary(leftString, stop, rightString, stop, precedence, associativity, map);
 
         /// <summary>Adds a ternary operator to the OPP.</summary>
-        public Operators<TTerm, TAfterString> AddTernary(
+        public Operators<TUserState, TTerm, TAfterString> AddTernary(
             string leftString,
-            FSharpFunc<CharStream<Unit>, Reply<TAfterString>> afterLeftStringParser,
+            FSharpFunc<CharStream<TUserState>, Reply<TAfterString>> afterLeftStringParser,
             string rightString,
-            FSharpFunc<CharStream<Unit>, Reply<TAfterString>> afterRightStringParser,
+            FSharpFunc<CharStream<TUserState>, Reply<TAfterString>> afterRightStringParser,
             int precedence,
             Associativity associativity,
             Func<TTerm, TTerm, TTerm, TTerm> map) {
-            _ = operators.Add(new TernaryOperator<TTerm, TAfterString, Unit>(
+            _ = operators.Add(new TernaryOperator<TTerm, TAfterString, TUserState>(
                 leftString,
                 afterLeftStringParser,
                 rightString,
@@ -168,7 +168,7 @@ namespace FParsec.CSharp {
         /// <summary>
         /// Returns an enumerator that iterates through the operator collection.
         /// </summary>
-        public IEnumerator<Operator<TTerm, TAfterString, Unit>> GetEnumerator() => operators.GetEnumerator();
+        public IEnumerator<Operator<TTerm, TAfterString, TUserState>> GetEnumerator() => operators.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => operators.GetEnumerator();
     }

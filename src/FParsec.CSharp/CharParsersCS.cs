@@ -7,8 +7,6 @@ using static FParsec.Error;
 using static FParsec.Primitives;
 
 namespace FParsec.CSharp {
-    using Chars = CharStream<Unit>;
-
     /// <summary>Provides predefined char and string parsers.</summary>
     public static class CharParsersCS {
         #region Chars
@@ -17,12 +15,20 @@ namespace FParsec.CSharp {
         /// `AnyChar` parses any single char or newline ("\n", "\r\n" or "\r").
         /// Returns the parsed char, or '\n' in case a newline was parsed.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> AnyChar = anyChar<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> AnyChar = anyChar<Unit>();
+
+        /// <summary>`AnyCharU()` behaves like `AnyChar`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> AnyCharU<U>() => anyChar<U>();
 
         /// <summary>
         /// `SkipAnyChar` is an optimized implementation of `Skip(AnyChar)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipAnyChar = skipAnyChar<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipAnyChar = skipAnyChar<Unit>();
+
+        /// <summary>
+        /// `SkipAnyCharU()` behaves like `SkipAnyChar`, but supports user state.
+        /// </summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipAnyCharU<U>() => skipAnyChar<U>();
 
         /// <summary>
         /// <para>`CharP(c)` parses the char `c` and returns `c`.</para>
@@ -31,12 +37,18 @@ namespace FParsec.CSharp {
         /// or "\r") and return `c`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> CharP(char c) => pchar<Unit>(c);
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> CharP(char c) => pchar<Unit>(c);
+
+        /// <summary>`CharU(c)` behaves like `CharP(c)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> CharU<U>(char c) => pchar<U>(c);
 
         /// <summary>
         /// `CharP(c,x)` is an optimized implementation of `CharP(c).Return(x)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> CharP<T>(char c, T x) => charReturn<T, Unit>(c, x);
+        public static FSharpFunc<CharStream<Unit>, Reply<T>> CharP<T>(char c, T x) => charReturn<T, Unit>(c, x);
+
+        /// <summary>`CharU(c,x)` behaves like `CharP(c,x)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<T>> CharU<U, T>(char c, T x) => charReturn<T, U>(c, x);
 
         /// <summary>
         /// <para>
@@ -49,27 +61,50 @@ namespace FParsec.CSharp {
         /// with '\r' and `CharP(f)` will never return the result '\r'.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> CharP(Func<char, bool> pred) => satisfy<Unit>(pred.ToFSharpFunc());
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> CharP(Func<char, bool> pred)
+            => satisfy<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>`CharU(f)` behaves like `CharP(f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> CharU<U>(Func<char, bool> pred)
+            => satisfy<U>(pred.ToFSharpFunc());
 
         /// <summary>
         /// `CharP(f,s)` is an optimized implementation of `CharP(f).Label(s)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> CharP(Func<char, bool> pred, string label) => satisfyL<Unit>(pred.ToFSharpFunc(), label);
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> CharP(Func<char, bool> pred, string label)
+            => satisfyL<Unit>(pred.ToFSharpFunc(), label);
+
+        /// <summary>`CharU(f,s)` behaves like `CharP(f,s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> CharU<U>(Func<char, bool> pred, string label)
+            => satisfyL<U>(pred.ToFSharpFunc(), label);
 
         /// <summary>
         /// `Skip(c)` is an optimized implementation of `Skip(CharP(c))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Skip(char c) => skipChar<Unit>(c);
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> Skip(char c) => skipChar<Unit>(c);
+
+        /// <summary>`SkipU(c)` behaves like `Skip(c)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipU<U>(char c) => skipChar<U>(c);
 
         /// <summary>
         /// `Skip(f)` is an optimized implementation of `Skip(CharP(f))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Skip(Func<char, bool> pred) => skipSatisfy<Unit>(pred.ToFSharpFunc());
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> Skip(Func<char, bool> pred)
+            => skipSatisfy<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>`SkipU(f)` behaves like `Skip(f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipU<U>(Func<char, bool> pred)
+            => skipSatisfy<U>(pred.ToFSharpFunc());
 
         /// <summary>
         /// `Skip(f,s)` is an optimized implementation of `Skip(f).Label(s)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Skip(Func<char, bool> pred, string label) => skipSatisfyL<Unit>(pred.ToFSharpFunc(), label);
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> Skip(Func<char, bool> pred, string label)
+            => skipSatisfyL<Unit>(pred.ToFSharpFunc(), label);
+
+        /// <summary>`SkipU(f,s)` behaves like `Skip(f,s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipU<U>(Func<char, bool> pred, string label)
+            => skipSatisfyL<U>(pred.ToFSharpFunc(), label);
 
         /// <summary>
         /// <para>
@@ -84,12 +119,18 @@ namespace FParsec.CSharp {
         /// will never return '\r'.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> AnyOf(IEnumerable<char> chars) => anyOf<Unit>(chars);
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> AnyOf(IEnumerable<char> chars) => anyOf<Unit>(chars);
+
+        /// <summary>`AnyOfU(s)` behaves like `AnyOf(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> AnyOfU<U>(IEnumerable<char> chars) => anyOf<U>(chars);
 
         /// <summary>
         /// `SkipAnyOf(s)` is an optimized implementation of `Skip(AnyOf(s))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipAnyOf(IEnumerable<char> chars) => skipAnyOf<Unit>(chars);
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipAnyOf(IEnumerable<char> chars) => skipAnyOf<Unit>(chars);
+
+        /// <summary>`SkipAnyOfU(s)` behaves like `SkipAnyOf(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipAnyOfU<U>(IEnumerable<char> chars) => skipAnyOf<U>(chars);
 
         /// <summary>
         /// <para>
@@ -105,61 +146,94 @@ namespace FParsec.CSharp {
         /// will never return '\r'.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> NoneOf(IEnumerable<char> chars) => noneOf<Unit>(chars);
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> NoneOf(IEnumerable<char> chars) => noneOf<Unit>(chars);
+
+        /// <summary>`NoneOfU(s)` behaves like `NoneOf(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> NoneOfU<U>(IEnumerable<char> chars) => noneOf<U>(chars);
 
         /// <summary>
         /// `SkipNoneOf(s)` is an optimized implementation of `Skip(NoneOf(s))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipNoneOf(IEnumerable<char> chars) => skipNoneOf<Unit>(chars);
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipNoneOf(IEnumerable<char> chars) => skipNoneOf<Unit>(chars);
+
+        /// <summary>`SkipNoneOfU(s)` behaves like `SkipNoneOf(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipNoneOfU<U>(IEnumerable<char> chars) => skipNoneOf<U>(chars);
 
         /// <summary>
         /// Parses any UTF-16 letter char identified by `System.Char.IsLetter`. Returns the parsed
         /// char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Letter = letter<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> Letter = letter<Unit>();
+
+        /// <summary>`LetterU()` behaves like `Letter`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> LetterU<U>() => letter<U>();
 
         /// <summary>
         /// Parses any char in the range 'a' - 'z' and 'A' - 'Z'. Returns the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> AsciiLetter = asciiLetter<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> AsciiLetter = asciiLetter<Unit>();
+
+        /// <summary>`AsciiLetterU()` behaves like `AsciiLetter`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> AsciiLetterU<U>() => asciiLetter<U>();
 
         /// <summary>
         /// Parses any UTF-16 uppercase letter char identified by `System.Char.IsUpper`. Returns
         /// the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Upper = upper<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> Upper = upper<Unit>();
+
+        /// <summary>`UpperU()` behaves like `Upper`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> UpperU<U>() => upper<U>();
 
         /// <summary>
         /// Parses any char in the range 'A' - 'Z'. Returns the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> AsciiUpper = asciiUpper<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> AsciiUpper = asciiUpper<Unit>();
+
+        /// <summary>`AsciiUpperU()` behaves like `AsciiUpper`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> AsciiUpperU<U>() => asciiUpper<U>();
 
         /// <summary>
         /// Parses any UTF-16 lowercase letter char identified by `System.Char.IsLower`. Returns
         /// the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Lower = lower<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> Lower = lower<Unit>();
+
+        /// <summary>`LowerU()` behaves like `Lower`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> LowerU<U>() => lower<U>();
 
         /// <summary>
         /// Parses any char in the range 'a' - 'z'. Returns the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> AsciiLower = asciiLower<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> AsciiLower = asciiLower<Unit>();
+
+        /// <summary>`AsciiLowerU()` behaves like `AsciiLower`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> AsciiLowerU<U>() => asciiLower<U>();
 
         /// <summary>
         /// Parses any char in the range '0' - '9'. Returns the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Digit = digit<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> Digit = digit<Unit>();
+
+        /// <summary>`DigitU()` behaves like `Digit`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> DigitU<U>() => digit<U>();
 
         /// <summary>
         /// Parses any char in the range '0' - '9', 'a' - 'f' and 'A' - 'F'. Returns the parsed
         /// char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Hex = hex<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> Hex = hex<Unit>();
+
+        /// <summary>`HexU()` behaves like `Hex`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> HexU<U>() => hex<U>();
 
         /// <summary>
         /// Parses any char in the range '0' - '7'. Returns the parsed char.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Octal = octal<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> Octal = octal<Unit>();
+
+        /// <summary>`OctalU()` behaves like `Octal`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> OctalU<U>() => octal<U>();
 
         /// <summary>
         /// `IsLetter(c)` is equivalent to `System.Char.IsLetter(c)`.
@@ -215,19 +289,30 @@ namespace FParsec.CSharp {
         /// `Choice(StringP(s1), StringP(s2), StringP(...), StringP(sn))`, where `s1` ... `sn` are
         /// the strings in the sequence `strings`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Choice(
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> Choice(
             params string[] strings)
             => choice(strings.Select(s => StringP(s)));
+
+        /// <summary>`ChoiceU(strings)` behaves like `Choice(strings)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> ChoiceU<U>(
+            params string[] strings)
+            => choice(strings.Select(s => StringU<U>(s)));
 
         /// <summary>
         /// The parser `Choice(label, strings)` is a short form for
         /// `Choice(label, StringP(s1), StringP(s2), StringP(...), StringP(sn))`, where `s1` ...
         /// `sn` are the strings in the sequence `strings`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Choice(
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> Choice(
             string label,
             params string[] strings)
             => choiceL(strings.Select(s => StringP(s)), label);
+
+        /// <summary>`ChoiceU(label, strings)` behaves like `Choice(label, strings)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> ChoiceU<U>(
+            string label,
+            params string[] strings)
+            => choiceL(strings.Select(s => StringU<U>(s)), label);
 
         /// <summary>
         /// <para>`StringP(s)` parses the string `s` and returns `s`.</para>
@@ -236,7 +321,10 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>`s` may not contain newline chars ('\n' or '\r').</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> StringP(string s) => pstring<Unit>(s);
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> StringP(string s) => pstring<Unit>(s);
+
+        /// <summary>`StringU(s)` behaves like `StringP(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> StringU<U>(string s) => pstring<U>(s);
 
         /// <summary>
         /// <para>
@@ -245,29 +333,44 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>`s` may not contain newline chars ('\n' or '\r').</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> StringCI(string s) => pstringCI<Unit>(s);
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> StringCI(string s) => pstringCI<Unit>(s);
+
+        /// <summary>`StringCIU(s)` behaves like `StringCI(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> StringCIU<U>(string s) => pstringCI<U>(s);
 
         /// <summary>
         /// `StringP(s,x)` is an optimized implementation of `StringP(s).Return(x)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> StringP<T>(string s, T x) => stringReturn<T, Unit>(s, x);
+        public static FSharpFunc<CharStream<Unit>, Reply<T>> StringP<T>(string s, T x) => stringReturn<T, Unit>(s, x);
+
+        /// <summary>`StringU(s,x)` behaves like `StringP(s,x)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<T>> StringU<U, T>(string s, T x) => stringReturn<T, U>(s, x);
 
         /// <summary>
         /// `StringCI(s,x)` is an optimized implementation of `StringCI(s).Return(x)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> StringCI<T>(string s, T x) => stringCIReturn<T, Unit>(s, x);
+        public static FSharpFunc<CharStream<Unit>, Reply<T>> StringCI<T>(string s, T x) => stringCIReturn<T, Unit>(s, x);
+
+        /// <summary>`StringCIU(s,x)` behaves like `StringCI(s,x)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<T>> StringCIU<U, T>(string s, T x) => stringCIReturn<T, U>(s, x);
 
         /// <summary>
         /// `Skip(s)` parses the char `s` and skips it, i.e. returns `(Unit)null`. `s` may not
         /// contain newline chars ('\n' or '\r').
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Skip(string s) => skipString<Unit>(s);
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> Skip(string s) => skipString<Unit>(s);
+
+        /// <summary>`SkipU(s)` behaves like `Skip(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipU<U>(string s) => skipString<U>(s);
 
         /// <summary>
         /// `SkipCI(s)` parses any string that case-insensitively matches the string `s` and skips
         /// it , i.e. returns `(Unit)null`. `s` may not contain newline chars ('\n' or '\r').
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipCI(string s) => skipStringCI<Unit>(s);
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipCI(string s) => skipStringCI<Unit>(s);
+
+        /// <summary>`SkipCIU(s)` behaves like `SkipCI(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipCIU<U>(string s) => skipStringCI<U>(s);
 
         /// <summary>
         /// <para>
@@ -280,12 +383,18 @@ namespace FParsec.CSharp {
         /// any input.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> AnyString(int length) => anyString<Unit>(length);
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> AnyString(int length) => anyString<Unit>(length);
+
+        /// <summary>`AnyStringU(n)` behaves like `AnyString(n)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> AnyStringU<U>(int length) => anyString<U>(length);
 
         /// <summary>
         /// `SkipAnyString(n)` is an optimized implementation of `Skip(AnyString(n))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipAnyString(int length) => skipAnyString<Unit>(length);
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipAnyString(int length) => skipAnyString<Unit>(length);
+
+        /// <summary>`SkipAnyStringU(n)` behaves like `SkipAnyString(n)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipAnyStringU<U>(int length) => skipAnyString<U>(length);
 
         /// <summary>
         /// <para>
@@ -300,12 +409,22 @@ namespace FParsec.CSharp {
         /// stream.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> RestOfLine(bool skipNewline = false) => restOfLine<Unit>(skipNewline);
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> RestOfLine(bool skipNewline = false)
+            => restOfLine<Unit>(skipNewline);
+
+        /// <summary>`RestOfLineU(b)` behaves like `RestOfLine(b)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> RestOfLineU<U>(bool skipNewline = false)
+            => restOfLine<U>(skipNewline);
 
         /// <summary>
         /// `SkipRestOfLine(b)` is an optimized implementation of `Skip(RestOfLine(b))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipRestOfLine(bool skipNewline = false) => skipRestOfLine<Unit>(skipNewline);
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipRestOfLine(bool skipNewline = false)
+            => skipRestOfLine<Unit>(skipNewline);
+
+        /// <summary>`SkipRestOfLineU(b)` behaves like `SkipRestOfLine(b)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipRestOfLineU<U>(bool skipNewline = false)
+            => skipRestOfLine<U>(skipNewline);
 
         /// <summary>
         /// <para>
@@ -324,15 +443,35 @@ namespace FParsec.CSharp {
         /// `CharsTillString(s,n,b)` throws an `ArgumentOutOfRangeException` if `n` is negative.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> CharsTillString(string s, int maxCount, bool skipString = false)
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> CharsTillString(
+            string s,
+            int maxCount,
+            bool skipString = false)
             => charsTillString<Unit>(s, skipString, maxCount);
+
+        /// <summary>`CharsTillStringU(s,n,b)` behaves like `CharsTillString(s,n,b)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> CharsTillStringU<U>(
+            string s,
+            int maxCount,
+            bool skipString = false)
+            => charsTillString<U>(s, skipString, maxCount);
 
         /// <summary>
         /// `SkipCharsTillString(s,n,b)` is an optimized implementation of
         /// `Skip(CharsTillString(s,n,b))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipCharsTillString(string s, int maxCount, bool skipString = false)
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipCharsTillString(
+            string s,
+            int maxCount,
+            bool skipString = false)
             => skipCharsTillString<Unit>(s, skipString, maxCount);
+
+        /// <summary>`SkipCharsTillStringU(s,n,b)` behaves like `SkipCharsTillString(s,n,b)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipCharsTillStringU<U>(
+            string s,
+            int maxCount,
+            bool skipString = false)
+            => skipCharsTillString<U>(s, skipString, maxCount);
 
         /// <summary>
         /// <para>
@@ -352,15 +491,35 @@ namespace FParsec.CSharp {
         /// `CharsTillStringCI(s,n,b)` throws an `ArgumentOutOfRangeException` if `n` is negative.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> CharsTillStringCI(string s, int maxCount, bool skipString = false)
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> CharsTillStringCI(
+            string s,
+            int maxCount,
+            bool skipString = false)
             => charsTillStringCI<Unit>(s, skipString, maxCount);
+
+        /// <summary>`CharsTillStringCIU(s,n,b)` behaves like `CharsTillStringCI(s,n,b)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> CharsTillStringCIU<U>(
+            string s,
+            int maxCount,
+            bool skipString = false)
+            => charsTillStringCI<U>(s, skipString, maxCount);
 
         /// <summary>
         /// `SkipCharsTillStringCI(s,n,b)` is an optimized implementation of
         /// `Skip(CharsTillStringCI(s,n,b))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipCharsTillStringCI(string s, int maxCount, bool skipString = false)
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipCharsTillStringCI(
+            string s,
+            int maxCount,
+            bool skipString = false)
             => skipCharsTillStringCI<Unit>(s, skipString, maxCount);
+
+        /// <summary>`SkipCharsTillStringCIU(s,n,b)` behaves like `SkipCharsTillStringCI(s,n,b)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipCharsTillStringCIU<U>(
+            string s,
+            int maxCount,
+            bool skipString = false)
+            => skipCharsTillStringCI<U>(s, skipString, maxCount);
 
         /// <summary>
         /// <para>
@@ -373,17 +532,17 @@ namespace FParsec.CSharp {
         /// `Many(p)` implies that `ManyChars()` never fails.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> ManyChars(
-            FSharpFunc<Chars, Reply<char>> p)
+        public static FSharpFunc<CharStream<U>, Reply<string>> ManyChars<U>(
+            FSharpFunc<CharStream<U>, Reply<char>> p)
             => manyChars(p);
 
         /// <summary>
         /// `ManyChars(p1,p)` behaves like `ManyChars(p)`, except that it parses the first char
         /// with `p1` instead of `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> ManyChars(
-            FSharpFunc<Chars, Reply<char>> p1,
-            FSharpFunc<Chars, Reply<char>> p)
+        public static FSharpFunc<CharStream<U>, Reply<string>> ManyChars<U>(
+            FSharpFunc<CharStream<U>, Reply<char>> p1,
+            FSharpFunc<CharStream<U>, Reply<char>> p)
             => manyChars2(p1, p);
 
         /// <summary>
@@ -397,17 +556,16 @@ namespace FParsec.CSharp {
         /// `Many1(p)` implies that `Many1Chars()` never fails after consuming input.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Many1Chars(
-            FSharpFunc<Chars, Reply<char>> p)
+        public static FSharpFunc<CharStream<U>, Reply<string>> Many1Chars<U>(
+            FSharpFunc<CharStream<U>, Reply<char>> p)
             => many1Chars(p);
 
         /// <summary>
         /// `Many1Chars(p1,p)` behaves like `Many1Chars(p)`, except that it parses the first char
         /// with `p1` instead of `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Many1Chars(
-            FSharpFunc<Chars, Reply<char>> p1,
-            FSharpFunc<Chars, Reply<char>> p)
+        public static FSharpFunc<CharStream<U>, Reply<string>> Many1Chars<U>(
+            FSharpFunc<CharStream<U>, Reply<char>> p1, FSharpFunc<CharStream<U>, Reply<char>> p)
             => many1Chars2(p1, p);
 
         /// <summary>
@@ -422,33 +580,51 @@ namespace FParsec.CSharp {
         /// the string returned by `ManyChars(f)` will never contain an '\r'.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> ManyChars(
-            Func<char, bool> pred)
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> ManyChars(Func<char, bool> pred)
             => manySatisfy<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>`ManyCharsU(f)` behaves like `ManyChars(f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> ManyCharsU<U>(Func<char, bool> pred)
+            => manySatisfy<U>(pred.ToFSharpFunc());
 
         /// <summary>
         /// `SkipManyChars(f)` is an optimized implementation of `Skip(ManyChars(f))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipManyChars(
-            Func<char, bool> pred)
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipManyChars(Func<char, bool> pred)
             => skipManySatisfy<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>`SkipManyCharsU(f)` behaves like `SkipManyChars(f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipManyCharsU<U>(Func<char, bool> pred)
+            => skipManySatisfy<U>(pred.ToFSharpFunc());
 
         /// <summary>
         /// `ManyChars(f1,f)` behaves like `ManyChars(f)`, except that the first char of the parsed
         /// string must satisfy `f1` instead of `f`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> ManyChars(
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> ManyChars(
             Func<char, bool> pred1,
             Func<char, bool> pred)
             => manySatisfy2<Unit>(pred1.ToFSharpFunc(), pred.ToFSharpFunc());
 
+        /// <summary>`ManyCharsU(f1,f1)` behaves like `ManyChars(f1,f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> ManyCharsU<U>(
+            Func<char, bool> pred1,
+            Func<char, bool> pred)
+            => manySatisfy2<U>(pred1.ToFSharpFunc(), pred.ToFSharpFunc());
+
         /// <summary>
         /// `SkipManyChars(f1,f)` is an optimized implementation of `Skip(ManyChars(f1,f))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipManyChars(
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipManyChars(
             Func<char, bool> pred1,
             Func<char, bool> pred)
             => skipManySatisfy2<Unit>(pred1.ToFSharpFunc(), pred.ToFSharpFunc());
+
+        /// <summary>`SkipManyCharsU(f1,f)` behaves like `SkipManyChars(f1,f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipManyCharsU<U>(
+            Func<char, bool> pred1,
+            Func<char, bool> pred)
+            => skipManySatisfy2<U>(pred1.ToFSharpFunc(), pred.ToFSharpFunc());
 
         /// <summary>
         /// <para>
@@ -465,68 +641,112 @@ namespace FParsec.CSharp {
         /// the string returned by `Many1Chars(f)` will never contain an '\r'.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Many1Chars(
-            Func<char, bool> pred)
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> Many1Chars(Func<char, bool> pred)
             => many1Satisfy<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>`Many1CharsU(f)` behaves like `Many1Chars(f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> Many1CharsU<U>(Func<char, bool> pred)
+            => many1Satisfy<U>(pred.ToFSharpFunc());
 
         /// <summary>
         /// `Many1Chars(f,s)` is an optimized implementation of `Many1Chars(f).Label(s)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Many1Chars(
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> Many1Chars(
             Func<char, bool> pred,
             string label)
             => many1SatisfyL<Unit>(pred.ToFSharpFunc(), label);
 
+        /// <summary>`Many1CharsU(f,s)` behaves like `Many1Chars(f,s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> Many1CharsU<U>(
+            Func<char, bool> pred,
+            string label)
+            => many1SatisfyL<U>(pred.ToFSharpFunc(), label);
+
         /// <summary>
         /// `SkipMany1Chars(f)` is an optimized implementation of `Skip(Many1Chars(f))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1Chars(
-            Func<char, bool> pred)
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipMany1Chars(Func<char, bool> pred)
             => skipMany1Satisfy<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>`SkipMany1CharsU(f)` behaves like `SkipMany1Chars(f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipMany1CharsU<U>(Func<char, bool> pred)
+            => skipMany1Satisfy<U>(pred.ToFSharpFunc());
 
         /// <summary>
         /// `SkipMany1Chars(f,s)` is an optimized implementation of `SkipMany1Chars(f).Label(s)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1Chars(
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipMany1Chars(
             Func<char, bool> pred,
             string label)
             => skipMany1SatisfyL<Unit>(pred.ToFSharpFunc(), label);
+
+        /// <summary>`SkipMany1CharsU(f,s)` behaves like `SkipMany1Chars(f,s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipMany1CharsU<U>(
+            Func<char, bool> pred,
+            string label)
+            => skipMany1SatisfyL<U>(pred.ToFSharpFunc(), label);
 
         /// <summary>
         /// `Many1Chars(f1,f)` behaves like `Many1Chars(f)`, except that the first char of the
         /// parsed string must satisfy `f1` instead of `f`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Many1Chars(
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> Many1Chars(
             Func<char, bool> pred1,
             Func<char, bool> pred)
             => many1Satisfy2<Unit>(pred1.ToFSharpFunc(), pred.ToFSharpFunc());
 
+        /// <summary>`Many1CharsU(f1,f)` behaves like `Many1Chars(f1,f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> Many1CharsU<U>(
+            Func<char, bool> pred1,
+            Func<char, bool> pred)
+            => many1Satisfy2<U>(pred1.ToFSharpFunc(), pred.ToFSharpFunc());
+
         /// <summary>
         /// `Many1Chars(f1,f,s)` is an optimized implementation of `Many1Chars(f1,f).Label(s)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Many1Chars(
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> Many1Chars(
             Func<char, bool> pred1,
             Func<char, bool> pred,
             string label)
             => many1Satisfy2L<Unit>(pred1.ToFSharpFunc(), pred.ToFSharpFunc(), label);
 
+        /// <summary>`Many1CharsU(f1,f,s)` behaves like `Many1Chars(f1,f,s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> Many1CharsU<U>(
+            Func<char, bool> pred1,
+            Func<char, bool> pred,
+            string label)
+            => many1Satisfy2L<U>(pred1.ToFSharpFunc(), pred.ToFSharpFunc(), label);
+
         /// <summary>
         /// `SkipMany1Chars(f1,f)` is an optimized implementation of `Skip(Many1Chars(f1,f))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1Chars(
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipMany1Chars(
             Func<char, bool> pred1,
             Func<char, bool> pred)
             => skipMany1Satisfy2<Unit>(pred1.ToFSharpFunc(), pred.ToFSharpFunc());
+
+        /// <summary>`SkipMany1CharsU(f1,f)` behaves like `SkipMany1Chars(f1,f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipMany1CharsU<U>(
+            Func<char, bool> pred1,
+            Func<char, bool> pred)
+            => skipMany1Satisfy2<U>(pred1.ToFSharpFunc(), pred.ToFSharpFunc());
 
         /// <summary>
         /// `SkipMany1Chars(f1,f,s)` is an optimized implementation of
         /// `SkipMany1Chars(f1,f).Label(s)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipMany1Chars(
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipMany1Chars(
             Func<char, bool> pred1,
             Func<char, bool> pred,
             string label)
             => skipMany1Satisfy2L<Unit>(pred1.ToFSharpFunc(), pred.ToFSharpFunc(), label);
+
+        /// <summary>`SkipMany1CharsU(f1,f,s)` behaves like `SkipMany1Chars(f1,f,s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipMany1CharsU<U>(
+            Func<char, bool> pred1,
+            Func<char, bool> pred,
+            string label)
+            => skipMany1Satisfy2L<U>(pred1.ToFSharpFunc(), pred.ToFSharpFunc(), label);
 
         /// <summary>
         /// <para>
@@ -545,60 +765,98 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>`ManyChars(f,min,max)` throws an `ArgumentOutOfRangeException` if `max` is negative.</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> ManyChars(
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> ManyChars(
             Func<char, bool> pred,
             int minCount,
             int maxCount)
             => manyMinMaxSatisfy<Unit>(minCount, maxCount, pred.ToFSharpFunc());
 
+        /// <summary>`ManyCharsU(f,min,max)` behaves like `ManyChars(f,min,max)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> ManyCharsU<U>(
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount)
+            => manyMinMaxSatisfy<U>(minCount, maxCount, pred.ToFSharpFunc());
+
         /// <summary>
         /// `ManyChars(f,min,max,s)` is an optimized implementation of
         /// `ManyChars(f,min,max).Label(s)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> ManyChars(
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> ManyChars(
             Func<char, bool> pred,
             int minCount,
             int maxCount,
             string label)
             => manyMinMaxSatisfyL<Unit>(minCount, maxCount, pred.ToFSharpFunc(), label);
 
+        /// <summary>`ManyCharsU(f,min,max,s)` behaves like `ManyChars(f,min,max,s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> ManyCharsU<U>(
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount,
+            string label)
+            => manyMinMaxSatisfyL<U>(minCount, maxCount, pred.ToFSharpFunc(), label);
+
         /// <summary>
         /// `SkipManyChars(f,min,max)` is an optimized implementation of
         /// `Skip(ManyChars(f,min,max))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipManyChars(
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipManyChars(
             Func<char, bool> pred,
             int minCount,
             int maxCount)
             => skipManyMinMaxSatisfy<Unit>(minCount, maxCount, pred.ToFSharpFunc());
 
+        /// <summary>`SkipManyCharsU(f,min,max)` behaves like `SkipManyChars(f,min,max)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipManyCharsU<U>(
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount)
+            => skipManyMinMaxSatisfy<U>(minCount, maxCount, pred.ToFSharpFunc());
+
         /// <summary>
         /// `SkipManyChars(f,min,max,s)` is an optimized implementation of
         /// `SkipManyChars(f,min,max).Label(s)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipManyChars(
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipManyChars(
             Func<char, bool> pred,
             int minCount,
             int maxCount,
             string label)
             => skipManyMinMaxSatisfyL<Unit>(minCount, maxCount, pred.ToFSharpFunc(), label);
 
+        /// <summary>`SkipManyCharsU(f,min,max,s)` behaves like `SkipManyChars(f,min,max,s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipManyCharsU<U>(
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount,
+            string label)
+            => skipManyMinMaxSatisfyL<U>(minCount, maxCount, pred.ToFSharpFunc(), label);
+
         /// <summary>
         /// `ManyChars(f1,f,min,max)` behaves like `ManyChars(f,min,max)`, except that the first
         /// char of the parsed string must satisfy `f1` instead of `f`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> ManyChars(
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> ManyChars(
             Func<char, bool> pred1,
             Func<char, bool> pred,
             int minCount,
             int maxCount)
             => manyMinMaxSatisfy2<Unit>(minCount, maxCount, pred1.ToFSharpFunc(), pred.ToFSharpFunc());
 
+        /// <summary>`ManyCharsU(f1,f,min,max)` behaves like `ManyChars(f1,f,min,max)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> ManyCharsU<U>(
+            Func<char, bool> pred1,
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount)
+            => manyMinMaxSatisfy2<U>(minCount, maxCount, pred1.ToFSharpFunc(), pred.ToFSharpFunc());
+
         /// <summary>
         /// `ManyChars(f1,f,min,max,s)` is an optimized implementation of
         /// `ManyChars(f1,f,min,max).Label(s)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> ManyChars(
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> ManyChars(
             Func<char, bool> pred1,
             Func<char, bool> pred,
             int minCount,
@@ -606,22 +864,39 @@ namespace FParsec.CSharp {
             string label)
             => manyMinMaxSatisfy2L<Unit>(minCount, maxCount, pred1.ToFSharpFunc(), pred.ToFSharpFunc(), label);
 
+        /// <summary>`ManyCharsU(f1,f,min,max,s)` behaves like `ManyChars(f1,f,min,max,s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> ManyCharsU<U>(
+            Func<char, bool> pred1,
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount,
+            string label)
+            => manyMinMaxSatisfy2L<U>(minCount, maxCount, pred1.ToFSharpFunc(), pred.ToFSharpFunc(), label);
+
         /// <summary>
         /// `SkipManyChars(f1,f,min,max)` is an optimized implementation of
         /// `Skip(ManyChars(f1,f,min,max))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipManyChars(
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipManyChars(
             Func<char, bool> pred1,
             Func<char, bool> pred,
             int minCount,
             int maxCount)
             => skipManyMinMaxSatisfy2<Unit>(minCount, maxCount, pred1.ToFSharpFunc(), pred.ToFSharpFunc());
 
+        /// <summary>`SkipManyCharsU(f1,f,min,max)` behaves like `SkipManyChars(f1,f,min,max)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipManyCharsU<U>(
+            Func<char, bool> pred1,
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount)
+            => skipManyMinMaxSatisfy2<U>(minCount, maxCount, pred1.ToFSharpFunc(), pred.ToFSharpFunc());
+
         /// <summary>
         /// `SkipManyChars(f1,f,min,max,s)` is an optimized implementation of
         /// `SkipManyChars(f1,f,min,max).Label(s)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipManyChars(
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipManyChars(
             Func<char, bool> pred1,
             Func<char, bool> pred,
             int minCount,
@@ -629,23 +904,32 @@ namespace FParsec.CSharp {
             string label)
             => skipManyMinMaxSatisfy2L<Unit>(minCount, maxCount, pred1.ToFSharpFunc(), pred.ToFSharpFunc(), label);
 
+        /// <summary>`SkipManyCharsU(f1,f,min,max,s)` behaves like `SkipManyChars(f1,f,min,max,s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipManyCharsU<U>(
+            Func<char, bool> pred1,
+            Func<char, bool> pred,
+            int minCount,
+            int maxCount,
+            string label)
+            => skipManyMinMaxSatisfy2L<U>(minCount, maxCount, pred1.ToFSharpFunc(), pred.ToFSharpFunc(), label);
+
         /// <summary>
         /// `ManyCharsTill(p,endp)` parses chars with the char parser `p` until the parser `endp`
         /// succeeds. It stops after `endp` and returns the parsed chars as a string.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> ManyCharsTill<TEnd>(
-            FSharpFunc<Chars, Reply<char>> p,
-            FSharpFunc<Chars, Reply<TEnd>> endp)
+        public static FSharpFunc<CharStream<U>, Reply<string>> ManyCharsTill<U, TEnd>(
+            FSharpFunc<CharStream<U>, Reply<char>> p,
+            FSharpFunc<CharStream<U>, Reply<TEnd>> endp)
             => manyCharsTill(p, endp);
 
         /// <summary>
         /// `ManyCharsTill(p1,p,endp)` behaves like `ManyCharsTill(p,endp)`, except that it parses
         /// the first char with `p1` instead of `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> ManyCharsTill<TEnd>(
-            FSharpFunc<Chars, Reply<char>> p1,
-            FSharpFunc<Chars, Reply<char>> p,
-            FSharpFunc<Chars, Reply<TEnd>> endp)
+        public static FSharpFunc<CharStream<U>, Reply<string>> ManyCharsTill<U, TEnd>(
+            FSharpFunc<CharStream<U>, Reply<char>> p1,
+            FSharpFunc<CharStream<U>, Reply<char>> p,
+            FSharpFunc<CharStream<U>, Reply<TEnd>> endp)
             => manyCharsTill2(p1, p, endp);
 
         /// <summary>
@@ -653,9 +937,9 @@ namespace FParsec.CSharp {
         /// succeeds. It stops after `endp` and returns the result of the function application
         /// `f(s,b)`, where `s` is the parsed string and `b` is result returned by `endp`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> ManyCharsTill<T, TEnd>(
-            FSharpFunc<Chars, Reply<char>> p,
-            FSharpFunc<Chars, Reply<TEnd>> endp,
+        public static FSharpFunc<CharStream<U>, Reply<T>> ManyCharsTill<U, T, TEnd>(
+            FSharpFunc<CharStream<U>, Reply<char>> p,
+            FSharpFunc<CharStream<U>, Reply<TEnd>> endp,
             Func<string, TEnd, T> f)
             => manyCharsTillApply(p, endp, f.ToFSharpFunc());
 
@@ -663,10 +947,10 @@ namespace FParsec.CSharp {
         /// `ManyCharsTill(p1,p,endp,f)` behaves like `ManyCharsTill(p,endp,f)`, except that it
         /// parses the first char with `p1` instead of `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> ManyCharsTill<T, TEnd>(
-            FSharpFunc<Chars, Reply<char>> p1,
-            FSharpFunc<Chars, Reply<char>> p,
-            FSharpFunc<Chars, Reply<TEnd>> endp,
+        public static FSharpFunc<CharStream<U>, Reply<T>> ManyCharsTill<U, T, TEnd>(
+            FSharpFunc<CharStream<U>, Reply<char>> p1,
+            FSharpFunc<CharStream<U>, Reply<char>> p,
+            FSharpFunc<CharStream<U>, Reply<TEnd>> endp,
             Func<string, TEnd, T> f)
             => manyCharsTillApply2(p1, p, endp, f.ToFSharpFunc());
 
@@ -681,19 +965,19 @@ namespace FParsec.CSharp {
         /// `Pipe(p, ManyCharsTill(p,endp), (c,s) => s.Prepend(c))`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Many1CharsTill<TEnd>(
-            FSharpFunc<Chars, Reply<char>> p,
-            FSharpFunc<Chars, Reply<TEnd>> endp)
+        public static FSharpFunc<CharStream<U>, Reply<string>> Many1CharsTill<U, TEnd>(
+            FSharpFunc<CharStream<U>, Reply<char>> p,
+            FSharpFunc<CharStream<U>, Reply<TEnd>> endp)
             => many1CharsTill(p, endp);
 
         /// <summary>
         /// `Many1CharsTill(p1,p,endp)` behaves like `Many1CharsTill(p,endp)`, except that it
         /// parses the first char with `p1` instead of `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Many1CharsTill<TEnd>(
-            FSharpFunc<Chars, Reply<char>> p1,
-            FSharpFunc<Chars, Reply<char>> p,
-            FSharpFunc<Chars, Reply<TEnd>> endp)
+        public static FSharpFunc<CharStream<U>, Reply<string>> Many1CharsTill<U, TEnd>(
+            FSharpFunc<CharStream<U>, Reply<char>> p1,
+            FSharpFunc<CharStream<U>, Reply<char>> p,
+            FSharpFunc<CharStream<U>, Reply<TEnd>> endp)
             => many1CharsTill2(p1, p, endp);
 
         /// <summary>
@@ -702,9 +986,9 @@ namespace FParsec.CSharp {
         /// the result of the function application `f(s,b)`, where `s` is the parsed string and `b`
         /// is result returned by `endp`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Many1CharsTill<T, TEnd>(
-            FSharpFunc<Chars, Reply<char>> p,
-            FSharpFunc<Chars, Reply<TEnd>> endp,
+        public static FSharpFunc<CharStream<U>, Reply<T>> Many1CharsTill<U, T, TEnd>(
+            FSharpFunc<CharStream<U>, Reply<char>> p,
+            FSharpFunc<CharStream<U>, Reply<TEnd>> endp,
             Func<string, TEnd, T> f)
             => many1CharsTillApply(p, endp, f.ToFSharpFunc());
 
@@ -712,10 +996,10 @@ namespace FParsec.CSharp {
         /// `Many1CharsTill(p1,p,endp,f)` behaves like `Many1CharsTill(p,endp,f)`, except that it
         /// parses the first char with `p1` instead of `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> Many1CharsTill<T, TEnd>(
-            FSharpFunc<Chars, Reply<char>> p1,
-            FSharpFunc<Chars, Reply<char>> p,
-            FSharpFunc<Chars, Reply<TEnd>> endp,
+        public static FSharpFunc<CharStream<U>, Reply<T>> Many1CharsTill<U, T, TEnd>(
+            FSharpFunc<CharStream<U>, Reply<char>> p1,
+            FSharpFunc<CharStream<U>, Reply<char>> p,
+            FSharpFunc<CharStream<U>, Reply<TEnd>> endp,
             Func<string, TEnd, T> f)
             => many1CharsTillApply2(p1, p, endp, f.ToFSharpFunc());
 
@@ -728,8 +1012,8 @@ namespace FParsec.CSharp {
         /// `ManyStrings(p)` is an optimized implementation of `Many(p, string.Concat, "")`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> ManyStrings(
-            FSharpFunc<Chars, Reply<string>> p)
+        public static FSharpFunc<CharStream<U>, Reply<string>> ManyStrings<U>(
+            FSharpFunc<CharStream<U>, Reply<string>> p)
             => manyStrings(p);
 
         /// <summary>
@@ -741,9 +1025,9 @@ namespace FParsec.CSharp {
         /// It returns the strings parsed by `p` *and* `sep` in concatenated form.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> ManyStrings(
-            FSharpFunc<Chars, Reply<string>> p,
-            FSharpFunc<Chars, Reply<string>> sep)
+        public static FSharpFunc<CharStream<U>, Reply<string>> ManyStrings<U>(
+            FSharpFunc<CharStream<U>, Reply<string>> p,
+            FSharpFunc<CharStream<U>, Reply<string>> sep)
             => stringsSepBy(p, sep);
 
         /// <summary>
@@ -755,10 +1039,10 @@ namespace FParsec.CSharp {
         /// It returns the strings parsed by `p` *and* the string `s` in concatenated form.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> ManyStrings(
-            FSharpFunc<Chars, Reply<string>> p,
+        public static FSharpFunc<CharStream<U>, Reply<string>> ManyStrings<U>(
+            FSharpFunc<CharStream<U>, Reply<string>> p,
             string sep)
-            => stringsSepBy(p, pstring<Unit>(sep));
+            => stringsSepBy(p, pstring<U>(sep));
 
         /// <summary>
         /// <para>
@@ -772,8 +1056,8 @@ namespace FParsec.CSharp {
         /// `Many1Strings(p)` is an optimized implementation of `Many1(p, string.Concat)`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Many1Strings(
-            FSharpFunc<Chars, Reply<string>> p)
+        public static FSharpFunc<CharStream<U>, Reply<string>> Many1Strings<U>(
+            FSharpFunc<CharStream<U>, Reply<string>> p)
             => many1Strings(p);
 
         /// <summary>
@@ -785,9 +1069,9 @@ namespace FParsec.CSharp {
         /// It returns the strings parsed by `p` *and* `sep` in concatenated form.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Many1Strings(
-            FSharpFunc<Chars, Reply<string>> p,
-            FSharpFunc<Chars, Reply<string>> sep)
+        public static FSharpFunc<CharStream<U>, Reply<string>> Many1Strings<U>(
+            FSharpFunc<CharStream<U>, Reply<string>> p,
+            FSharpFunc<CharStream<U>, Reply<string>> sep)
             => stringsSepBy(p, sep);
 
         /// <summary>
@@ -799,10 +1083,10 @@ namespace FParsec.CSharp {
         /// It returns the strings parsed by `p` *and* the string `s` in concatenated form.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Many1Strings(
-            FSharpFunc<Chars, Reply<string>> p,
+        public static FSharpFunc<CharStream<U>, Reply<string>> Many1Strings<U>(
+            FSharpFunc<CharStream<U>, Reply<string>> p,
             string sep)
-            => stringsSepBy(p, pstring<Unit>(sep));
+            => stringsSepBy(p, pstring<U>(sep));
 
         /// <summary>
         /// <para>
@@ -829,12 +1113,18 @@ namespace FParsec.CSharp {
         /// If one of the `runParser` functions is used to run the parser, this number is 43690.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Regex(string pattern) => regex<Unit>(pattern);
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> Regex(string pattern) => regex<Unit>(pattern);
+
+        /// <summary>`RegexU(s)` behaves like `Regex(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> RegexU<U>(string pattern) => regex<U>(pattern);
 
         /// <summary>
         /// `Regex(s,l)` is an optimized implementation of `Regex(s).Label(l)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> Regex(string pattern, string label) => regexL<Unit>(pattern, label);
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> Regex(string pattern, string label)=> regexL<Unit>(pattern, label);
+
+        /// <summary>`RegexU(s,l)` behaves like `Regex(s,l)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> RegexU<U>(string pattern, string label) => regexL<U>(pattern, label);
 
         /// <summary>
         /// <para>
@@ -843,16 +1133,16 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>All newlines ("\r\n", "\r" or "\n") are normalized to "\n".</para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<string>> WithSkipped(
-            this FSharpFunc<Chars, Reply<Unit>> p)
+        public static FSharpFunc<CharStream<U>, Reply<string>> WithSkipped<U>(
+            this FSharpFunc<CharStream<U>, Reply<Unit>> p)
             => skipped(p);
 
         /// <summary>
         /// `p.WithSkipped(f)` applies the parser `p` and returns the result of `f(s,x)`, where `s`
         /// is the string skipped over by `p` and `x` is the result returned by `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<TResult>> WithSkipped<T, TResult>(
-            this FSharpFunc<Chars, Reply<T>> p,
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> WithSkipped<U, T, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<T>> p,
             Func<string, T, TResult> f)
             => withSkippedString(f.ToFSharpFunc(), p);
 
@@ -860,8 +1150,8 @@ namespace FParsec.CSharp {
         /// `p.WithSkipped()` applies the parser `p` and returns the tuple `(s,x)`, where `s` is
         /// the string skipped over by `p` and `x` is the result returned by `p`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<(string, T)>> WithSkipped<T>(
-            this FSharpFunc<Chars, Reply<T>> p)
+        public static FSharpFunc<CharStream<U>, Reply<(string, T)>> WithSkipped<U, T>(
+            this FSharpFunc<CharStream<U>, Reply<T>> p)
             => withSkippedString(FSharpFunc.From<string, T, (string, T)>((s, x) => (s, x)), p);
 
         /// <summary>
@@ -887,8 +1177,11 @@ namespace FParsec.CSharp {
         /// `System.Int32.MaxValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<int>> Natural = FSharpFunc.From<Chars, Reply<int>>(chars =>
-            many1Chars(digit<Unit>()).Invoke(chars) switch {
+        public static FSharpFunc<CharStream<Unit>, Reply<int>> Natural = NaturalU<Unit>();
+
+        /// <summary>`NaturalU()` behaves like `Natural`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<int>> NaturalU<U>() => FSharpFunc.From<CharStream<U>, Reply<int>>(chars =>
+            many1Chars(digit<U>()).Invoke(chars) switch {
                 (Ok, var r, _) => int.TryParse(r, out var n)
                     ? new Reply<int>(n)
                     : new Reply<int>(Primitives.Error, messageError("Number must be below 2147483648")),
@@ -914,7 +1207,10 @@ namespace FParsec.CSharp {
         /// greater than `System.Double.MaxValue` or less than `System.Double.MinValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<double>> Float = pfloat<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<double>> Float = pfloat<Unit>();
+
+        /// <summary>`FloatU()` behaves like `Float`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<double>> FloatU<U>() => pfloat<U>();
 
         /// <summary>
         /// <para>
@@ -935,7 +1231,10 @@ namespace FParsec.CSharp {
         /// `System.Int64.MaxValue` or less than `System.Int64.MinValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<long>> Long = pint64<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<long>> Long = pint64<Unit>();
+
+        /// <summary>`LongU()` behaves like `Long`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<long>> LongU<U>() => pint64<U>();
 
         /// <summary>
         /// <para>
@@ -956,7 +1255,10 @@ namespace FParsec.CSharp {
         /// `System.UInt64.MaxValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<ulong>> ULong = puint64<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<ulong>> ULong = puint64<Unit>();
+
+        /// <summary>`ULongU()` behaves like `ULong`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<ulong>> ULongU<U>() => puint64<U>();
 
         /// <summary>
         /// <para>
@@ -977,7 +1279,10 @@ namespace FParsec.CSharp {
         /// `System.Int32.MaxValue` or less than `System.Int32.MinValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<int>> Int = pint32<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<int>> Int = pint32<Unit>();
+
+        /// <summary>`IntU()` behaves like `Int`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<int>> IntU<U>() => pint32<U>();
 
         /// <summary>
         /// <para>
@@ -998,7 +1303,10 @@ namespace FParsec.CSharp {
         /// `System.UInt32.MaxValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<uint>> UInt = puint32<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<uint>> UInt = puint32<Unit>();
+
+        /// <summary>`UIntU()` behaves like `UInt`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<uint>> UIntU<U>() => puint32<U>();
 
         /// <summary>
         /// <para>
@@ -1019,7 +1327,10 @@ namespace FParsec.CSharp {
         /// `System.Int16.MaxValue` or less than `System.Int16.MinValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<short>> Short = pint16<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<short>> Short = pint16<Unit>();
+
+        /// <summary>`ShortU()` behaves like `Short`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<short>> ShortU<U>() => pint16<U>();
 
         /// <summary>
         /// <para>
@@ -1040,7 +1351,10 @@ namespace FParsec.CSharp {
         /// `System.UInt16.MaxValue`.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<ushort>> UShort = puint16<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<ushort>> UShort = puint16<Unit>();
+
+        /// <summary>`UShortU()` behaves like `UShort`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<ushort>> UShortU<U>() => puint16<U>();
 
         /// <summary>
         /// <para>
@@ -1061,7 +1375,10 @@ namespace FParsec.CSharp {
         /// 127 or less than -128.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<sbyte>> Byte = pint8<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<sbyte>> Byte = pint8<Unit>();
+
+        /// <summary>`ByteU()` behaves like `Byte`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<sbyte>> ByteU<U>() => pint8<U>();
 
         /// <summary>
         /// <para>
@@ -1082,7 +1399,10 @@ namespace FParsec.CSharp {
         /// 255.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<byte>> UByte = puint8<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<byte>> UByte = puint8<Unit>();
+
+        /// <summary>`UByteU()` behaves like `UByte`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<byte>> UByteU<U>() => puint8<U>();
 
         /// <summary>
         /// Returns a hexadecimal string representation of the `double`.
@@ -1130,49 +1450,70 @@ namespace FParsec.CSharp {
         /// Skips over any sequence of *zero* or more whitespaces (space (' '), tab ('\t') or
         /// newline ("\n", "\r\n" or "\r")).
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Spaces = spaces<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> Spaces = spaces<Unit>();
+
+        /// <summary>`SpacesU()` behaves like `Spaces`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SpacesU<U>() => spaces<U>();
 
         /// <summary>Short form for `Spaces`.</summary>
-        public static FSharpFunc<Chars, Reply<Unit>> WS = Spaces;
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> WS = Spaces;
 
         /// <summary>
         /// Skips over any sequence of *zero* or more unicode whitespaces and registers any unicode
         /// newline ("\n", "\r\n", "\r", "\u0085, "\u000C", "\u2028", or "\u2029") as a newline.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> UnicodeSpaces = unicodeSpaces<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> UnicodeSpaces = unicodeSpaces<Unit>();
+
+        /// <summary>`UnicodeSpacesU()` behaves like `UnicodeSpaces`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> UnicodeSpacesU<U>() => unicodeSpaces<U>();
 
         /// <summary>
         /// Skips over any sequence of *one* or more whitespaces (space (' '), tab('\t') or
         /// newline ("\n", "\r\n" or "\r")).
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Spaces1 = spaces1<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> Spaces1 = spaces1<Unit>();
+
+        /// <summary>`Spaces1U()` behaves like `Spaces1`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> Spaces1U<U>() => spaces1<U>();
 
         /// <summary>Short form for `Spaces1`.</summary>
-        public static FSharpFunc<Chars, Reply<Unit>> WS1 = Spaces1;
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> WS1 = Spaces1;
 
         /// <summary>
         /// Skips over any sequence of *one* or more unicode whitespaces and registers any unicode
         /// newline ("\n", "\r\n", "\r", "\u0085, "\u000C", "\u2028", or "\u2029") as a newline.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> UnicodeSpaces1 = unicodeSpaces1<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> UnicodeSpaces1 = unicodeSpaces1<Unit>();
+
+        /// <summary>`UnicodeSpaces1U()` behaves like `UnicodeSpaces1`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> UnicodeSpaces1U<U>() => unicodeSpaces1<U>();
 
         /// <summary>
         /// Parses a newline ("\n", "\r\n" or "\r"). Returns '\n'. Is equivalent to `CharP('\n')`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Newline = newline<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> Newline = newline<Unit>();
+
+        /// <summary>`NewlineU()` behaves like `Newline`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> NewlineU<U>() => newline<U>();
 
         /// <summary>Short form for `Newline`.</summary>
-        public static FSharpFunc<Chars, Reply<char>> NL = newline<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> NL = newline<Unit>();
 
         /// <summary>
         /// `NewlineReturn(x)` is an optimized implementation of `Newline.Return(x)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> NewlineReturn<T>(T x) => newlineReturn<T, Unit>(x);
+        public static FSharpFunc<CharStream<Unit>, Reply<T>> NewlineReturn<T>(T x) => newlineReturn<T, Unit>(x);
+
+        /// <summary>`NewlineReturnU(x)` behaves like `NewlineReturn(x)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<T>> NewlineReturnU<U, T>(T x) => newlineReturn<T, U>(x);
 
         /// <summary>
         /// `SkipNewline` is an optimized implementation of `Skip(Newline)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipNewline = skipNewline<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipNewline = skipNewline<Unit>();
+
+        /// <summary>`SkipNewlineU()` behaves like `SkipNewline`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipNewlineU<U>() => skipNewline<U>();
 
         /// <summary>
         /// <para>
@@ -1185,17 +1526,26 @@ namespace FParsec.CSharp {
         /// for unicode newline characters other than '\n' and '\r'.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> UnicodeNewline = unicodeNewline<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> UnicodeNewline = unicodeNewline<Unit>();
+
+        /// <summary>`UnicodeNewlineU()` behaves like `UnicodeNewline`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> UnicodeNewlineU<U>() => unicodeNewline<U>();
 
         /// <summary>
         /// `UnicodeNewlineReturn(x)` is an optimized implementation of `UnicodeNewline.Return(x)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<T>> UnicodeNewlineReturn<T>(T x) => unicodeNewlineReturn<T, Unit>(x);
+        public static FSharpFunc<CharStream<Unit>, Reply<T>> UnicodeNewlineReturn<T>(T x) => unicodeNewlineReturn<T, Unit>(x);
+
+        /// <summary>`UnicodeNewlineReturnU(x)` behaves like `UnicodeNewlineReturn(x)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<T>> UnicodeNewlineReturnU<U, T>(T x) => unicodeNewlineReturn<T, U>(x);
 
         /// <summary>
         /// `SkipUnicodeNewline` is an optimized implementation of `Skip(UnicodeNewline)`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> SkipUnicodeNewline = skipUnicodeNewline<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> SkipUnicodeNewline = skipUnicodeNewline<Unit>();
+
+        /// <summary>`SkipUnicodeNewlineU()` behaves like `SkipUnicodeNewline`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> SkipUnicodeNewlineU<U>() => skipUnicodeNewline<U>();
 
         /// <summary>
         /// <para>Parses the tab char '\t' and returns '\t'.</para>
@@ -1204,12 +1554,18 @@ namespace FParsec.CSharp {
         /// incremented by (only) 1.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<char>> Tab = tab<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<char>> Tab = tab<Unit>();
+
+        /// <summary>`TabU()` behaves like `Tab`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<char>> TabU<U>() => tab<U>();
 
         /// <summary>
         /// The parser `EOF` only succeeds at the end of the input. It never consumes input.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> EOF = eof<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> EOF = eof<Unit>();
+
+        /// <summary>`EOFU()` behaves like `EOF`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> EOFU<U>() => eof<U>();
 
         /// <summary>
         /// <para>
@@ -1228,55 +1584,82 @@ namespace FParsec.CSharp {
         /// `NotFollowedByEOF` is an optimized implementation of
         /// `NotFollowedBy(EOF, "end of input")`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedByEOF = notFollowedByEof<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> NotFollowedByEOF = notFollowedByEof<Unit>();
+
+        /// <summary>`NotFollowedByEOFU()` behaves like `NotFollowedByEOF`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> NotFollowedByEOFU<U>() => notFollowedByEof<U>();
 
         /// <summary>
         /// `FollowedByNewline` is an optimized implementation of `FollowedBy(Newline, "newline")`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> FollowedByNewline = followedByNewline<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> FollowedByNewline = followedByNewline<Unit>();
+
+        /// <summary>`FollowedByNewlineU()` behaves like `FollowedByNewline`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> FollowedByNewlineU<U>() => followedByNewline<U>();
 
         /// <summary>
         /// `NotFollowedByNewline` is an optimized implementation of
         /// `NotFollowedBy(Newline, "newline")`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedByNewline = notFollowedByNewline<Unit>();
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> NotFollowedByNewline = notFollowedByNewline<Unit>();
+
+        /// <summary>`NotFollowedByNewlineU()` behaves like `NotFollowedByNewline`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> NotFollowedByNewlineU<U>() => notFollowedByNewline<U>();
 
         /// <summary>
         /// `FollowedBy(s)` is an optimized implementation of `FollowedBy(StringP(s), $"'{s}'"))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> FollowedBy(string s) => followedByString<Unit>(s);
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> FollowedBy(string s) => followedByString<Unit>(s);
+
+        /// <summary>`FollowedByU(s)` behaves like `FollowedBy(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> FollowedByU<U>(string s) => followedByString<U>(s);
 
         /// <summary>
         /// `NotFollowedBy(s)` is an optimized implementation of
         /// `NotFollowedBy(StringP(s), $"'{s}'"))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedBy(string s) => notFollowedByString<Unit>(s);
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> NotFollowedBy(string s) => notFollowedByString<Unit>(s);
+
+        /// <summary>`NotFollowedByU(s)` behaves like `NotFollowedBy(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> NotFollowedByU<U>(string s) => notFollowedByString<U>(s);
 
         /// <summary>
         /// `FollowedByCI(s)` is an optimized implementation of
         /// `FollowedBy(StringCI(s), $"'{s}'"))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> FollowedByCI(string s) => followedByStringCI<Unit>(s);
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> FollowedByCI(string s) => followedByStringCI<Unit>(s);
+
+        /// <summary>`FollowedByCIU(s)` behaves like `FollowedByCI(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> FollowedByCIU<U>(string s) => followedByStringCI<U>(s);
 
         /// <summary>
         /// `NotFollowedByCI(s)` is an optimized implementation of
         /// `NotFollowedBy(StringCI(s), $"'{s}'"))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> NotFollowedByCI(string s) => notFollowedByStringCI<Unit>(s);
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> NotFollowedByCI(string s) => notFollowedByStringCI<Unit>(s);
+
+        /// <summary>`NotFollowedByCIU(s)` behaves like `NotFollowedByCI(s)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> NotFollowedByCIU<U>(string s) => notFollowedByStringCI<U>(s);
 
         /// <summary>
         /// `NextCharSatisfies(f)` is an optimized implementation of `FollowedBy(CharP(f))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> NextCharSatisfies(
-            Func<char, bool> pred)
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> NextCharSatisfies(Func<char, bool> pred)
             => nextCharSatisfies<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>`NextCharSatisfiesU(f)` behaves like `NextCharSatisfies(f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> NextCharSatisfiesU<U>(Func<char, bool> pred)
+            => nextCharSatisfies<U>(pred.ToFSharpFunc());
 
         /// <summary>
         /// `NextCharSatisfiesNot(f)` is an optimized implementation of `NotFollowedBy(CharP(f))`.
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> NextCharSatisfiesNot(
-            Func<char, bool> pred)
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> NextCharSatisfiesNot(Func<char, bool> pred)
             => nextCharSatisfiesNot<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>`NextCharSatisfiesNotU(f)` behaves like `NextCharSatisfiesNot(f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> NextCharSatisfiesNotU<U>(Func<char, bool> pred)
+            => nextCharSatisfiesNot<U>(pred.ToFSharpFunc());
 
         /// <summary>
         /// <para>
@@ -1293,9 +1676,12 @@ namespace FParsec.CSharp {
         /// used together with parsers that take care of a potential error.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Next2CharsSatisfy(
-            Func<char, char, bool> pred)
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> Next2CharsSatisfy(Func<char, char, bool> pred)
             => next2CharsSatisfy<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>`Next2CharsSatisfyU(f)` behaves like `Next2CharsSatisfy(f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> Next2CharsSatisfyU<U>(Func<char, char, bool> pred)
+            => next2CharsSatisfy<U>(pred.ToFSharpFunc());
 
         /// <summary>
         /// <para>
@@ -1312,9 +1698,12 @@ namespace FParsec.CSharp {
         /// used together with parsers that take care of a potential error.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> Next2CharsSatisfyNot(
-            Func<char, char, bool> pred)
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> Next2CharsSatisfyNot(Func<char, char, bool> pred)
             => next2CharsSatisfyNot<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>`Next2CharsSatisfyNotU(f)` behaves like `Next2CharsSatisfyNot(f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> Next2CharsSatisfyNotU<U>(Func<char, char, bool> pred)
+            => next2CharsSatisfyNot<U>(pred.ToFSharpFunc());
 
         /// <summary>
         /// <para>
@@ -1334,9 +1723,12 @@ namespace FParsec.CSharp {
         /// used together with parsers that take care of a potential error.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> PreviousCharSatisfies(
-            Func<char, bool> pred)
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> PreviousCharSatisfies(Func<char, bool> pred)
             => previousCharSatisfies<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>`PreviousCharSatisfiesU(f)` behaves like `PreviousCharSatisfies(f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> PreviousCharSatisfiesU<U>(Func<char, bool> pred)
+            => previousCharSatisfies<U>(pred.ToFSharpFunc());
 
         /// <summary>
         /// <para>
@@ -1356,9 +1748,12 @@ namespace FParsec.CSharp {
         /// used together with parsers that take care of a potential error.
         /// </para>
         /// </summary>
-        public static FSharpFunc<Chars, Reply<Unit>> PreviousCharSatisfiesNot(
-            Func<char, bool> pred)
+        public static FSharpFunc<CharStream<Unit>, Reply<Unit>> PreviousCharSatisfiesNot(Func<char, bool> pred)
             => previousCharSatisfiesNot<Unit>(pred.ToFSharpFunc());
+
+        /// <summary>`PreviousCharSatisfiesNotU(f)` behaves like `PreviousCharSatisfiesNot(f)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<Unit>> PreviousCharSatisfiesNotU<U>(Func<char, bool> pred)
+            => previousCharSatisfiesNot<U>(pred.ToFSharpFunc());
 
         #endregion Conditional parsing
     }

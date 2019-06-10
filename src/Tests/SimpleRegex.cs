@@ -11,7 +11,7 @@ namespace Tests {
         #region Parser definition
 
         private static readonly FSharpFunc<CharStream<Unit>, Reply<IState>> SimpleRegexParser =
-            Many(new OPPBuilder<NFA.ProtoState, Unit>()
+            Many(new OPPBuilder<Unit, NFA.ProtoState, Unit>()
                 .WithImplicitOperator(2, NFA.Connect)
                 .WithOperators(ops => ops
                     .AddPostfix("*", 3, NFA.MakeZeroOrMore)

@@ -14,9 +14,9 @@ FParsec.CSharp is a C# wrapper for the F# package [FParsec](https://github.com/s
   * [Getting the result with custom error handling](#getting-the-result-with-custom-error-handling)
   * [Safe unwrapping](#safe-unwrapping)
   * [Deconstructing parser results (C# 8.0)](#deconstructing-parser-results-c-80)
+- [Working with user state](#working-with-user-state)
 - [Using FParsec.CSharp and FParsec together](#using-fparseccsharp-and-fparsec-together)
   * [Working with FParsec parsers directly](#working-with-fparsec-parsers-directly)
-  * [Specifying user state](#specifying-user-state)
   * [Passing lambdas to FParsec](#passing-lambdas-to-fparsec)
 - [Examples](#examples)
   * [Simple JSON](#simple-json)
@@ -41,6 +41,8 @@ FParsec.CSharp tries to alleviate that by wrapping FParsec's operators as extens
 FParsec.CSharp does not try to hide any types from `FParsec` or `FSharp.Core`--the wrapper is thin and also avoids name collisions. That way you can always fallback to FParsec anytime you need some functionality not implemented by FParsec.CSharp.
 
 Based on the current implementation it should be easy to extend the wrapper yourself if needed. Pull requests are always welcome!
+
+Note that the documentation assumes prior knowledge on FParsec or other parser combinator libraries.
 
 ## Getting started
 
@@ -172,8 +174,8 @@ FParsec.CSharp extends the types involved with parser results with deconstructor
 
 ```C#
 var response = Digit.Run("1") switch {
-    ParserResult<char, Unit>.Success(var c, _) => $"Parsed '{c}'.",
-    ParserResult<char, Unit>.Failure(_, (_, (_, _, var col, _))) => $"Some error at column {col}."
+    ParserResult<char, Unit>.Success(var c, _, _) => $"Parsed '{c}'.",
+    ParserResult<char, Unit>.Failure(_, (_, (_, _, var col, _)), _) => $"Some error at column {col}."
 };
 
 ```
@@ -191,6 +193,64 @@ You will need to import some of FParsec's namespaces for this to work:
 ```
 using FParsec; // contains `ReplyStatus` and `ErrorMessage`
 using static FParsec.CharParsers; // contains `ParserResult`
+```
+## Working with user state
+
+FParsec.CSharp, like FParsec, supports parsing with user state. This is reflected by the type parameter `U` in the signatures:
+
+```C#
+public FSharpFunc<CharStream<U>, Reply<(T1, T2)>> And<U, T1, T2>(
+    this FSharpFunc<CharStream<U>, Reply<T1>> p1,
+    FSharpFunc<CharStream<U>, Reply<T2>> p2);
+```
+
+If a combinator/parser supports user state then it will always have `U` as the first type parameter.
+
+For the combinators from `FParsec.CSharp.PrimitivesCS` this will be transparent most of the time, because C# is able to infer the user state type of the combinator from the user state type of the parser argument(s).
+
+Unfortunately C# is not able to infer the user state type retrospectively from later bindings and hence forces you to explicitly specify the user state type on parsers that have no parser parameters. In the case of the predefined parsers from `FParsec.CSharp.CharParsersCS` (which usually don't take other parsers as arguments) this restriction would be cause for much annoyance.
+
+That's why all parsers/combinators that have no parser parameters have two variants: one assuming a user state type of `Unit` and another one expecting the explicit type argument `U`. The names of the latter ones are always suffixed with the letter "U":
+
+```
+var parserWithoutUserState = Digit.And(Letter);
+
+var parserWithUserState = DigitU<int>().And(LetterU<int>());
+```
+
+Below are example test cases to demonstrate working with user state:
+
+```C#
+[Fact] public void SimpleSet() {
+    switch (SetUserState(12).RunOnString("", 0)) {
+        case ParserResult<Unit, int>.Success(_, 12, _):
+            break;
+        default:
+            throw new Exception();
+    }
+}
+
+[Fact] public void CountParsedLetters() {
+    var countedLetter = LetterU<int>().And(UpdateUserState<int>(cnt => cnt + 1));
+
+    SkipMany(countedLetter).And(GetUserState<int>())
+    .RunOnString("abcd", 0).GetResult()
+    .ShouldBe(4);
+}
+
+[Fact] public void CheckNestingLevel() {
+    FSharpFunc<CharStream<int>, Reply<Unit>> expr = null;
+    var parens = Between('(', Rec(() => expr), ')');
+    var empty = ReturnU<int, Unit>(null);
+    expr = Choice(
+        parens.AndR(UpdateUserState<int>(depth => depth + 1)),
+        empty);
+
+    expr.AndR(UserStateSatisfies<int>(depth => depth < 3))
+    .RunOnString("((()))", 0)
+    .IsFailure
+    .ShouldBeTrue();
+}
 ```
 
 ## Using FParsec.CSharp and FParsec together
@@ -215,16 +275,6 @@ var r = p.ParseString("my_1st_var=13");
 
 System.Diagnostics.Debug.Assert(r.Result == ("my_1st_var", 13));
 ```
-
-### Specifying user state
-
-FParsec supports parsing inputs with custom user state, wich is reflected by most of its functions taking a user state type variable. FParsec.CSharp however does not support user state, so you will have to specify `Microsoft.FSharp.Core.Unit` as the user state type when it can not be inferred:
-
-```C#
-var p = restOfLine<Unit>(true);
-```
-
-Otherwise you won't be able to use the combinators from FParsec.CSharp on it.
 
 ### Passing lambdas to FParsec
 
@@ -354,7 +404,7 @@ This example contructs a non-deterministic finite automaton (NFA) during parsing
 FParsec.CSharp comes with a builder to construct `FParsec.OperatorPrecedenceParser`s:
 
 ```C#
-var basicExprParser = new OPPBuilder<int, Unit>()
+var basicExprParser = new OPPBuilder<Unit, int, Unit>()
     .WithOperators(ops => ops
         .AddInfix("+", 1, (x, y) => x + y)
         .AddInfix("*", 2, (x, y) => x * y))
@@ -362,7 +412,7 @@ var basicExprParser = new OPPBuilder<int, Unit>()
     .Build()
     .ExpressionParser;
 
-var recursiveExprParser = new OPPBuilder<int, Unit>()
+var recursiveExprParser = new OPPBuilder<Unit, int, Unit>()
     .WithOperators(ops => ops
         .AddInfix("+", 1, (x, y) => x + y)
         .AddInfix("*", 2, (x, y) => x * y))
@@ -375,7 +425,7 @@ It also supports implicit operators:
 
 ```C#
 var exprParser =
-    WS.And(new OPPBuilder<int, Unit>()
+    WS.And(new OPPBuilder<Unit, int, Unit>()
         .WithOperators(ops => ops
             .AddInfix("+", 10, WS, (x, y) => x + y)
             .AddInfix("-", 10, WS, (x, y) => x - y)
@@ -398,7 +448,7 @@ Armed with the `OPPBuilder` and the NFA implementation used for the glob parser 
 
 ```C#
 var simpleRegexParser =
-    Many(new OPPBuilder<NFA.ProtoState, Unit>()
+    Many(new OPPBuilder<Unit, NFA.ProtoState, Unit>()
         .WithImplicitOperator(2, NFA.Connect)
         .WithOperators(ops => ops
             .AddPostfix("*", 3, NFA.MakeZeroOrMore)
@@ -478,11 +528,13 @@ namespace Tests {
 
 ## Where is the FParsec function `x`?
 
-FParsec.CSharp does not mirror all of FParsec's functions exactly. Some are not (yet) implemented and some are just named differently.
+FParsec.CSharp does not mirror all of FParsec's functions exactly. A few are not wrapped and some are just named differently.
 
 Below is a table that maps FParsec's parser functions, combinators, and helper functions to their FParsec.CSharp equivalent.
 
-The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for brewity.
+The type `FSharpFunc<CharStream<U>, Reply<T>>` is shortened to `P<T>` for brewity.
+
+Keep in mind that many predefined parsers and some of the combinators have a variant that supports parsing with user state. Those variants always have a `U` suffix in their name and are not listed in this table.
 
 | FParsec | FParsec.CSharp |
 | :--- | :--- |
@@ -552,10 +604,10 @@ The type `FSharpFunc<CharStream<Unit>, Reply<T>>` is shortened to `P<T>` for bre
 | `runParserOnFile` | `ParserResult<T> P<T>.RunOnFile(string, Encoding)` |
 | `run` | `ParserResult<T> P<T>.Run(string)` |
 | `getPosition` | `P<Position> PositionP` |
-| `getUserState` | not implemented |
-| `setUserState` | not implemented |
-| `updateUserState` | not implemented |
-| `userStateSatisfies` | not implemented |
+| `getUserState` | `P<U> GetUserState<U>()` |
+| `setUserState` | `P<Unit> SetUserState<U>(U)` |
+| `updateUserState` | `P<Unit> UpdateUserState<U>(Func<U, U>)` |
+| `userStateSatisfies` | `P<Unit> UserStateSatisfies<U>(Func<U, bool>)` |
 | `pchar` | `P<char> CharP(char)` |
 | `skipChar` | `P<Unit> Skip(char)` |
 | `charReturn` | `P<T> CharP(char, T)` |
@@ -701,6 +753,8 @@ This library is based on the following works:
 ## TODO
 
 * Implement small script language example
+* Add parser position to `Debug()` combinator
+* Support C# 8.0 nullable?
+* Remove `Parse...()` functions?
 * Wrap `numberLiteral` and `identifier` parsers?
 * Add [source link](https://github.com/dotnet/sourcelink) support?
-* Support user state?

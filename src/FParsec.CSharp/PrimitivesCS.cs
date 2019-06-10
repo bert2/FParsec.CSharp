@@ -987,15 +987,16 @@ namespace FParsec.CSharp {
         /// You can use empty actions to place break points:
         /// `Letter.Debug(cs => {}, (cs, r) => {}).And(Digit)`
         /// </para>
+        /// <para>Both `before` and `after` can be null.</para>
         /// </summary>
         public static FSharpFunc<CharStream<U>, Reply<T>> Debug<U, T>(
             this FSharpFunc<CharStream<U>, Reply<T>> p,
             Action<CharStream<U>> before,
             Action<CharStream<U>, Reply<T>> after)
             => FSharpFunc.From((CharStream<U> cs) => {
-                before(cs);
+                before?.Invoke(cs);
                 var r = p.Invoke(cs);
-                after(cs, r);
+                after?.Invoke(cs, r);
                 return r;
             });
 

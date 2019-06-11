@@ -299,17 +299,17 @@ namespace FParsec.CSharp {
             => choice(strings.Select(s => StringU<U>(s)));
 
         /// <summary>
-        /// The parser `Choice(label, strings)` is a short form for
+        /// The parser `ChoiceL(label, strings)` is a short form for
         /// `Choice(label, StringP(s1), StringP(s2), StringP(...), StringP(sn))`, where `s1` ...
         /// `sn` are the strings in the sequence `strings`.
         /// </summary>
-        public static FSharpFunc<CharStream<Unit>, Reply<string>> Choice(
+        public static FSharpFunc<CharStream<Unit>, Reply<string>> ChoiceL(
             string label,
             params string[] strings)
             => choiceL(strings.Select(s => StringP(s)), label);
 
-        /// <summary>`ChoiceU(label, strings)` behaves like `Choice(label, strings)`, but supports user state.</summary>
-        public static FSharpFunc<CharStream<U>, Reply<string>> ChoiceU<U>(
+        /// <summary>`ChoiceLU(label, strings)` behaves like `Choice(label, strings)`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<string>> ChoiceLU<U>(
             string label,
             params string[] strings)
             => choiceL(strings.Select(s => StringU<U>(s)), label);

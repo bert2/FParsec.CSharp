@@ -1003,12 +1003,20 @@ namespace FParsec.CSharp {
         /// <summary>
         /// Flattens the nested tuple `((a,b),c)` to `(a,b,c)`.
         /// </summary>
-        public static (T1, T2, T3) Flat<T1, T2, T3>(((T1, T2), T3) x) => (x.Item1.Item1, x.Item1.Item2, x.Item2);
+        public static (T1, T2, T3) Flat<T1, T2, T3>(((T1, T2), T3) x)
+            => (x.Item1.Item1, x.Item1.Item2, x.Item2);
 
         /// <summary>
-        /// Flattens the nested tuple `(a,(b,c))` to `(a,b,c)`.
+        /// Flattens the nested tuple `(((a,b),c),d)` to `(a,b,c,d)`.
         /// </summary>
-        public static (T1, T2, T3) Flat<T1, T2, T3>((T1, (T2, T3)) x) => (x.Item1, x.Item2.Item1, x.Item2.Item2);
+        public static (T1, T2, T3, T4) Flat<T1, T2, T3, T4>((((T1, T2), T3), T4) x)
+            => (x.Item1.Item1.Item1, x.Item1.Item1.Item2, x.Item1.Item2, x.Item2);
+
+        /// <summary>
+        /// Flattens the nested tuple `((((a,b),c),d),e)` to `(a,b,c,d,e)`.
+        /// </summary>
+        public static (T1, T2, T3, T4, T5) Flat<T1, T2, T3, T4, T5>(((((T1, T2), T3), T4), T5) x)
+            => (x.Item1.Item1.Item1.Item1, x.Item1.Item1.Item1.Item2, x.Item1.Item1.Item2, x.Item1.Item2, x.Item2);
 
         /// <summary>
         /// The parser `PositionP` returns the current position in the input stream.

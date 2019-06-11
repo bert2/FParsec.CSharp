@@ -308,7 +308,7 @@ namespace FParsec.CSharp {
             params string[] strings)
             => choiceL(strings.Select(s => StringP(s)), label);
 
-        /// <summary>`ChoiceLU(label, strings)` behaves like `Choice(label, strings)`, but supports user state.</summary>
+        /// <summary>`ChoiceLU(label, strings)` behaves like `ChoiceL(label, strings)`, but supports user state.</summary>
         public static FSharpFunc<CharStream<U>, Reply<string>> ChoiceLU<U>(
             string label,
             params string[] strings)

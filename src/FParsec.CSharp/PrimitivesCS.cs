@@ -92,7 +92,8 @@ namespace FParsec.CSharp {
         public static FSharpFunc<CharStream<U>, Reply<TResult>> And<U, TResult>(
            this FSharpFunc<CharStream<U>, Reply<Unit>> p,
            Func<FSharpFunc<CharStream<U>, Reply<TResult>>> f)
-           => op_GreaterGreaterEquals(p, FSharpFunc.From<Unit, FSharpFunc<CharStream<U>, Reply<TResult>>>(_ => f()));
+           => op_GreaterGreaterEquals(p, FSharpFunc.From<Unit, FSharpFunc<CharStream<U>, Reply<TResult>>>(_
+               => f()));
 
         /// <summary>
         /// The parser `p.And(f)` first applies the parser `p` to the input, then applies the
@@ -102,7 +103,8 @@ namespace FParsec.CSharp {
         public static FSharpFunc<CharStream<U>, Reply<TResult>> And<U, T1, T2, TResult>(
            this FSharpFunc<CharStream<U>, Reply<(T1, T2)>> p,
            Func<T1, T2, FSharpFunc<CharStream<U>, Reply<TResult>>> f)
-           => op_GreaterGreaterEquals(p, FSharpFunc.From<(T1, T2), FSharpFunc<CharStream<U>, Reply<TResult>>>(x => f(x.Item1, x.Item2)));
+           => op_GreaterGreaterEquals(p, FSharpFunc.From<(T1, T2), FSharpFunc<CharStream<U>, Reply<TResult>>>(x
+               => f(x.Item1, x.Item2)));
 
         /// <summary>
         /// The parser `p.And(f)` first applies the parser `p` to the input, then applies the
@@ -112,7 +114,30 @@ namespace FParsec.CSharp {
         public static FSharpFunc<CharStream<U>, Reply<TResult>> And<U, T1, T2, T3, TResult>(
            this FSharpFunc<CharStream<U>, Reply<(T1, T2, T3)>> p,
            Func<T1, T2, T3, FSharpFunc<CharStream<U>, Reply<TResult>>> f)
-           => op_GreaterGreaterEquals(p, FSharpFunc.From<(T1, T2, T3), FSharpFunc<CharStream<U>, Reply<TResult>>>(x => f(x.Item1, x.Item2, x.Item3)));
+           => op_GreaterGreaterEquals(p, FSharpFunc.From<(T1, T2, T3), FSharpFunc<CharStream<U>, Reply<TResult>>>(x
+               => f(x.Item1, x.Item2, x.Item3)));
+
+        /// <summary>
+        /// The parser `p.And(f)` first applies the parser `p` to the input, then applies the
+        /// function `f` to all values of the 4-tuple returned by `p` and finally applies the
+        /// parser returned by `f` to the input.
+        /// </summary>
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> And<U, T1, T2, T3, T4, TResult>(
+           this FSharpFunc<CharStream<U>, Reply<(T1, T2, T3, T4)>> p,
+           Func<T1, T2, T3, T4, FSharpFunc<CharStream<U>, Reply<TResult>>> f)
+           => op_GreaterGreaterEquals(p, FSharpFunc.From<(T1, T2, T3, T4), FSharpFunc<CharStream<U>, Reply<TResult>>>(x
+               => f(x.Item1, x.Item2, x.Item3, x.Item4)));
+
+        /// <summary>
+        /// The parser `p.And(f)` first applies the parser `p` to the input, then applies the
+        /// function `f` to all values of the 5-tuple returned by `p` and finally applies the
+        /// parser returned by `f` to the input.
+        /// </summary>
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> And<U, T1, T2, T3, T4, T5, TResult>(
+           this FSharpFunc<CharStream<U>, Reply<(T1, T2, T3, T4, T5)>> p,
+           Func<T1, T2, T3, T4, T5, FSharpFunc<CharStream<U>, Reply<TResult>>> f)
+           => op_GreaterGreaterEquals(p, FSharpFunc.From<(T1, T2, T3, T4, T5), FSharpFunc<CharStream<U>, Reply<TResult>>>(x
+               => f(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5)));
 
         /// <summary>
         /// The parser `Between(pOpen, p, pClose)` applies the parsers `pOpen`, `p` and `pClose` in
@@ -964,6 +989,25 @@ namespace FParsec.CSharp {
             this FSharpFunc<CharStream<U>, Reply<(T1, T2, T3)>> p,
             Func<T1, T2, T3, TResult> map)
             => op_BarGreaterGreater(p, FSharpFunc.From<(T1, T2, T3), TResult>(x => map(x.Item1, x.Item2, x.Item3)));
+
+        /// <summary>
+        /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(w, x, y, z)`,
+        /// where `w`, `x`, `y` and `z` are items of the tuple result `(w,x,y,z)` returned by `p`.
+        /// </summary>
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> Map<U, T1, T2, T3, T4, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<(T1, T2, T3, T4)>> p,
+            Func<T1, T2, T3, T4, TResult> map)
+            => op_BarGreaterGreater(p, FSharpFunc.From<(T1, T2, T3, T4), TResult>(x => map(x.Item1, x.Item2, x.Item3, x.Item4)));
+
+        /// <summary>
+        /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(v, w, x, y, z)`,
+        /// where `v`, `w`, `x`, `y` and `z` are items of the tuple result `(v,w,x,y,z)` returned
+        /// by `p`.
+        /// </summary>
+        public static FSharpFunc<CharStream<U>, Reply<TResult>> Map<U, T1, T2, T3, T4, T5, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<(T1, T2, T3, T4, T5)>> p,
+            Func<T1, T2, T3, T4, T5, TResult> map)
+            => op_BarGreaterGreater(p, FSharpFunc.From<(T1, T2, T3, T4, T5), TResult>(x => map(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5)));
 
         /// <summary>
         /// The parser `NotEmpty(p)` behaves like `p`, except that it fails when `p` succeeds

@@ -799,8 +799,9 @@ namespace FParsec.CSharp {
         /// <summary>
         /// <para>
         /// The parser `FollowedBy(p)` succeeds if the parser `p` succeeds at the current position.
-        /// Otherwise it fails with a non-fatal error. This parser never changes the parser state.
+        /// Otherwise it fails with a non-fatal error.
         /// </para>
+        /// <para>This parser never changes the parser state.</para>
         /// <para>
         /// If the parser `FollowedBy(p)` fails, it returns no descriptive error message. Hence it
         /// should only be used together with other parsers that take care of a potential error.
@@ -824,9 +825,9 @@ namespace FParsec.CSharp {
         /// <summary>
         /// <para>
         /// The parser `NotFollowedBy(p)` succeeds if the parser `p` fails to parse at the current
-        /// position. Otherwise it fails with a non-fatal error. This parser never changes the
-        /// parser state.
+        /// position. Otherwise it fails with a non-fatal error.
         /// </para>
+        /// <para>This parser never changes the parser state.</para>
         /// <para>
         /// If the parser `NotFollowedBy(p)` fails, it returns no descriptive error message. Hence
         /// it should only be used together with other parsers that take care of a potential error.

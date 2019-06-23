@@ -24,6 +24,7 @@ FParsec.CSharp is a C# wrapper for the F# package [FParsec](https://github.com/s
   * [Glob patterns](#glob-patterns)
   * [Arithmetic expressions](#arithmetic-expressions)
   * [Simple regular expressions](#simple-regular-expressions)
+  * [Simple script language](#simple-script-language)
 - [Hints](#hints)
   * [Debugging](#debugging)
   * [Aliasing awkward types](#aliasing-awkward-types)
@@ -478,6 +479,86 @@ var simpleRegexParser =
     .ShouldBe(true);
 ```
 
+### Simple script language
+
+This example implements a simple functional script language. It only knows one type (`int`) and is super inefficient, but it has lots of functional fu (e.g. lazy evaluation, partial application, higher order functions, and function composition).
+
+```C#
+var number = Natural.Lbl("number");
+
+static StringParser notReserved(string id) => id == "let" || id == "in" || id == "match" ? Zero<string>() : Return(id);
+var identifier1 = Choice(Letter, CharP('_'));
+var identifierRest = Choice(Letter, CharP('_'), Digit);
+var identifier = Purify(Many1Chars(identifier1, identifierRest)).AndTry(notReserved).Lbl("identifier");
+
+var parameters = Many(identifier, sep: WS1, canEndWithSep: true).Lbl("parameter list");
+
+ScriptParser expression = null;
+
+var letBinding =
+    Skip("let").AndR(WS1)
+    .And(identifier).And(WS)
+    .And(parameters)
+    .And(Skip('=')).And(WS)
+    .And(Rec(() => expression).Lbl("'let' definition expression"))
+    .And(Skip("in")).And(WS1)
+    .And(Rec(() => expression).Lbl("'let' body expression"))
+    .Map(Flat)
+    .Lbl("'let' binding");
+
+var defaultCase = Skip('_').AndRTry(NotFollowedBy(identifierRest)).AndR(WS).Return(ScriptB.AlwaysMatches);
+var caseValueExpr = Rec(() => expression).Map(ScriptB.Matches);
+var caseExpr =
+    Skip('|').AndR(WS)
+    .And(defaultCase.Or(caseValueExpr).Lbl("case value expression"))
+    .And(Skip("=>")).And(WS)
+    .And(Rec(() => expression).Lbl("case result expression"))
+    .Lbl("match case");
+var matchExpr =
+    Skip("match").AndR(WS1)
+    .And(Rec(() => expression).Lbl("match value expression"))
+    .And(Many1(caseExpr))
+    .Lbl("'match' expression");
+
+expression = new OPPBuilder<Unit, Script, Unit>()
+    .WithOperators(ops => ops
+        .AddInfix("+", 10, WS, ScriptB.Lift2((x, y) => x + y))
+        .AddInfix("-", 10, WS, ScriptB.Lift2((x, y) => x - y))
+        .AddInfix("*", 20, WS, ScriptB.Lift2((x, y) => x * y))
+        .AddInfix("/", 20, WS, ScriptB.Lift2((x, y) => x / y))
+        .AddInfix("%", 20, WS, ScriptB.Lift2((x, y) => x % y))
+        .AddPrefix("-", 20, ScriptB.Lift(x => -x))
+        .AddInfix(".", 30, Associativity.Right, WS, ScriptB.Compose))
+    .WithImplicitOperator(50, ScriptB.Apply)
+    .WithTerms(term =>
+        Choice(
+            letBinding.Map(ScriptB.BindVar),
+            matchExpr.Map(ScriptB.Match),
+            Between(CharP('(').And(WS), term, CharP(')').And(WS)),
+            number.And(WS).Map(ScriptB.Return),
+            identifier.And(WS).Map(ScriptB.Resolve))
+        .Lbl("expression"))
+    .Build()
+    .ExpressionParser;
+
+var scriptParser = WS.And(expression).And(EOF);
+```
+
+This parser builds a function that can be invoked (with an empty arguments list and an empty "runtime environment") to execute the script:
+
+```C#
+[Fact] public void FibonacciNumber() => scriptParser
+    .Run(@"
+        let fib n = match n
+            | 0 => 0
+            | 1 => 1
+            | _ => fib (n-1) + fib (n-2)
+        in fib 7")
+    .GetResult()
+    .Invoke(FSharpList<Script>.Empty, new Dictionary<string, Script>())
+    .ShouldBe(13);
+```
+
 ## Hints
 
 ### Debugging
@@ -745,16 +826,13 @@ Keep in mind that many predefined parsers and some of the combinators have a var
 
 This library is based on the following works:
 
-* Obviously [FParsec](https://github.com/stephan-tolksdorf/fparsec), because FParsec.CSharp only _wraps_ FParsec and barely implements any logic on its own. FParsec is also where I nicked most of the XML documentation from.
+* Obviously [FParsec](https://github.com/stephan-tolksdorf/fparsec), because FParsec.CSharp only _wraps_ FParsec and barely implements any logic on its own. FParsec is also where I stole most of the XML documentation from.
 * [Pidgin](https://github.com/benjamin-hodgson/Pidgin) gave me the whole idea of thinking about a parser combinator API in C#. However, I'm not smart enough to build my own implementation and just wrapped FParsec instead.
 * The OPP's implicit operator implementation was stolen from [StackOverflow](https://stackoverflow.com/questions/29322892).
-* The NFA implementation was inspired by [Russ Cox' fantastic article on efficient regex matching](https://swtch.com/~rsc/regexp/regexp1.html).
+* The idea for the parser `Purify()` was also stolen from [StackOverflow](https://stackoverflow.com/a/56364809/1025555).
+* The NFA implementation for the glob/regex parser example was inspired by [Russ Cox' fantastic article on efficient regex matching](https://swtch.com/~rsc/regexp/regexp1.html).
 
 ## TODO
 
-* Implement small script language example
-* Add parser position to `Debug()` combinator
-* Support C# 8.0 nullable?
-* Remove `Parse...()` functions?
 * Wrap `numberLiteral` and `identifier` parsers?
 * Add [source link](https://github.com/dotnet/sourcelink) support?

@@ -15,9 +15,9 @@ namespace Tests {
     using StringParser = FSharpFunc<CharStream<Unit>, Reply<string>>;
     using ScriptParser = FSharpFunc<CharStream<Unit>, Reply<Script>>;
 
-    // This example implements a simple functional script language. It only knows one type (int)
-    // and is super inefficient, but it has lots of functional fu (e.g. lazy evaluation, partial 
-    // application, and higher order functions).
+    // This example implements a simple functional script language. It only knows one type (`int`)
+    // and is super inefficient, but it has lots of functional fu (e.g. lazy evaluation, partial
+    // application, higher order functions, and function composition).
     public delegate int Script(FSharpList<Script> args, RTE rte);
 
     public class SimpleScriptParser {

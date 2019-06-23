@@ -1036,8 +1036,8 @@ namespace FParsec.CSharp {
         /// </summary>
         public static FSharpFunc<CharStream<U>, Reply<T>> Debug<U, T>(
             this FSharpFunc<CharStream<U>, Reply<T>> p,
-            Action<CharStream<U>> before,
-            Action<CharStream<U>, Reply<T>> after)
+            Action<CharStream<U>> before = null,
+            Action<CharStream<U>, Reply<T>> after = null)
             => FSharpFunc.From((CharStream<U> cs) => {
                 before?.Invoke(cs);
                 var r = p.Invoke(cs);

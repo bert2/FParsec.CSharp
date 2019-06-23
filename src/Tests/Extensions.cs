@@ -83,6 +83,6 @@ namespace Tests {
         private static readonly MethodInfo getDebuggerDisplayMethod = typeof(ErrorMessage)
             .GetMethod("GetDebuggerDisplay", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        internal static T Debug<T>(this T x, Func<T, T> f) => f(x);
+        internal static T Debug<T>(this T x, Action<T> f) { f(x); return x; }
     }
 }

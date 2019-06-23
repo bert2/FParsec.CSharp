@@ -111,80 +111,67 @@ namespace Tests {
 
         #region Combinators (sequence)
 
-        [Fact]
-        public void TwoChars() =>
+        [Fact] public void TwoChars() =>
             CharP('a').And(CharP('b'))
             .ParseString("ab")
             .ShouldBe(('a', 'b'));
 
-        [Fact]
-        public void ThreeChars() =>
+        [Fact] public void ThreeChars() =>
             CharP('a').And(CharP('b')).And(CharP('c'))
             .ParseString("abc")
             .ShouldBe((('a', 'b'), 'c'));
 
-        [Fact]
-        public void AnyCharFollowedByTheSameChar() =>
+        [Fact] public void AnyCharFollowedByTheSameChar() =>
             AnyChar.And(CharP)
             .ParseString("xx")
             .ShouldBe('x');
 
-        [Fact]
-        public void IgnoreLeftChar() =>
+        [Fact] public void IgnoreLeftChar() =>
             CharP('a').AndR(CharP('b'))
             .ParseString("ab")
             .ShouldBe('b');
 
-        [Fact]
-        public void IgnoreRightChar() =>
+        [Fact] public void IgnoreRightChar() =>
             CharP('a').AndL(CharP('b'))
             .ParseString("ab")
             .ShouldBe('a');
 
-        [Fact]
-        public void IgnoreLeftCharImplicitly() =>
+        [Fact] public void IgnoreLeftCharImplicitly() =>
             Skip('a').And(CharP('b'))
             .ParseString("ab")
             .ShouldBe('b');
 
-        [Fact]
-        public void IgnoreRightCharImplicitly() =>
+        [Fact] public void IgnoreRightCharImplicitly() =>
             CharP('a').And(Skip('b'))
             .ParseString("ab")
             .ShouldBe('a');
 
-        [Fact]
-        public void BetweenChars() =>
+        [Fact] public void BetweenChars() =>
             Between('(', Int, ')')
             .ParseString("(1)")
             .ShouldBe(1);
 
-        [Fact]
-        public void BetweenStrings() =>
+        [Fact] public void BetweenStrings() =>
             Between("[begin]", Int, "[end]")
             .ParseString("[begin]1[end]")
             .ShouldBe(1);
 
-        [Fact]
-        public void BetweenParsers() =>
+        [Fact] public void BetweenParsers() =>
             Between(CharP('(').And(WS), Int.And(WS), CharP(')'))
             .ParseString("( 1 )")
             .ShouldBe(1);
 
-        [Fact]
-        public void ParserSequenceToArray() =>
+        [Fact] public void ParserSequenceToArray() =>
             Array(4, Digit)
             .ParseString("1234")
             .ShouldBe(new[] { '1', '2', '3', '4' });
 
-        [Fact]
-        public void ParserSequenceToTuple() =>
+        [Fact] public void ParserSequenceToTuple() =>
             Tuple(Int.And(WS), Float.And(WS), Many1Chars(Digit))
             .ParseString("12 34.5 28")
             .ShouldBe((12, 34.5, "28"));
 
-        [Fact]
-        public void ParserSequenceWithMapping() =>
+        [Fact] public void ParserSequenceWithMapping() =>
             Pipe(
                 Int.And(WS),
                 Float.And(WS),
@@ -197,56 +184,47 @@ namespace Tests {
 
         #region Combinators (choice)
 
-        [Fact]
-        public void EitherOneOfTwoChars() =>
+        [Fact] public void EitherOneOfTwoChars() =>
             CharP('a').Or(CharP('b'))
             .ParseString("b")
             .ShouldBe('b');
 
-        [Fact]
-        public void OneOfMultipleStrings() =>
+        [Fact] public void OneOfMultipleStrings() =>
             Choice(StringP("foo"), StringP("bar"), StringP("bazz"))
             .ParseString("bar")
             .ShouldBe("bar");
 
-        [Fact]
-        public void OneOfMultipleStringsShortForm() =>
+        [Fact] public void OneOfMultipleStringsShortForm() =>
             Choice("foo", "bar", "bazz")
             .ParseString("bar")
             .ShouldBe("bar");
 
-        [Fact]
-        public void AlternativeValue() =>
+        [Fact] public void AlternativeValue() =>
             Digit.Or('\0')
             .ParseString("a")
             .ShouldBe('\0');
 
-        [Fact]
-        public void SkipOverOptionalValue() =>
+        [Fact] public void SkipOverOptionalValue() =>
             Optional(CharP(';'))
             .ParseString("")
             .ShouldBe(null);
 
-        [Fact]
-        public void ParseOptionalValue() =>
+        [Fact] public void ParseOptionalValue() =>
             Opt(CharP('a'))
             .ParseString("a")
             .ShouldBe('a');
 
-        [Fact]
-        public void ParseMissingOptional() =>
+        [Fact] public void ParseMissingOptional() =>
             Opt(CharP('a'))
             .ParseString("")
             .ShouldBe('\0');
 
-        [Fact]
-        public void ParseMissingOptionalWithDefault() =>
+        [Fact] public void ParseMissingOptionalWithDefault() =>
             Opt(CharP('a'), defaultValue: 'x')
             .ParseString("")
             .ShouldBe('x');
 
-        [Fact]
-        public void ParseOptionalValueWithoutUnwrapping() =>
+        [Fact] public void ParseOptionalValueWithoutUnwrapping() =>
             Opt_(CharP(';'))
             .ParseString("")
             .ShouldBe(FSharpOption<char>.None);
@@ -255,74 +233,62 @@ namespace Tests {
 
         #region Repetitions
 
-        [Fact]
-        public void ZeroOrMoreOfChar() =>
+        [Fact] public void ZeroOrMoreOfChar() =>
             Many(CharP('a'))
             .ParseString("aaa")
             .ShouldBe('a', 'a', 'a');
 
-        [Fact]
-        public void OneOrMoreOfChar() =>
+        [Fact] public void OneOrMoreOfChar() =>
             Many1(CharP('a'))
             .ParseString("aaa")
             .ShouldBe('a', 'a', 'a');
 
-        [Fact]
-        public void CommaSeparatedChars() =>
+        [Fact] public void CommaSeparatedChars() =>
             Many(AnyChar, sep: ',')
             .ParseString("a,b,c")
             .ShouldBe('a', 'b', 'c');
 
-        [Fact]
-        public void StringSeparatedChars() =>
+        [Fact] public void StringSeparatedChars() =>
             Many(AnyChar, sep: " - ")
             .ParseString("a - b - c")
             .ShouldBe('a', 'b', 'c');
 
-        [Fact]
-        public void ParserSeparatedChars() =>
+        [Fact] public void ParserSeparatedChars() =>
             Many(AnyChar, sep: CharP(char.IsDigit))
             .ParseString("a1b2c")
             .ShouldBe('a', 'b', 'c');
 
-        [Fact]
-        public void CommaSeparatedCharsAtLeastOne() =>
+        [Fact] public void CommaSeparatedCharsAtLeastOne() =>
             Many1(AnyChar, sep: ',')
             .ParseString("a,b,c")
             .ShouldBe('a', 'b', 'c');
 
-        [Fact]
-        public void CommaSeparatedWithTrailingComma() =>
+        [Fact] public void CommaSeparatedWithTrailingComma() =>
             Many(AnyChar, sep: ',', canEndWithSep: true)
             .ParseString("a,b,c,")
             .ShouldBe('a', 'b', 'c');
 
-        [Fact]
-        public void ParseUntilEndingIsParsed() =>
+        [Fact] public void ParseUntilEndingIsParsed() =>
             ManyTill(NoneOf(".!?"), AnyOf(".!?")).Map(string.Concat)
             .ParseString("Hello world!")
             .ShouldBe("Hello world");
 
-        [Fact]
-        public void SkipManyCommaSeparated() =>
+        [Fact] public void SkipManyCommaSeparated() =>
             SkipMany(Letter, sep: ',')
             .ParseString("a,b,c")
             .ShouldBe(null);
 
-        [Fact]
-        public void ReduceMany() =>
+        [Fact] public void ReduceMany() =>
             Many(Digit.Map(c => c - '0'), (sum, x) => sum + x, 0)
             .ParseString("01232456789")
             .ShouldBe(47);
 
-        [Fact]
-        public void ReduceManyAtLeastOne() =>
+        [Fact] public void ReduceManyAtLeastOne() =>
             Many1(AnyString(3).And(WS), string.Concat)
             .ParseString("abc def ghi")
             .ShouldBe("abcdefghi");
 
-        [Fact]
-        public void ComputeExpressionDuringParsing() {
+        [Fact] public void ComputeExpressionDuringParsing() {
             var op = Choice(
                 CharP('+').Return((int x, int y) => x + y),
                 CharP('-').Return((int x, int y) => x - y));
@@ -336,32 +302,27 @@ namespace Tests {
 
         #region Combinators (special)
 
-        [Fact]
-        public void ApplyFuncToResult() =>
+        [Fact] public void ApplyFuncToResult() =>
             Int.Map(i => i + 1)
             .ParseString("1")
             .ShouldBe(2);
 
-        [Fact]
-        public void ApplyParameterlessFuncToUnitResult() =>
+        [Fact] public void ApplyParameterlessFuncToUnitResult() =>
             Skip('V').Map(() => 5)
             .ParseString("V")
             .ShouldBe(5);
 
-        [Fact]
-        public void AlwaysReturnValue() =>
+        [Fact] public void AlwaysReturnValue() =>
             Return(13)
             .ParseString("whatever")
             .ShouldBe(13);
 
-        [Fact]
-        public void ParseAndReturnValue() =>
+        [Fact] public void ParseAndReturnValue() =>
             Int.Return(int.MaxValue)
             .ParseString("0")
             .ShouldBe(int.MaxValue);
 
-        [Fact]
-        public void RecursiveGrammer() {
+        [Fact] public void RecursiveGrammer() {
             FSharpFunc<Chars, Reply<char>> expr = null;
             var parenthesized = Between('(', Rec(() => expr), ')');
             expr = CharP(char.IsDigit).Or(parenthesized);
@@ -371,20 +332,17 @@ namespace Tests {
             r.ShouldBe('0');
         }
 
-        [Fact]
-        public void FlattenNestedParserReplies() =>
+        [Fact] public void FlattenNestedParserReplies() =>
             StringP("foo").And(CharP('=')).And(Int).Map(Flat)
             .ParseString("foo=1")
             .ShouldBe(("foo", '=', 1));
 
-        [Fact]
-        public void ParserMustChangeState() =>
+        [Fact] public void ParserMustChangeState() =>
             NotEmpty(Many(AnyChar))
             .ParseString("")
             .ShouldBe<ErrorMessage.Expected>("any char");
 
-        [Fact]
-        public void CurrentParserPosition() =>
+        [Fact] public void CurrentParserPosition() =>
             Digit.And(Lower).AndR(PositionP)
             .ParseString("1aBC")
             .ShouldBe(new Position(streamName: null, index: 2, line: 1, column: 3));
@@ -393,22 +351,19 @@ namespace Tests {
 
         #region Combinators (backtracking, looking ahead & conditional parsing)
 
-        [Fact]
-        public void BacktrackFailure() =>
+        [Fact] public void BacktrackFailure() =>
             Try(Digit.And(Letter)).Or(Digit.And(Digit))
             .ParseString("12")
             .ShouldBe(('1', '2'));
 
-        [Fact]
-        public void LocalBacktracking() =>
+        [Fact] public void LocalBacktracking() =>
             Choice(
                 CharP('a').AndTry(Between('[', CharP('b'), ']')),
                 CharP('a').And(CharP('c')))
             .ParseString("a[x]")
             .ShouldBe<ErrorMessage.ExpectedString>("b");
 
-        [Fact]
-        public void LookAheadAndBacktrack() {
+        [Fact] public void LookAheadAndBacktrack() {
             var keepLowerSkipUpper = LookAhead(Letter).And(c => char.IsLower(c)
                 ? ManyChars(Lower)
                 : ManyChars(Upper).Return(""));
@@ -418,8 +373,7 @@ namespace Tests {
             .ShouldBe("you", "", "are", "", "not", "even", "", "close", "to", "", "baseline");
         }
 
-        [Fact]
-        public void LookAheadAndBacktrackWithoutResult() =>
+        [Fact] public void LookAheadAndBacktrackWithoutResult() =>
             FollowedBy(Upper, "start of sentence")
                 .And(Many(NoneOf(".!?")))
                 .And(FollowedBy(AnyOf(".!?"), "end of sentence"))
@@ -427,14 +381,12 @@ namespace Tests {
             .ParseString("Is this a sentence?")
             .ShouldBe("Is this a sentence");
 
-        [Fact]
-        public void NegativelyLookAheadAndBacktrackWithoutResult() =>
+        [Fact] public void NegativelyLookAheadAndBacktrackWithoutResult() =>
             Many1(Digit).And(NotFollowedBy(CharP('.'), "floating point"))
             .ParseString("123")
             .ShouldBe('1', '2', '3');
 
-        [Fact]
-        public void PeekNextChar() {
+        [Fact] public void PeekNextChar() {
             FSharpFunc<Chars, Reply<char>> NextIsSmallerOrEOF(char c) =>
                 NextCharSatisfies(n => n < c).Lbl($"char smaller than '{c}'")
                 .Or(EOF)
@@ -445,8 +397,7 @@ namespace Tests {
             .ShouldBe('c', 'b', 'a');
         }
 
-        [Fact]
-        public void PeekNextTwoChars() {
+        [Fact] public void PeekNextTwoChars() {
             FSharpFunc<Chars, Reply<char>> IsSumOfNext2(char c) =>
                 Next2CharsSatisfy((a, b) => a + b == c).Lbl("reverse Fibonacci chars")
                 .Or(FollowedBy(AnyChar.And(EOF)))
@@ -458,8 +409,7 @@ namespace Tests {
             .ShouldBe('\x8', '\x5', '\x3', '\x2', '\x1', '\x1', '\x0');
         }
 
-        [Fact]
-        public void LookBehind() {
+        [Fact] public void LookBehind() {
             var tagType = Choice(
                 PreviousCharSatisfies(c => c == '/').Return("self-closing tag"),
                 Return("opening tag"));
@@ -505,14 +455,12 @@ namespace Tests {
 
         #region Labels
 
-        [Fact]
-        public void LabelAsErrorMsg() =>
+        [Fact] public void LabelAsErrorMsg() =>
             CharP('a').Label("the first letter of the alphabet")
             .ParseString("x")
             .ShouldBe<ErrorMessage.Expected>("the first letter of the alphabet");
 
-        [Fact]
-        public void LabelEvenWhenParserAlreadyConsumed() =>
+        [Fact] public void LabelEvenWhenParserAlreadyConsumed() =>
             CharP('a').And(CharP('b')).Label_("the first two letters of the alphabet")
             .ParseString("ax")
             .ShouldBe<ErrorMessage.CompoundError>("the first two letters of the alphabet");
@@ -521,38 +469,32 @@ namespace Tests {
 
         #region Running parsers
 
-        [Fact]
-        public void RunAndUnwrapResult() =>
+        [Fact] public void RunAndUnwrapResult() =>
             Digit.Run("1")
             .UnwrapResult()
             .ShouldBe(('1', null));
 
-        [Fact]
-        public void RunAndUnwrapErrorMessage() =>
+        [Fact] public void RunAndUnwrapErrorMessage() =>
             Digit.Run("a")
             .UnwrapResult()
             .message.ShouldNotBeNull();
 
-        [Fact]
-        public void RunAndGetResult() =>
+        [Fact] public void RunAndGetResult() =>
             Digit.Run("1")
             .GetResult()
             .ShouldBe('1');
 
-        [Fact]
-        public void RunAndGetException() => new Action(() =>
+        [Fact] public void RunAndGetException() => new Action(() =>
             Digit.Run("a")
             .GetResult())
             .ShouldThrow<InvalidOperationException>();
 
-        [Fact]
-        public void RunAndGetFallbackValue() =>
+        [Fact] public void RunAndGetFallbackValue() =>
             Digit.Run("a")
             .GetResult(_ => default)
             .ShouldBe('\0');
 
-        [Fact]
-        public void RunAndDeconstructSuccess() {
+        [Fact] public void RunAndDeconstructSuccess() {
             switch (Digit.Run("1")) {
                 case ParserResult<char, Unit>.Success('1', _, (index: 1, line:  1, column: 2, streamName: "")):
                     break;
@@ -561,8 +503,7 @@ namespace Tests {
             }
         }
 
-        [Fact]
-        public void RunAndDeconstructFailureMessage() {
+        [Fact] public void RunAndDeconstructFailureMessage() {
             switch (Digit.Run("a")) {
                 case ParserResult<char, Unit>.Failure(var msg, _, _):
                     msg.ShouldContain("Expecting: decimal digit");
@@ -572,8 +513,7 @@ namespace Tests {
             }
         }
 
-        [Fact]
-        public void RunAndDeconstructParserError() {
+        [Fact] public void RunAndDeconstructParserError() {
             switch (Digit.Run("a")) {
                 case ParserResult<char, Unit>.Failure(_, ((ErrorMessage.Expected("decimal digit"), tail: null), _), _):
                     break;
@@ -582,8 +522,7 @@ namespace Tests {
             }
         }
 
-        [Fact]
-        public void ParseAndDeconstructSuccess() {
+        [Fact] public void ParseAndDeconstructSuccess() {
             switch (Digit.ParseString("1")) {
                 case (ReplyStatus.Ok, '1', _):
                     break;
@@ -592,8 +531,7 @@ namespace Tests {
             }
         }
 
-        [Fact]
-        public void ParseAndDeconstructFailure() {
+        [Fact] public void ParseAndDeconstructFailure() {
             switch (Digit.ParseString("a")) {
                 case (ReplyStatus.Error, _, (ErrorMessage.Expected("decimal digit"), tail: null)):
                     break;

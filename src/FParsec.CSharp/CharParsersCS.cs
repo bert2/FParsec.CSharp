@@ -1181,7 +1181,7 @@ namespace FParsec.CSharp {
 
         /// <summary>`NaturalU()` behaves like `Natural`, but supports user state.</summary>
         public static FSharpFunc<CharStream<U>, Reply<int>> NaturalU<U>() => FSharpFunc.From<CharStream<U>, Reply<int>>(chars =>
-            many1Chars(digit<U>()).Invoke(chars) switch {
+            many1Satisfy<U>(FSharpFunc.From<char, bool>(isDigit)).Invoke(chars) switch {
                 (Ok, var r, _) => int.TryParse(r, out var n)
                     ? new Reply<int>(n)
                     : new Reply<int>(Primitives.Error, messageError("Number must be below 2147483648")),

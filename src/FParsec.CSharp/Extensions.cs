@@ -414,6 +414,7 @@ namespace FParsec.CSharp {
             T defaultValue = default)
             => FSharpOption<T>.get_IsSome(opt) ? opt.Value : defaultValue;
 
+        /// <summary>Prepends an item to the `FSharpList`.</summary>
         public static FSharpList<T> Prepend<T>(this FSharpList<T> xs, T x) => FSharpList<T>.Cons(x, xs);
     }
 }

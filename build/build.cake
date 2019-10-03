@@ -58,7 +58,9 @@ Release notes: {relNotes}" };
         DotNetCorePack(libDir, new DotNetCorePackSettings {
             Configuration = config,
             OutputDirectory = pkgDir,
-            NoBuild = true,
+            // NoBuild = true,         // This causes "error NETSDK1085: The 'NoBuild'
+                                       // property was set to true but the 'Build' target
+                                       // was invoked." since dotnet core 3.0.
             NoDependencies = false,
             MSBuildSettings = msbuildSettings
         });

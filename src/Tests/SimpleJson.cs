@@ -10,26 +10,26 @@ namespace Tests {
     public class SimpleJson {
         #region Parser definition
 
-        private static readonly FSharpFunc<CharStream<Unit>, Reply<JObject>> SimpleJsonParser;
+        private static readonly FSharpFunc<CharStream<Unit>, Reply<JObject?>> SimpleJsonParser;
 
         static SimpleJson() {
-            FSharpFunc<CharStream<Unit>, Reply<JToken>> jvalue = null;
+            FSharpFunc<CharStream<Unit>, Reply<JToken?>>? jvalue = null;
 
-            var jnull = StringCI("null", (JToken)null).Lbl("null");
+            var jnull = StringCI("null", (JToken?)null).Lbl("null");
 
-            var jnum = Float.Map(i => (JToken)i).Lbl("number");
+            var jnum = Float.Map(i => (JToken?)i).Lbl("number");
 
             var jbool = StringCI("true").Or(StringCI("false"))
-                .Map(b => (JToken)bool.Parse(b))
+                .Map(b => (JToken?)bool.Parse(b))
                 .Lbl("bool");
 
             var quotedString = Between('"', ManyChars(NoneOf("\"")), '"');
 
-            var jstring = quotedString.Map(s => (JToken)s).Lbl("string");
+            var jstring = quotedString.Map(s => (JToken?)s).Lbl("string");
 
             var arrItems = Many(Rec(() => jvalue), sep: CharP(',').And(WS));
             var jarray = Between(CharP('[').And(WS), arrItems, CharP(']'))
-                .Map(elems => (JToken)new JArray(elems))
+                .Map(elems => (JToken?)new JArray(elems))
                 .Lbl("array");
 
             var jidentifier = quotedString.Lbl("identifier");
@@ -37,12 +37,12 @@ namespace Tests {
                 .Map((name, value) => new JProperty(name, value));
             var objProps = Many(jprop, sep: CharP(',').And(WS));
             var jobject = Between(CharP('{').And(WS), objProps, CharP('}'))
-                .Map(props => (JToken)new JObject(props))
+                .Map(props => (JToken?)new JObject(props))
                 .Lbl("object");
 
             jvalue = Choice(jnum, jbool, jnull, jstring, jarray, jobject).And(WS);
 
-            SimpleJsonParser = WS.And(jobject).And(WS).And(EOF).Map(o => (JObject)o);
+            SimpleJsonParser = WS.And(jobject).And(WS).And(EOF).Map(o => (JObject?)o);
         }
 
         #endregion Parser definition

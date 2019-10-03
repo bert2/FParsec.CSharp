@@ -16,7 +16,7 @@ namespace FParsec.CSharp {
 
         private (int prec, Func<TTerm, TTerm, TTerm> map) implicitOp;
 
-        private FSharpFunc<CharStream<TUserState>, Reply<TTerm>> termParser;
+        private FSharpFunc<CharStream<TUserState>, Reply<TTerm>>? termParser;
 
         /// <summary>Adds and implicit operator to the OPP.</summary>
         public OPPBuilder<TUserState, TTerm, TAfterString> WithImplicitOperator(int precedence, Func<TTerm, TTerm, TTerm> map) {

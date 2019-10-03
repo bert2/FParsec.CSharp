@@ -30,7 +30,7 @@ namespace Tests {
                 .Map((attrName, attrVal) => new XAttribute(attrName, attrVal));
             var attributes = Many(attribute);
 
-            XElParser element = null;
+            XElParser? element = null;
 
             var elementStart = Skip('<').AndTry(name.Lbl("tag name")).And(attributes);
 
@@ -51,8 +51,8 @@ namespace Tests {
 
             XElParser elementEnd(string elName, FSharpList<XAttribute> elAttrs) =>
                 Choice(
-                    Skip("/>").Return((object)null),
-                    Skip(">").And(elementContent).And(WS).AndL(closingTag(elName)))
+                    Skip("/>").Return((object?)null),
+                    Skip(">").And(elementContent).And(WS).AndL(closingTag(elName)).Map(x => (object?)x))
                 .Map(elContent => new XElement(elName, elContent, elAttrs));
 
             element = elementStart.And(elementEnd);

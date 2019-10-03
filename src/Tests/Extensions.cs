@@ -58,9 +58,9 @@ namespace Tests {
             where TError : ErrorMessage
             => reply.ShouldBe<FSharpList<char>, TError>(message);
 
-        internal static void ShouldBe<TError>(this Reply<JObject> reply, string message)
+        internal static void ShouldBe<TError>(this Reply<JObject?> reply, string message)
             where TError : ErrorMessage
-            => reply.ShouldBe<JObject, TError>(message);
+            => reply.ShouldBe<JObject?, TError>(message);
 
         internal static void ShouldBe<TError>(this Reply<XElement> reply, string message)
             where TError : ErrorMessage
@@ -78,9 +78,9 @@ namespace Tests {
 
         internal static string Print(this ErrorMessageList errors) => string.Join(", ", errors
             .AsEnumerable()
-            .Select(e => (string)getDebuggerDisplayMethod.Invoke(e, new object[0])));
+            .Select(e => (string?)getDebuggerDisplayMethod?.Invoke(e, new object[0])));
 
-        private static readonly MethodInfo getDebuggerDisplayMethod = typeof(ErrorMessage)
+        private static readonly MethodInfo? getDebuggerDisplayMethod = typeof(ErrorMessage)
             .GetMethod("GetDebuggerDisplay", BindingFlags.Instance | BindingFlags.NonPublic);
 
         internal static T Debug<T>(this T x, Action<T> f) { f(x); return x; }

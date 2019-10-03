@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <!-- https://docs.microsoft.com/en-us/dotnet/core/tools/csproj#nuget-metadata-properties -->

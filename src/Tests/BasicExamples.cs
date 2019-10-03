@@ -20,7 +20,9 @@ namespace Tests {
 
         [Fact] public void CharThatSatisfiesPredicate() => CharP(char.IsDigit).ParseString("1").ShouldBe('1');
 
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         [Fact] public void ParseAndSkipChar() => Skip('a').ParseString("a").ShouldBe(null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
         [Fact] public void MatchAnyOfList() => AnyOf("0123456789").ParseString("7").ShouldBe('7');
 
@@ -46,9 +48,11 @@ namespace Tests {
 
         [Fact] public void StringIgnoreCase() => StringCI("hello parser").ParseString("Hello PARSER").ShouldBe("Hello PARSER");
 
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         [Fact] public void SkipString() => Skip("abc").ParseString("abc").ShouldBe(null);
 
         [Fact] public void SkipStringIgnoreCase() => SkipCI("hello parser").ParseString("Hello PARSER").ShouldBe(null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
         [Fact] public void StringWithCharParser() => ManyChars(Upper).ParseString("HELLO").ShouldBe("HELLO");
 
@@ -97,6 +101,7 @@ namespace Tests {
 
         #region White space
 
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         [Fact] public void ZeroOrMoreWhitespaces() => Spaces.ParseString("\n \t \r\n \r").ShouldBe(null);
 
         [Fact] public void OneOreMoreWhitespaces() => Spaces1.ParseString("\n \t \r\n \r").ShouldBe(null);
@@ -106,6 +111,7 @@ namespace Tests {
         [Fact] public void TabChar() => Tab.ParseString("\t").ShouldBe('\t');
 
         [Fact] public void EndOfInput() => EOF.ParseString("").ShouldBe(null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
         #endregion White space
 
@@ -207,7 +213,9 @@ namespace Tests {
         [Fact] public void SkipOverOptionalValue() =>
             Optional(CharP(';'))
             .ParseString("")
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             .ShouldBe(null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
         [Fact] public void ParseOptionalValue() =>
             Opt(CharP('a'))
@@ -276,7 +284,9 @@ namespace Tests {
         [Fact] public void SkipManyCommaSeparated() =>
             SkipMany(Letter, sep: ',')
             .ParseString("a,b,c")
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             .ShouldBe(null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
         [Fact] public void ReduceMany() =>
             Many(Digit.Map(c => c - '0'), (sum, x) => sum + x, 0)
@@ -323,7 +333,7 @@ namespace Tests {
             .ShouldBe(int.MaxValue);
 
         [Fact] public void RecursiveGrammer() {
-            FSharpFunc<Chars, Reply<char>> expr = null;
+            FSharpFunc<Chars, Reply<char>>? expr = null;
             var parenthesized = Between('(', Rec(() => expr), ')');
             expr = CharP(char.IsDigit).Or(parenthesized);
 
@@ -562,9 +572,11 @@ namespace Tests {
         }
 
         [Fact] public void CheckNestingLevel() {
-            FSharpFunc<CharStream<int>, Reply<Unit>> expr = null;
+            FSharpFunc<CharStream<int>, Reply<Unit>>? expr = null;
             var parens = Between('(', Rec(() => expr), ')');
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             var empty = ReturnU<int, Unit>(null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
             expr = Choice(
                 parens.AndR(UpdateUserState<int>(depth => depth + 1)),
                 empty);

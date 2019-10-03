@@ -30,7 +30,7 @@ namespace Tests {
         public static ProtoState Branch(ProtoState left, ProtoState right) => exit => new Split(left(exit), right(exit));
 
         public static ProtoState Loop(ProtoState body, bool atLeastOnce = false) => exit => {
-            IState _body = null;
+            IState? _body = null;
             var loop = new Split(() => _body, exit);
             _body = body(loop);
             return atLeastOnce ? _body : loop;
@@ -61,20 +61,26 @@ namespace Tests {
         public State(ILetter letter, IState next) { this.letter = letter; this.next = next; }
         public IEnumerable<IState> Consume(char c) { if (letter.Matches(c)) yield return next; }
         public IEnumerable<IState> Expand(HashSet<IState> visited) { yield return this; }
-        public override string ToString() => letter.ToString();
+        public override string? ToString() => letter.ToString();
     }
 
     public class Split : IState {
-        private readonly Func<IState> leftf;
+        private IState? left;
+        private readonly Func<IState?>? leftf;
         private readonly IState right;
-        private IState left;
         public Split(IState left, IState right) { this.left = left; this.right = right; }
-        public Split(Func<IState> leftf, IState right) { this.leftf = leftf; this.right = right; }
+        public Split(Func<IState?> leftf, IState right) { this.leftf = leftf; this.right = right; }
         public IEnumerable<IState> Consume(char c) { yield break; }
         public IEnumerable<IState> Expand(HashSet<IState> visited) => visited.Add(this) ? ExpandBoth(visited) : Enumerable.Empty<IState>();
         public override string ToString() => "Split";
         private IEnumerable<IState> ExpandBoth(HashSet<IState> visited) => GetLeft().Expand(visited).Concat(right.Expand(visited));
-        private IState GetLeft() => left ?? (left = leftf());
+
+        private IState GetLeft() {
+            if (left != null) return left;
+            left = leftf!.Invoke();
+            if (left == null) throw new InvalidOperationException("Left branch of split was never initialized.");
+            return left;
+        }
     }
 
     public class Final : IState {

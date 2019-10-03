@@ -30,12 +30,12 @@ namespace Tests {
 
             static StringParser notReserved(string id) => id == "let" || id == "in" || id == "match" ? Zero<string>() : Return(id);
             var identifier1 = Choice(Letter, CharP('_'));
-            var identifierRest = Choice(Letter, CharP('_'), Digit);
+            var identifierRest = Choice(Letter, CharP('_'), CharP('\''), Digit);
             var identifier = Purify(Many1Chars(identifier1, identifierRest)).AndTry(notReserved).Lbl("identifier");
 
             var parameters = Many(identifier, sep: WS1, canEndWithSep: true).Lbl("parameter list");
 
-            ScriptParser expression = null;
+            ScriptParser? expression = null;
 
             var letBinding =
                 Skip("let").AndR(WS1)
@@ -47,6 +47,13 @@ namespace Tests {
                 .And(Rec(() => expression).Lbl("'let' body expression"))
                 .Map(Flat)
                 .Lbl("'let' binding");
+
+            var lambda =
+                Skip('\\')
+                .And(parameters)
+                .And(Skip("->")).And(WS)
+                .And(Rec(() => expression).Lbl("lambda body"))
+                .Lbl("lambda");
 
             var defaultCase = Skip('_').AndRTry(NotFollowedBy(identifierRest)).AndR(WS).Return(ScriptB.AlwaysMatches);
             var caseValueExpr = Rec(() => expression).Map(ScriptB.Matches);
@@ -78,7 +85,8 @@ namespace Tests {
                         matchExpr.Map(ScriptB.Match),
                         Between(CharP('(').And(WS), term, CharP(')').And(WS)),
                         number.And(WS).Map(ScriptB.Return),
-                        identifier.And(WS).Map(ScriptB.Resolve))
+                        identifier.And(WS).Map(ScriptB.Resolve),
+                        lambda.Map(ScriptB.Lambda))
                     .Lbl("expression"))
                 .Build()
                 .ExpressionParser;
@@ -129,16 +137,56 @@ namespace Tests {
             .Invoke(FSharpList<Script>.Empty, new RTE())
             .ShouldBe(13);
 
+        [Fact] public void SkkReducesToI() => ScriptParser
+            .Run(@"
+                let s f g x = f x (g x) in
+                let k x y   = x         in
+                let skk     = s k k     in
+
+                let f x     = x * x     in
+                let f'      = skk f     in
+                f' 4")
+            .GetResult()
+            .Invoke(FSharpList<Script>.Empty, new RTE())
+            .ShouldBe(16);
+
         [Fact] public void YCombinator() => ScriptParser
             .Run(@"
-                let y f =
-                    let z x = (f (y f)) x
-                    in z
-                in let factGen fact =
-                    let f n = match n
-                              | 0 => 1
-                              | _ => n * fact (n-1)
-                    in f
+                let y f = (\x -> f (x x)) (\x -> f (x x)) in
+                
+                let factGen fact n = match n
+                                     | 0 => 1
+                                     | _ => n * fact (n-1)
+                in let fact = y factGen
+                in fact 7")
+            .GetResult()
+            .Invoke(FSharpList<Script>.Empty, new RTE())
+            .ShouldBe(5040);
+
+        [Fact] public void YCombinatorDefinedRecursively() => ScriptParser
+            .Run(@"
+                let y f = f (y f) in
+                
+                let factGen fact n = match n
+                                     | 0 => 1
+                                     | _ => n * fact (n-1)
+                in let fact = y factGen
+                in fact 7")
+            .GetResult()
+            .Invoke(FSharpList<Script>.Empty, new RTE())
+            .ShouldBe(5040);
+
+        [Fact] public void YCombinatorDefinedWithSK() => ScriptParser
+            .Run(@"
+                let s f g x = f x (g x)                  in
+                let k x y   = x                          in
+                let ss      = s s                        in
+                let ssk     = ss k                       in
+                let y       = ssk (s (k (ss (s ssk))) k) in
+
+                let factGen fact n = match n
+                                     | 0 => 1
+                                     | _ => n * fact (n-1)
                 in let fact = y factGen
                 in fact 7")
             .GetResult()
@@ -498,12 +546,65 @@ namespace Tests {
             .ShouldBe(1);
 
         [Fact] public void NoMatchFound() => new Action(() => ScriptParser
-            .Run(@"match 1 | 0 => 0")
+            .Run("match 1 | 0 => 0")
             .GetResult()
             .Invoke(FSharpList<Script>.Empty, new RTE()))
             .ShouldThrow<InvalidOperationException>();
 
         #endregion 'match' expressions
+
+        #region Lambdas
+
+        [Fact] public void FunctionAsLambda() => ScriptParser
+            .Run(@"let f = \x -> x * x
+                   in f 3")
+            .GetResult()
+            .Invoke(FSharpList<Script>.Empty, new RTE())
+            .ShouldBe(9);
+
+        [Fact] public void MultiParamFunctionAsNestedLambda() => ScriptParser
+            .Run(@"let f = \x -> \y -> x + y
+                   in f 3 2")
+            .GetResult()
+            .Invoke(FSharpList<Script>.Empty, new RTE())
+            .ShouldBe(5);
+
+        [Fact] public void MultiParamFunctionAsMultiParamLambda() => ScriptParser
+            .Run(@"let f = \x y -> x + y
+                   in f 3 2")
+            .GetResult()
+            .Invoke(FSharpList<Script>.Empty, new RTE())
+            .ShouldBe(5);
+
+        [Fact]
+        public void LambdaCanAccessOuterScope() => ScriptParser
+            .Run(@"let f x = \y -> x + y
+                   in f 3 2")
+            .GetResult()
+            .Invoke(FSharpList<Script>.Empty, new RTE())
+            .ShouldBe(5);
+
+        [Fact] public void LambdaParamShadowsOuterScope() => ScriptParser
+            .Run(@"let f x = \x -> x
+                   in f 3 2")
+            .GetResult()
+            .Invoke(FSharpList<Script>.Empty, new RTE())
+            .ShouldBe(2);
+
+        [Fact] public void LambdaAsArg() => ScriptParser
+            .Run(@"let map f x = f x
+                   in map (\x -> x * x) 3")
+            .GetResult()
+            .Invoke(FSharpList<Script>.Empty, new RTE())
+            .ShouldBe(9);
+
+        [Fact] public void InlineDefinitionOfAppliedFunction() => ScriptParser
+            .Run(@"(\x -> x * x) 3")
+            .GetResult()
+            .Invoke(FSharpList<Script>.Empty, new RTE())
+            .ShouldBe(9);
+
+        #endregion Lambdas
 
         #region Misc
 
@@ -648,8 +749,10 @@ namespace Tests {
 
         public static Script Compose(Script f, Script g) => new Script((args, rte) => f(args.Tail.Prepend(Return(g(args, rte))), rte));
 
+        public static Script Lambda(FSharpList<string> @params, Script body) => new Script((args, rte) => body.BindArgs(@params)(args, rte));
+
         public static Script BindVar(string id, FSharpList<string> @params, Script def, Script body) => new Script((args, rte) => {
-            RTE _rte = null;
+            RTE? _rte = null;
             _rte = rte.CloneWith(id, def.BindArgs(@params).Capture(() => _rte));
             return body(args, _rte);
         });
@@ -671,11 +774,17 @@ namespace Tests {
                 .First(c => c.matches(value, args, rte))
                 .caseResult(args, rte));
 
-        public static Script Capture(this Script s, Func<RTE> rte) => new Script((arg, _) => s(arg, rte()));
+        public static Script Capture(this Script s, RTE rte) => new Script((arg, _) => s(arg, rte));
+
+        public static Script Capture(this Script s, Func<RTE?> rte) => new Script((arg, _) => s(arg, rte()!.AssertNotNull()));
+
+        public static RTE Clone(this RTE rte) => new RTE(rte);
 
         public static RTE CloneWith(this RTE rte, string id, Script s) => new RTE(rte) { [id] = s };
 
         private static int Throw(string message) => throw new InvalidOperationException(message);
+
+        private static T AssertNotNull<T>(this T x) => x != null ? x : throw new InvalidOperationException();
     }
 
     #endregion Script builder

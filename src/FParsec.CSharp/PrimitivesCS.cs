@@ -937,7 +937,11 @@ namespace FParsec.CSharp {
         /// </summary>
         public static FSharpFunc<CharStream<U>, Reply<Unit>> Skip<U, T>(
             FSharpFunc<CharStream<U>, Reply<T>> p)
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
             => p.Return((Unit)null);
+#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
         /// <summary>
         /// <para>
@@ -952,8 +956,8 @@ namespace FParsec.CSharp {
         /// </para>
         /// </summary>
         public static FSharpFunc<CharStream<U>, Reply<T>> Rec<U, T>(
-            Func<FSharpFunc<CharStream<U>, Reply<T>>> p)
-            => FSharpFunc.From((CharStream<U> cs) => p().Invoke(cs));
+            Func<FSharpFunc<CharStream<U>, Reply<T>>?> p)
+            => FSharpFunc.From((CharStream<U> cs) => p()!.Invoke(cs));
 
         /// <summary>
         /// The parser `p.Map(f)` applies the parser `p` and returns the result `f(x)`, where `x`
@@ -1036,8 +1040,8 @@ namespace FParsec.CSharp {
         /// </summary>
         public static FSharpFunc<CharStream<U>, Reply<T>> Debug<U, T>(
             this FSharpFunc<CharStream<U>, Reply<T>> p,
-            Action<CharStream<U>> before = null,
-            Action<CharStream<U>, Reply<T>> after = null)
+            Action<CharStream<U>>? before = null,
+            Action<CharStream<U>, Reply<T>>? after = null)
             => FSharpFunc.From((CharStream<U> cs) => {
                 before?.Invoke(cs);
                 var r = p.Invoke(cs);

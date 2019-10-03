@@ -9,7 +9,9 @@ namespace FParsec.CSharp {
     public class Operators<TUserState, TTerm, TAfterString> : IEnumerable<Operator<TTerm, TAfterString, TUserState>> {
         private readonly HashSet<Operator<TTerm, TAfterString, TUserState>> operators = new HashSet<Operator<TTerm, TAfterString, TUserState>>();
 
+#pragma warning disable CS8653 // A default expression introduces a null value for a type parameter.
         private static readonly FSharpFunc<CharStream<TUserState>, Reply<TAfterString>> stop = preturn<TAfterString, TUserState>(default);
+#pragma warning restore CS8653 // A default expression introduces a null value for a type parameter.
 
         #region AddInfix()
 

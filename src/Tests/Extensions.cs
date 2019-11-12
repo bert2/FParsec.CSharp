@@ -29,7 +29,19 @@ namespace Tests {
             => reply.Error.AsEnumerable()
                 .ShouldHaveSingleItem()
                 .ShouldBeOfType<TError>()
-                .GetString().ShouldBe(message);
+                .Map(err => err switch
+                {
+                    ErrorMessage.Expected(var msg) => msg,
+                    ErrorMessage.ExpectedString(var msg) => msg,
+                    ErrorMessage.ExpectedCaseInsensitiveString(var msg) => msg,
+                    ErrorMessage.Unexpected(var msg) => msg,
+                    ErrorMessage.UnexpectedString(var msg) => msg,
+                    ErrorMessage.UnexpectedCaseInsensitiveString(var msg) => msg,
+                    ErrorMessage.Message(var msg) => msg,
+                    ErrorMessage.CompoundError(var msg, _, _) => msg,
+                    _ => throw new ArgumentException($"Unsupported error type 'ErrorMessage.{typeof(TError).Name}'", nameof(TError))
+                })
+                .ShouldBe(message);
 
         internal static void ShouldBeErrors<T>(this Reply<T> reply, params ErrorMessage[] errors) {
             reply.Error.AsEnumerable().Count().ShouldBe(errors.Length, reply.Error.Print());
@@ -84,5 +96,7 @@ namespace Tests {
             .GetMethod("GetDebuggerDisplay", BindingFlags.Instance | BindingFlags.NonPublic);
 
         internal static T Debug<T>(this T x, Action<T> f) { f(x); return x; }
+
+        private static TResult Map<T, TResult>(this T x, Func<T, TResult> f) => f(x);
     }
 }

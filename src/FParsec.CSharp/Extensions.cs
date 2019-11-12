@@ -348,7 +348,7 @@ namespace FParsec.CSharp {
         public static void Deconstruct(this ErrorMessage.Expected error, out string label) => label = error.Label;
 
         /// <summary>Deconstructs an `ErrorMessage.ExpectedString` error.</summary>
-        public static void Deconstruct(this ErrorMessage.ExpectedString error, out string @string) => @string = error.GetString();
+        public static void Deconstruct(this ErrorMessage.ExpectedString error, out string @string) => @string = error.String;
 
         /// <summary>Deconstructs an `ErrorMessage.ExpectedCaseInsensitiveString` error.</summary>
         public static void Deconstruct(this ErrorMessage.ExpectedCaseInsensitiveString error, out string caseInsensitiveString)
@@ -358,7 +358,7 @@ namespace FParsec.CSharp {
         public static void Deconstruct(this ErrorMessage.Unexpected error, out string label) => label = error.Label;
 
         /// <summary>Deconstructs an `ErrorMessage.UnexpectedString` error.</summary>
-        public static void Deconstruct(this ErrorMessage.UnexpectedString error, out string @string) => @string = error.GetString();
+        public static void Deconstruct(this ErrorMessage.UnexpectedString error, out string @string) => @string = error.String;
 
         /// <summary>Deconstructs an `ErrorMessage.ExpectedCaseInsensitiveString` error.</summary>
         public static void Deconstruct(this ErrorMessage.UnexpectedCaseInsensitiveString error, out string caseInsensitiveString)

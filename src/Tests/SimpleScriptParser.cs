@@ -17,7 +17,7 @@ namespace Tests {
 
     // This example implements a simple functional script language. It only knows one type (`int`)
     // and is super inefficient, but it has lots of functional fu (e.g. lazy evaluation, partial
-    // application, higher order functions, and function composition).
+    // application, lambdas, higher order functions, and function composition).
     public delegate int Script(FSharpList<Script> args, RTE rte);
 
     public class SimpleScriptParser {
@@ -188,6 +188,18 @@ namespace Tests {
                                      | 0 => 1
                                      | _ => n * fact (n-1)
                 in let fact = y factGen
+                in fact 7")
+            .GetResult()
+            .Invoke(FSharpList<Script>.Empty, new RTE())
+            .ShouldBe(5040);
+
+        [Fact] public void FixPointCombinator() => ScriptParser
+            .Run(@"
+                let fix f = f (\x -> (fix f) x) in
+                
+                let fact = fix (\fact n -> match n
+                                           | 0 => 1
+                                           | _ => n * fact (n-1))
                 in fact 7")
             .GetResult()
             .Invoke(FSharpList<Script>.Empty, new RTE())

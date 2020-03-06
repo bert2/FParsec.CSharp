@@ -57,7 +57,7 @@ Task("Test")
 
 Task("UploadCoverage")
     .Does(() =>
-        Codecov(testDir + File("coverage.opencover.xml"), "caa23b8f-db42-4008-80ec-73e9abc177d6"));
+        Codecov(testDir + File("coverage.opencover.xml")));
 
 Task("Pack-FParsec.CSharp")
     .IsDependentOn("SemVer")

@@ -32,7 +32,6 @@ FParsec.CSharp is a C# wrapper for the F# package [FParsec](https://github.com/s
 - [Credits](#credits)
 - [TODO](#todo)
 
-
 ## Why FParsec.CSharp?
 
 While using FParsec from C# is entirely possible in theory, it is very awkward in practice. Most of FParsec's elegance is lost in translation due to C#'s inferior type inference and its lack of custom operators.

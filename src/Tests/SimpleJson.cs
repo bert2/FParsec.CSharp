@@ -79,7 +79,7 @@ namespace Tests {
             .ParseString("{\"arr\":[\"test\",2,null,false,{}]}")
             .ShouldBe(
                 new JObject {
-                    { "arr", new JArray("test", 2, null, false, new JObject()) }
+                    { "arr", new JArray("test", 2, null!, false, new JObject()) }
                 });
 
         [Fact]
@@ -121,7 +121,7 @@ namespace Tests {
                 new JObject {
                     { "my-property", "my value" },
                     { "prop1", -1.2 },
-                    { "prop2", new JArray(false, true, null) },
+                    { "prop2", new JArray(false, true, null!) },
                     { "prop3", new JObject() }
                 });
 

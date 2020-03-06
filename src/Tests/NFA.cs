@@ -74,13 +74,7 @@ namespace Tests {
         public IEnumerable<IState> Expand(HashSet<IState> visited) => visited.Add(this) ? ExpandBoth(visited) : Enumerable.Empty<IState>();
         public override string ToString() => "Split";
         private IEnumerable<IState> ExpandBoth(HashSet<IState> visited) => GetLeft().Expand(visited).Concat(right.Expand(visited));
-
-        private IState GetLeft() {
-            if (left != null) return left;
-            left = leftf!.Invoke();
-            if (left == null) throw new InvalidOperationException("Left branch of split was never initialized.");
-            return left;
-        }
+        private IState GetLeft() => left ?? (left = leftf?.Invoke()) ?? throw new InvalidOperationException("Uninitialized left branch of split");
     }
 
     public class Final : IState {

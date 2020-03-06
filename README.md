@@ -1,6 +1,6 @@
 # FParsec.CSharp
 
-[![Build status](https://ci.appveyor.com/api/projects/status/282vojx52ole5lww/branch/master?svg=true)](https://ci.appveyor.com/project/bert2/fparsec-csharp/branch/master) [![NuGet](https://img.shields.io/nuget/v/FParsec.CSharp.svg)](https://www.nuget.org/packages/FParsec.CSharp)
+[![build](https://img.shields.io/appveyor/build/bert2/fparsec-csharp/master?logo=appveyor)](https://ci.appveyor.com/project/bert2/fparsec-csharp/branch/master) [![tests](https://img.shields.io/appveyor/tests/bert2/fparsec-csharp/master?compact_message&logo=appveyor)](https://ci.appveyor.com/project/bert2/fparsec-csharp/branch/master) [![coverage](https://img.shields.io/codecov/c/github/bert2/FParsec.CSharp/master?logo=codecov)](https://codecov.io/gh/bert2/FParsec.CSharp) [![nuget package](https://img.shields.io/nuget/v/FParsec.CSharp.svg?logo=nuget)](https://www.nuget.org/packages/FParsec.CSharp) [![nuget downloads](https://img.shields.io/nuget/dt/FParsec.CSharp?color=blue&logo=nuget)](https://www.nuget.org/packages/FParsec.CSharp) ![last commit](https://img.shields.io/github/last-commit/bert2/FParsec.CSharp/master?logo=github)
 
 FParsec.CSharp is a C# wrapper for the F# package [FParsec](https://github.com/stephan-tolksdorf/fparsec). FParsec is a parser combinator library with which you can implement parsers declaratively.
 
@@ -481,19 +481,19 @@ var simpleRegexParser =
 
 ### Simple script language
 
-This example implements a simple functional script language. It only knows one type (`int`) and is super inefficient, but it has lots of functional fu (e.g. lazy evaluation, partial application, higher order functions, and function composition).
+This example implements a simple functional script language. It only knows one type (`int`) and is super inefficient, but it has lots of functional fu (e.g. lazy evaluation, partial application, lambdas, higher order functions, and function composition).
 
 ```C#
 var number = Natural.Lbl("number");
 
 static StringParser notReserved(string id) => id == "let" || id == "in" || id == "match" ? Zero<string>() : Return(id);
 var identifier1 = Choice(Letter, CharP('_'));
-var identifierRest = Choice(Letter, CharP('_'), Digit);
+var identifierRest = Choice(Letter, CharP('_'), CharP('\''), Digit);
 var identifier = Purify(Many1Chars(identifier1, identifierRest)).AndTry(notReserved).Lbl("identifier");
 
 var parameters = Many(identifier, sep: WS1, canEndWithSep: true).Lbl("parameter list");
 
-ScriptParser expression = null;
+ScriptParser? expression = null;
 
 var letBinding =
     Skip("let").AndR(WS1)
@@ -505,6 +505,13 @@ var letBinding =
     .And(Rec(() => expression).Lbl("'let' body expression"))
     .Map(Flat)
     .Lbl("'let' binding");
+
+var lambda =
+    Skip('\\')
+    .And(parameters)
+    .And(Skip("->")).And(WS)
+    .And(Rec(() => expression).Lbl("lambda body"))
+    .Lbl("lambda");
 
 var defaultCase = Skip('_').AndRTry(NotFollowedBy(identifierRest)).AndR(WS).Return(ScriptB.AlwaysMatches);
 var caseValueExpr = Rec(() => expression).Map(ScriptB.Matches);
@@ -536,7 +543,8 @@ expression = new OPPBuilder<Unit, Script, Unit>()
             matchExpr.Map(ScriptB.Match),
             Between(CharP('(').And(WS), term, CharP(')').And(WS)),
             number.And(WS).Map(ScriptB.Return),
-            identifier.And(WS).Map(ScriptB.Resolve))
+            identifier.And(WS).Map(ScriptB.Resolve),
+            lambda.Map(ScriptB.Lambda))
         .Lbl("expression"))
     .Build()
     .ExpressionParser;

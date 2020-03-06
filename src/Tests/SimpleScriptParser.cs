@@ -790,8 +790,6 @@ namespace Tests {
 
         public static Script Capture(this Script s, Func<RTE?> rte) => new Script((arg, _) => s(arg, rte()!.AssertNotNull()));
 
-        public static RTE Clone(this RTE rte) => new RTE(rte);
-
         public static RTE CloneWith(this RTE rte, string id, Script s) => new RTE(rte) { [id] = s };
 
         private static int Throw(string message) => throw new InvalidOperationException(message);

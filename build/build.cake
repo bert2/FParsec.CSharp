@@ -1,5 +1,7 @@
-#addin Cake.Git
 #tool GitVersion.CommandLine
+#tool Codecov
+#addin Cake.Codecov
+#addin Cake.Git
 #load prompt.cake
 #load format-rel-notes.cake
 
@@ -9,65 +11,97 @@ var nugetKey = Argument<string>("nugetKey", null) ?? EnvironmentVariable("nuget_
 
 var rootDir = Directory("..");
 var srcDir = rootDir + Directory("src");
-var libDir = srcDir + Directory("FParsec.CSharp");
-var pkgDir = libDir + Directory($"bin/{config}");
+var testDir = srcDir + Directory("Tests");
 
 var lastCommitMsg = EnvironmentVariable("APPVEYOR_REPO_COMMIT_MESSAGE") ?? GitLogTip(rootDir).MessageShort;
+var lastCommitSha = EnvironmentVariable("APPVEYOR_REPO_COMMIT") ?? GitLogTip(rootDir).Sha;
 var currBranch = GitBranchCurrent(rootDir).FriendlyName;
 GitVersion semVer = null;
 
-Task("SemVer").Does(() => {
-    semVer = GitVersion();
-    Information($"{semVer.FullSemVer} ({lastCommitMsg})");
-});
+Task("SemVer")
+    .Does(() => {
+        semVer = GitVersion();
+        Information($"{semVer.FullSemVer} ({lastCommitMsg})");
+    });
 
-Task("Clean").Does(() =>
-    DotNetCoreClean(srcDir, new DotNetCoreCleanSettings {
-        Configuration = config,
-        Verbosity = DotNetCoreVerbosity.Minimal
-    }));
+Task("Clean")
+    .Does(() =>
+        DotNetCoreClean(srcDir, new DotNetCoreCleanSettings {
+            Configuration = config,
+            Verbosity = DotNetCoreVerbosity.Minimal
+        }));
 
-Task("Build").Does(() =>
-    DotNetCoreBuild(srcDir, new DotNetCoreBuildSettings {
-        Configuration = config
-    }));
+Task("Build")
+    .IsDependentOn("SemVer")
+    .Does(() =>
+        DotNetCoreBuild(srcDir, new DotNetCoreBuildSettings {
+            Configuration = config,
+            MSBuildSettings = new DotNetCoreMSBuildSettings()
+                .SetVersion(semVer.AssemblySemVer)
+        }));
 
 Task("Test")
     .IsDependentOn("Build")
-    .Does(() => DotNetCoreTest(srcDir, new DotNetCoreTestSettings {
-        Configuration = config,
-        NoBuild = true
-    }));
+    .Does(() =>
+        DotNetCoreTest(srcDir, new DotNetCoreTestSettings {
+            Configuration = config,
+            NoBuild = true,
+            ArgumentCustomization = args => {
+                var msbuildSettings = new DotNetCoreMSBuildSettings()
+                    .WithProperty("CollectCoverage", new[] { "true" })
+                    .WithProperty("CoverletOutputFormat", new[] { "opencover" });
+                args.AppendMSBuildSettings(msbuildSettings, environment: null);
+                return args;
+            }
+        }));
 
-Task("Pack")
+Task("UploadCoverage")
+    .Does(() =>
+        Codecov(testDir + File("coverage.opencover.xml"), "caa23b8f-db42-4008-80ec-73e9abc177d6"));
+
+Task("Pack-FParsec.CSharp")
     .IsDependentOn("SemVer")
     .Does(() => {
         var relNotes = FormatReleaseNotes(lastCommitMsg);
         Information($"Packing {semVer.NuGetVersion} ({relNotes})");
 
-        var msbuildSettings = new DotNetCoreMSBuildSettings();
-        msbuildSettings.Properties["PackageVersion"] = new[] { semVer.NuGetVersion };
-        msbuildSettings.Properties["PackageReleaseNotes"] = new[] { relNotes };
-        msbuildSettings.Properties["PackageDescription"] = new[] {
-$@"FParsec.CSharp is a thin C# wrapper for FParsec.
+        var pkgName = "FParsec.CSharp";
+        var pkgDesc = "FParsec.CSharp is a thin C# wrapper for FParsec.";
+        var pkgTags = "nullable reference types; extensions; nrt; nrts; maybe monad; maybe functor; map; filter; bind";
+        var pkgAuthors = "Robert Hofmann";
+        var docUrl = "https://github.com/bert2/FParsec.CSharp";
+        var repoUrl = "https://github.com/bert2/FParsec.CSharp.git";
+        var libDir = srcDir + Directory(pkgName);
+        var pkgDir = libDir + Directory($"bin/{config}");
 
-Documentation: https://github.com/bert2/FParsec.CSharp
-
-Release notes: {relNotes}" };
+        var msbuildSettings = new DotNetCoreMSBuildSettings()
+            // Cannot set PackageId here due to error "Ambiguous project name 'FParsec.CSharp'"
+        	//.WithProperty("PackageId",                new[] { pkgName })
+            .SetVersion(semVer.AssemblySemVer) // have to set assembly version here, because pack needs to rebuild
+        	.WithProperty("PackageVersion",           new[] { semVer.NuGetVersion })
+        	.WithProperty("Title",                    new[] { pkgName })
+        	.WithProperty("Description",              new[] { $"{pkgDesc}\r\n\r\nDocumentation: {docUrl}\r\n\r\nRelease notes: {relNotes}" })
+        	.WithProperty("PackageTags",              new[] { pkgTags })
+        	.WithProperty("PackageReleaseNotes",      new[] { relNotes })
+        	.WithProperty("Authors",                  new[] { pkgAuthors })
+        	.WithProperty("RepositoryUrl",            new[] { repoUrl })
+        	.WithProperty("RepositoryCommit",         new[] { lastCommitSha })
+        	.WithProperty("PackageLicenseExpression", new[] { "MIT" })
+        	.WithProperty("IncludeSource",            new[] { "true" })
+        	.WithProperty("IncludeSymbols",           new[] { "true" })
+        	.WithProperty("SymbolPackageFormat",      new[] { "snupkg" });
 
         DotNetCorePack(libDir, new DotNetCorePackSettings {
             Configuration = config,
             OutputDirectory = pkgDir,
-            // NoBuild = true,         // This causes "error NETSDK1085: The 'NoBuild'
-                                       // property was set to true but the 'Build' target
-                                       // was invoked." since dotnet core 3.0.
+            NoBuild = false, // cannot disable, because of work-around to include LambdaConvert.dll
             NoDependencies = false,
             MSBuildSettings = msbuildSettings
         });
     });
 
-Task("Release")
-    .IsDependentOn("Pack")
+Task("Release-FParsec.CSharp")
+    .IsDependentOn("Pack-FParsec.CSharp")
     .Does(() => {
         if (currBranch != "master") {
             Information($"Will not release package built from branch '{currBranch}'.");
@@ -84,8 +118,12 @@ Task("Release")
         if (string.IsNullOrEmpty(nugetKey))
             nugetKey = Prompt("Enter nuget API key: ");
 
+        var pkgName = "FParsec.CSharp";
+        var libDir = srcDir + Directory(pkgName);
+        var pkgDir = libDir + Directory($"bin/{config}");
+
         DotNetCoreNuGetPush(
-            pkgDir + File($"FParsec.CSharp.{semVer.NuGetVersion}.nupkg"),
+            pkgDir + File($"{pkgName}.{semVer.NuGetVersion}.nupkg"),
             new DotNetCoreNuGetPushSettings {
                 Source = "nuget.org",
                 ApiKey = nugetKey
@@ -97,5 +135,9 @@ Task("Default")
     .IsDependentOn("Clean")
     .IsDependentOn("Build")
     .IsDependentOn("Test");
+
+Task("Release")
+    .IsDependentOn("UploadCoverage")
+    .IsDependentOn("Release-FParsec.CSharp");
 
 RunTarget(target);

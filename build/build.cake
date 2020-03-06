@@ -67,7 +67,7 @@ Task("Pack-FParsec.CSharp")
 
         var pkgName = "FParsec.CSharp";
         var pkgDesc = "FParsec.CSharp is a thin C# wrapper for FParsec.";
-        var pkgTags = "nullable reference types; extensions; nrt; nrts; maybe monad; maybe functor; map; filter; bind";
+        var pkgTags = "parser; parser combinator; c#; csharp; parsec; fparsec";
         var pkgAuthors = "Robert Hofmann";
         var docUrl = "https://github.com/bert2/FParsec.CSharp";
         var repoUrl = "https://github.com/bert2/FParsec.CSharp.git";

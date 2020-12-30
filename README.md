@@ -1,6 +1,6 @@
 # FParsec.CSharp
 
-[![build](https://img.shields.io/appveyor/build/bert2/fparsec-csharp/master?logo=appveyor)](https://ci.appveyor.com/project/bert2/fparsec-csharp/branch/master) [![tests](https://img.shields.io/appveyor/tests/bert2/fparsec-csharp/master?compact_message&logo=appveyor)](https://ci.appveyor.com/project/bert2/fparsec-csharp/branch/master) [![coverage](https://img.shields.io/codecov/c/github/bert2/FParsec.CSharp/master?logo=codecov)](https://codecov.io/gh/bert2/FParsec.CSharp) [![nuget package](https://img.shields.io/nuget/v/FParsec.CSharp.svg?logo=nuget)](https://www.nuget.org/packages/FParsec.CSharp) [![nuget downloads](https://img.shields.io/nuget/dt/FParsec.CSharp?color=blue&logo=nuget)](https://www.nuget.org/packages/FParsec.CSharp) ![last commit](https://img.shields.io/github/last-commit/bert2/FParsec.CSharp/master?logo=github)
+[![build](https://img.shields.io/appveyor/build/bert2/fparsec-csharp/master?logo=appveyor)](https://ci.appveyor.com/project/bert2/fparsec-csharp/branch/master) [![tests](https://img.shields.io/appveyor/tests/bert2/fparsec-csharp/master?compact_message&logo=appveyor)](https://ci.appveyor.com/project/bert2/fparsec-csharp/branch/master) [![coverage](https://img.shields.io/codecov/c/github/bert2/FParsec.CSharp/master?logo=codecov)](https://codecov.io/gh/bert2/FParsec.CSharp) [![CodeFactor](https://www.codefactor.io/repository/github/bert2/fparsec.csharp/badge)](https://www.codefactor.io/repository/github/bert2/fparsec.csharp) ![last commit](https://img.shields.io/github/last-commit/bert2/FParsec.CSharp/master?logo=github) [![nuget package](https://img.shields.io/nuget/v/FParsec.CSharp.svg?logo=nuget)](https://www.nuget.org/packages/FParsec.CSharp) [![nuget downloads](https://img.shields.io/nuget/dt/FParsec.CSharp?color=blue&logo=nuget)](https://www.nuget.org/packages/FParsec.CSharp)
 
 FParsec.CSharp is a C# wrapper for the F# package [FParsec](https://github.com/stephan-tolksdorf/fparsec). FParsec is a parser combinator library with which you can implement parsers declaratively.
 
@@ -345,14 +345,14 @@ var attribute = name.And(Skip('=')).And(WS).And(quotedString).And(WS)
     .Map((attrName, attrVal) => new XAttribute(attrName, attrVal));
 var attributes = Many(attribute);
 
-XElParser element = null;
+FSharpFunc<CharStream<Unit>,Reply<XElement>> element = null;
 
 var elementStart = Skip('<').AndTry(name.Lbl("tag name")).And(attributes);
 
-StringParser closingTag(string tagName) => Between("</", StringP(tagName).And(WS), ">")
+FSharpFunc<CharStream<Unit>, Reply<string>> closingTag(string tagName) => Between("</", StringP(tagName).And(WS), ">")
     .Lbl_($"closing tag '</{tagName}>'");
 
-ElContentParser textContent(string leadingWS) => NotEmpty(ManyChars(NoneOf("<"))
+FSharpFunc<CharStream<Unit>, Reply<object>> textContent(string leadingWS) => NotEmpty(ManyChars(NoneOf("<"))
     .Map(text => leadingWS + text)
     .Map(x => (object)x)
     .Lbl_("text content"));
@@ -364,7 +364,7 @@ object EmptyContentToEmptyString(FSharpList<object> xs) => xs.IsEmpty ? (object)
 var elementContent = Many(WS.WithSkipped().AndTry(ws => Choice(textContent(ws), childElement)))
     .Map(EmptyContentToEmptyString);
 
-XElParser elementEnd(string elName, AttrList elAttrs) =>
+FSharpFunc<CharStream<Unit>,Reply<XElement>> elementEnd(string elName, FSharpList<XAttribute> elAttrs) =>
     Choice(
         Skip("/>").Return((object)null),
         Skip(">").And(elementContent).And(WS).AndL(closingTag(elName)))
@@ -372,7 +372,7 @@ XElParser elementEnd(string elName, AttrList elAttrs) =>
 
 element = elementStart.And(elementEnd);
 
-var simpleXmlParser = element.And(WS).And(EOF);
+var simpleXmlParser = WS.And(element).And(WS).And(EOF);
 ```
 
 ### Glob patterns

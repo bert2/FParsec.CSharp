@@ -171,7 +171,7 @@ namespace FParsec.CSharp {
 
         /// <summary>
         /// <para>
-        /// The parser `Array(n,p)` parses `n` occurences of `p` and returns the results in an
+        /// The parser `Array(n,p)` parses `n` occurrences of `p` and returns the results in an
         /// array.
         /// </para>
         /// <para>
@@ -644,7 +644,7 @@ namespace FParsec.CSharp {
         /// returned by the parser `op` and `x_1` to `x_n+1` are the values returned by `p`.
         /// </para>
         /// <para>
-        /// If only a single occurance of `p` and no occurance of `op` is parsed, the result of `p`
+        /// If only a single occurrence of `p` and no occurrence of `op` is parsed, the result of `p`
         /// is returned directly.
         /// </para>
         /// </summary>
@@ -674,7 +674,7 @@ namespace FParsec.CSharp {
         /// returned by the parser `op` and `x_1` to `x_n+1` are the values returned by `p`.
         /// </para>
         /// <para>
-        /// If only a single occurance of `p` and no occurance of `op` is parsed, the result of `p`
+        /// If only a single occurrence of `p` and no occurrence of `op` is parsed, the result of `p`
         /// is returned directly.
         /// </para>
         /// </summary>

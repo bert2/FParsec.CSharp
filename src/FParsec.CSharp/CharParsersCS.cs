@@ -428,11 +428,11 @@ namespace FParsec.CSharp {
 
         /// <summary>
         /// <para>
-        /// `CharsTillString(s,n,b)` parses all chars before the first occurance of the string `s`
+        /// `CharsTillString(s,n,b)` parses all chars before the first occurrence of the string `s`
         /// and, if `b` is `true`, skips over `s`. It returns the parsed chars before the string.
         /// </para>
         /// <para>
-        /// If more than `n` chars come before the first occurance of `s`, the parser *fails after
+        /// If more than `n` chars come before the first occurrence of `s`, the parser *fails after
         /// consuming* `n` chars.
         /// </para>
         /// <para>
@@ -475,12 +475,12 @@ namespace FParsec.CSharp {
 
         /// <summary>
         /// <para>
-        /// `CharsTillStringCI(s,n,b)` parses all chars before the first case-insensitive occurance
+        /// `CharsTillStringCI(s,n,b)` parses all chars before the first case-insensitive occurrence
         /// of the string `s` and, if `b` is `true`, skips over it. It returns the parsed chars
         /// before the string.
         /// </para>
         /// <para>
-        /// If more than `n` chars come before the first case-insensitive occurance of `s`, the
+        /// If more than `n` chars come before the first case-insensitive occurrence of `s`, the
         /// parser *fails* after consuming `n` chars.
         /// </para>
         /// <para>
@@ -1569,7 +1569,7 @@ namespace FParsec.CSharp {
 
         /// <summary>
         /// <para>
-        /// `NormalizeNewlines(s)` returns a version of `s` with all occurances of "\r\n" and "\r"
+        /// `NormalizeNewlines(s)` returns a version of `s` with all occurrences of "\r\n" and "\r"
         /// replaced by "\n".
         /// </para>
         /// <para>If the argument is `null`, `null` is returned.</para>

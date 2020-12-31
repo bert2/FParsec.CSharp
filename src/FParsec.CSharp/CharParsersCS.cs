@@ -1417,7 +1417,10 @@ namespace FParsec.CSharp {
         /// It fails after consuming input, if no decimal digit comes after an exponent marker or no valid digit comes after a format specifier.
         /// </para>
         /// </summary>
-        public static FSharpFunc<CharStream<U>, Reply<NumberLiteral>> NumberLiteral<U>(NumberLiteralOptions opt, string label) => numberLiteral<U>(opt, label);
+        public static FSharpFunc<CharStream<Unit>, Reply<NumberLiteral>> NumberLiteral(NumberLiteralOptions opt, string label) => numberLiteral<Unit>(opt, label);
+        
+        /// <summary>`NumberLiteralU()` behaves like `NumberLiteral`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<NumberLiteral>> NumberLiteralU<U>(NumberLiteralOptions opt, string label) => numberLiteral<U>(opt, label);
 
         /// <summary>
         /// <para>
@@ -1425,7 +1428,10 @@ namespace FParsec.CSharp {
         /// without having to construct a `numberLiteral` closure.
         /// </para>
         /// </summary>
-        public static Reply<NumberLiteral> NumberLiteralE<U>(NumberLiteralOptions opt, ErrorMessageList errorInCaseNoLiteralFound, CharStream<U> stream) => numberLiteralE<U>(opt, errorInCaseNoLiteralFound, stream);
+        public static Reply<NumberLiteral> NumberLiteralE(NumberLiteralOptions opt, ErrorMessageList errorInCaseNoLiteralFound, CharStream<Unit> stream) => numberLiteralE<Unit>(opt, errorInCaseNoLiteralFound, stream);
+        
+        /// <summary>`NumberLiteralEU()` behaves like `NumberLiteralE`, but supports user state.</summary>
+        public static Reply<NumberLiteral> NumberLiteralEU<U>(NumberLiteralOptions opt, ErrorMessageList errorInCaseNoLiteralFound, CharStream<U> stream) => numberLiteralE<U>(opt, errorInCaseNoLiteralFound, stream);
 
         /// <summary>
         /// Returns a hexadecimal string representation of the `double`.

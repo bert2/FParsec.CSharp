@@ -93,6 +93,41 @@ namespace Tests {
 
         [Fact] public void ParseFloat() => Float.ParseString("13.45").ShouldBe(13.45);
 
+        [Fact]
+        public void ParseNumberLiteral() {
+            var (status, result, errorMessageList) = NumberLiteral(
+                NumberLiteralOptions.AllowMinusSign |
+                NumberLiteralOptions.AllowFraction |
+                NumberLiteralOptions.AllowExponent, "scientific notation").ParseString("-13.45e+2");
+            
+            status.ShouldBe(ReplyStatus.Ok);
+            result.Info.ShouldBe(NumberLiteralResultFlags.HasMinusSign |
+                                                  NumberLiteralResultFlags.HasIntegerPart |
+                                                  NumberLiteralResultFlags.HasFraction |
+                                                  NumberLiteralResultFlags.HasExponent |
+                                                  NumberLiteralResultFlags.IsDecimal);
+            errorMessageList.ShouldBeNull();
+        }
+        
+        [Fact]
+        public void ParseNumberLiteralE() {
+            const string numberString = "-13.45e+2";
+            var errorInCaseNoLiteralFound = new ErrorMessageList(new ErrorMessage.Unexpected(""));
+            var charStream = new CharStream<Unit>(numberString, 0, numberString.Length);
+            var (status, result, errorMessageList) = NumberLiteralE(
+                NumberLiteralOptions.AllowMinusSign |
+                NumberLiteralOptions.AllowFraction |
+                NumberLiteralOptions.AllowExponent, errorInCaseNoLiteralFound, charStream);
+            
+            status.ShouldBe(ReplyStatus.Ok);
+            result.Info.ShouldBe(NumberLiteralResultFlags.HasMinusSign |
+                                 NumberLiteralResultFlags.HasIntegerPart |
+                                 NumberLiteralResultFlags.HasFraction |
+                                 NumberLiteralResultFlags.HasExponent |
+                                 NumberLiteralResultFlags.IsDecimal);
+            errorMessageList.ShouldBeNull();
+        }
+
         #endregion Numbers
 
         #region White space

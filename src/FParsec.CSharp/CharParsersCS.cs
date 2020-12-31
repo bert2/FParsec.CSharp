@@ -1425,9 +1425,7 @@ namespace FParsec.CSharp {
         /// without having to construct a `numberLiteral` closure.
         /// </para>
         /// </summary>
-        public static Reply<NumberLiteral> NumberLiteralE<U>(NumberLiteralOptions opt,
-            ErrorMessageList errorInCaseNoLiteralFound, CharStream<U> stream) =>
-            numberLiteralE<U>(opt, errorInCaseNoLiteralFound, stream);
+        public static Reply<NumberLiteral> NumberLiteralE<U>(NumberLiteralOptions opt, ErrorMessageList errorInCaseNoLiteralFound, CharStream<U> stream) => numberLiteralE<U>(opt, errorInCaseNoLiteralFound, stream);
 
         /// <summary>
         /// Returns a hexadecimal string representation of the `double`.

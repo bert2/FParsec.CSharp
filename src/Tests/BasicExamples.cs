@@ -112,7 +112,7 @@ namespace Tests {
         [Fact]
         public void ParseNumberLiteralE() {
             const string numberString = "-13.45e+2";
-            var errorInCaseNoLiteralFound = new ErrorMessageList(new ErrorMessage.Unexpected(""));
+            var errorInCaseNoLiteralFound = new ErrorMessageList(new ErrorMessage.Unexpected("unexpected message"));
             var charStream = new CharStream<Unit>(numberString, 0, numberString.Length);
             var (status, result, errorMessageList) = NumberLiteralE(
                 NumberLiteralOptions.AllowMinusSign |

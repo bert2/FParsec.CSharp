@@ -1405,6 +1405,35 @@ namespace FParsec.CSharp {
         public static FSharpFunc<CharStream<U>, Reply<byte>> UByteU<U>() => puint8<U>();
 
         /// <summary>
+        /// <para>
+        /// Parses a number literal and returns the result in form of a `NumberLiteral` value.
+        /// </para>
+        /// <para>
+        /// The given `NumberLiteralOptions` argument determines the kind of number literals accepted.
+        /// The string `label` is used in the `Expected` error message that is generated when the parser fails without consuming input. 
+        /// </para>
+        /// <para>
+        /// The parser fails without consuming input, if not at least one digit (including the 0 in the format specifiers "0x" etc.) can be parsed.
+        /// It fails after consuming input, if no decimal digit comes after an exponent marker or no valid digit comes after a format specifier.
+        /// </para>
+        /// </summary>
+        public static FSharpFunc<CharStream<Unit>, Reply<NumberLiteral>> NumberLiteral(NumberLiteralOptions opt, string label) => numberLiteral<Unit>(opt, label);
+        
+        /// <summary>`NumberLiteralU()` behaves like `NumberLiteral`, but supports user state.</summary>
+        public static FSharpFunc<CharStream<U>, Reply<NumberLiteral>> NumberLiteralU<U>(NumberLiteralOptions opt, string label) => numberLiteral<U>(opt, label);
+
+        /// <summary>
+        /// <para>
+        /// `NumberLiteralE()` is an uncurried version of `NumberLiteral()` that can be used to implement number parsers
+        /// without having to construct a `NumberLiteral()` closure.
+        /// </para>
+        /// </summary>
+        public static Reply<NumberLiteral> NumberLiteralE(NumberLiteralOptions opt, ErrorMessageList errorInCaseNoLiteralFound, CharStream<Unit> stream) => numberLiteralE<Unit>(opt, errorInCaseNoLiteralFound, stream);
+        
+        /// <summary>`NumberLiteralEU()` behaves like `NumberLiteralE`, but supports user state.</summary>
+        public static Reply<NumberLiteral> NumberLiteralEU<U>(NumberLiteralOptions opt, ErrorMessageList errorInCaseNoLiteralFound, CharStream<U> stream) => numberLiteralE<U>(opt, errorInCaseNoLiteralFound, stream);
+
+        /// <summary>
         /// Returns a hexadecimal string representation of the `double`.
         /// </summary>
         public static string DoubleToHexString(double x) => floatToHexString(x);

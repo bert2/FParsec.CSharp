@@ -798,8 +798,8 @@ Keep in mind that many predefined parsers and some of the combinators have a var
 | `stringsSepBy1` | `Many1Strings(P<string>, P<String>)` |
 | `skipped` | `P<string> P<Unit>.WithSkipped()` |
 | `withSkippedString` | `P<T2> P<T1>.WithSkipped(Func<string, T1, T2>)`,<br>`P<(string,T)> P<T>.WithSkipped()` |
-| `numberLiteral` | `P<NumberLiteral> NumberLiteral<U>(NumberLiteralOptions, string)` |
-| `numberLiteralE` | `P<NumberLiteral> NumberLiteralE<U>(NumberLiteralOptions, ErrorMessageList, CharStream<U>)` |
+| `numberLiteral` | `P<NumberLiteral> NumberLiteral(NumberLiteralOptions, string)` |
+| `numberLiteralE` | `Reply<NumberLiteral> NumberLiteralE(NumberLiteralOptions, ErrorMessageList, CharStream<Unit>)` |
 | `pfloat` | `P<double> Float` |
 | `pint64` | `P<long> Long` |
 | `pint32` | `P<int> Int` |

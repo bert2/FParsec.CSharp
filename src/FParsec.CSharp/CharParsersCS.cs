@@ -1424,8 +1424,8 @@ namespace FParsec.CSharp {
 
         /// <summary>
         /// <para>
-        /// `numberLiteralE` is an uncurried version of `numberLiteral` that can be used to implement number parsers
-        /// without having to construct a `numberLiteral` closure.
+        /// `NumberLiteralE()` is an uncurried version of `NumberLiteral()` that can be used to implement number parsers
+        /// without having to construct a `NumberLiteral()` closure.
         /// </para>
         /// </summary>
         public static Reply<NumberLiteral> NumberLiteralE(NumberLiteralOptions opt, ErrorMessageList errorInCaseNoLiteralFound, CharStream<Unit> stream) => numberLiteralE<Unit>(opt, errorInCaseNoLiteralFound, stream);

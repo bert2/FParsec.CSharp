@@ -6,6 +6,8 @@ image: Visual Studio 2022
 environment:
   nuget_key:
     secure: Y8UVVditrL3mDmtE3AVnfM5ovIVCHx6gGqwKieDMbQ+aYzT6WOxI/v9mkjedr3t6
+install:
+- ps: dotnet tool restore
 build_script:
 - ps: dotnet cake ./build/build.cake
 test: off

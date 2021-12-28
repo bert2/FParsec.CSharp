@@ -21,11 +21,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{63985E5B
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
 		..\build\build.cake = ..\build\build.cake
-		..\build.ps1 = ..\build.ps1
-		..\build.sh = ..\build.sh
 		..\build\format-rel-notes.cake = ..\build\format-rel-notes.cake
 		..\GitVersion.yml = ..\GitVersion.yml
 		..\build\prompt.cake = ..\build\prompt.cake
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{F66E306E-5F9D-48D2-B577-FB41F07944C4}"
+	ProjectSection(SolutionItems) = preProject
+		..\.config\dotnet-tools.json = ..\.config\dotnet-tools.json
 	EndProjectSection
 EndProject
 Global
@@ -52,6 +55,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{63985E5B-6F4F-4A6F-9895-4EC4A96AF56A} = {76966DE4-7EC2-4995-ADE8-67EEA00B406F}
+		{F66E306E-5F9D-48D2-B577-FB41F07944C4} = {76966DE4-7EC2-4995-ADE8-67EEA00B406F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5EC434C8-6867-437A-8508-7E6C97804785}

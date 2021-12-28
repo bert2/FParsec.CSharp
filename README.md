@@ -4,34 +4,6 @@
 
 FParsec.CSharp is a C# wrapper for the F# package [FParsec](https://github.com/stephan-tolksdorf/fparsec). FParsec is a parser combinator library with which you can implement parsers declaratively.
 
-- [Why FParsec.CSharp?](#why-fparseccsharp)
-- [Getting started](#getting-started)
-- [Executing parsers](#executing-parsers)
-  * [Running the parser function and getting the `Reply`](#running-the-parser-function-and-getting-the-reply)
-  * [Getting nicer error messages with `ParserResult`](#getting-nicer-error-messages-with-parserresult)
-- [Handling parser results](#handling-parser-results)
-  * [Getting the result or an exception](#getting-the-result-or-an-exception)
-  * [Getting the result with custom error handling](#getting-the-result-with-custom-error-handling)
-  * [Safe unwrapping](#safe-unwrapping)
-  * [Deconstructing parser results (C# 8.0)](#deconstructing-parser-results-c-80)
-- [Working with user state](#working-with-user-state)
-- [Using FParsec.CSharp and FParsec together](#using-fparseccsharp-and-fparsec-together)
-  * [Working with FParsec parsers directly](#working-with-fparsec-parsers-directly)
-  * [Passing lambdas to FParsec](#passing-lambdas-to-fparsec)
-- [Examples](#examples)
-  * [Simple JSON](#simple-json)
-  * [Simple XML](#simple-xml)
-  * [Glob patterns](#glob-patterns)
-  * [Arithmetic expressions](#arithmetic-expressions)
-  * [Simple regular expressions](#simple-regular-expressions)
-  * [Simple script language](#simple-script-language)
-- [Hints](#hints)
-  * [Debugging](#debugging)
-  * [Aliasing awkward types](#aliasing-awkward-types)
-- [Where is the FParsec function `x`?](#where-is-the-fparsec-function-x)
-- [Credits](#credits)
-- [TODO](#todo)
-
 ## Why FParsec.CSharp?
 
 While using FParsec from C# is entirely possible in theory, it is very awkward in practice. Most of FParsec's elegance is lost in translation due to C#'s inferior type inference and its lack of custom operators.

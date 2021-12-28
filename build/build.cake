@@ -1,7 +1,7 @@
-#tool nuget:?package=GitVersion.CommandLine&version=5.6.3
-#tool Codecov
-#addin Cake.Codecov
-#addin Cake.Git
+#tool nuget:?package=GitVersion.CommandLine&version=5.8.1
+#tool nuget:?package=Codecov&version=1.13.0
+#addin nuget:?package=Cake.Codecov&version=1.0.1
+#addin nuget:?package=Cake.Git&version=2.0.0
 #load prompt.cake
 #load format-rel-notes.cake
 
@@ -26,28 +26,28 @@ Task("SemVer")
 
 Task("Clean")
     .Does(() =>
-        DotNetCoreClean(srcDir, new DotNetCoreCleanSettings {
+        DotNetClean(srcDir, new DotNetCleanSettings {
             Configuration = config,
-            Verbosity = DotNetCoreVerbosity.Minimal
+            Verbosity = DotNetVerbosity.Minimal
         }));
 
 Task("Build")
     .IsDependentOn("SemVer")
     .Does(() =>
-        DotNetCoreBuild(srcDir, new DotNetCoreBuildSettings {
+        DotNetBuild(srcDir, new DotNetBuildSettings {
             Configuration = config,
-            MSBuildSettings = new DotNetCoreMSBuildSettings()
+            MSBuildSettings = new DotNetMSBuildSettings()
                 .SetVersion(semVer.AssemblySemVer)
         }));
 
 Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
-        DotNetCoreTest(srcDir, new DotNetCoreTestSettings {
+        DotNetTest(srcDir, new DotNetTestSettings {
             Configuration = config,
             NoBuild = true,
             ArgumentCustomization = args => {
-                var msbuildSettings = new DotNetCoreMSBuildSettings()
+                var msbuildSettings = new DotNetMSBuildSettings()
                     .WithProperty("CollectCoverage", "true")
                     .WithProperty("CoverletOutputFormat", "opencover");
                 args.AppendMSBuildSettings(msbuildSettings, environment: null);
@@ -73,7 +73,7 @@ Task("Pack-FParsec.CSharp")
         var libDir = srcDir + Directory(pkgName);
         var pkgDir = libDir + Directory($"bin/{config}");
 
-        var msbuildSettings = new DotNetCoreMSBuildSettings()
+        var msbuildSettings = new DotNetMSBuildSettings()
             // Cannot set PackageId here due to error "Ambiguous project name 'FParsec.CSharp'"
         	//.WithProperty("PackageId",                new[] { pkgName })
             .SetVersion(semVer.AssemblySemVer) // have to set assembly version here, because pack needs to rebuild
@@ -90,7 +90,7 @@ Task("Pack-FParsec.CSharp")
         	.WithProperty("IncludeSymbols",           "true")
         	.WithProperty("SymbolPackageFormat",      "snupkg");
 
-        DotNetCorePack(libDir, new DotNetCorePackSettings {
+        DotNetPack(libDir, new DotNetPackSettings {
             Configuration = config,
             OutputDirectory = pkgDir,
             NoBuild = false, // cannot disable, because of work-around to include LambdaConvert.dll
@@ -121,9 +121,9 @@ Task("Release-FParsec.CSharp")
         var libDir = srcDir + Directory(pkgName);
         var pkgDir = libDir + Directory($"bin/{config}");
 
-        DotNetCoreNuGetPush(
+        DotNetNuGetPush(
             pkgDir + File($"{pkgName}.{semVer.NuGetVersion}.nupkg"),
-            new DotNetCoreNuGetPushSettings {
+            new DotNetNuGetPushSettings {
                 Source = "nuget.org",
                 ApiKey = nugetKey
             });

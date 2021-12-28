@@ -32,10 +32,10 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
         /// </summary>
-        public static ParserResult<TResult, U> RunOnString<U, TResult>(
-            this FSharpFunc<CharStream<U>, Reply<TResult>> p,
+        public static ParserResult<TResult, U?> RunOnString<U, TResult>(
+            this FSharpFunc<CharStream<U?>, Reply<TResult>> p,
             string chars,
-            U userState = default,
+            U? userState = default,
             string? streamName = null)
             => runParserOnString(p, userState, streamName, chars);
 
@@ -51,12 +51,12 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
         /// </summary>
-        public static ParserResult<TResult, U> RunOnString<U, TResult>(
-            this FSharpFunc<CharStream<U>, Reply<TResult>> p,
+        public static ParserResult<TResult, U?> RunOnString<U, TResult>(
+            this FSharpFunc<CharStream<U?>, Reply<TResult>> p,
             string chars,
             int index,
             int length,
-            U userState = default,
+            U? userState = default,
             string? streamName = null)
             => runParserOnSubstring(p, userState, streamName, chars, index, length);
 
@@ -75,10 +75,10 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
         /// </summary>
-        public static ParserResult<TResult, U> RunOnStream<U, TResult>(
-            this FSharpFunc<CharStream<U>, Reply<TResult>> p,
+        public static ParserResult<TResult, U?> RunOnStream<U, TResult>(
+            this FSharpFunc<CharStream<U?>, Reply<TResult>> p,
             Stream byteStream,
-            U userState = default,
+            U? userState = default,
             Encoding? encoding = null,
             string? streamName = null)
             => runParserOnStream(p, userState, streamName, byteStream, encoding ?? Encoding.Default);
@@ -94,10 +94,10 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
         /// </summary>
-        public static ParserResult<TResult, U> RunOnFile<U, TResult>(
-            this FSharpFunc<CharStream<U>, Reply<TResult>> p,
+        public static ParserResult<TResult, U?> RunOnFile<U, TResult>(
+            this FSharpFunc<CharStream<U?>, Reply<TResult>> p,
             string path,
-            U userState = default,
+            U? userState = default,
             Encoding? encoding = null)
             => runParserOnFile(p, userState, path, encoding ?? Encoding.Default);
 
@@ -139,7 +139,7 @@ namespace FParsec.CSharp {
         /// <para>`m` will be `null` if parsing succeeded.</para>
         /// <para>`r` will be `default(TResult)` if parsing failed.</para>
         /// </summary>
-        public static (TResult result, string? message) UnwrapResult<U, TResult>(this ParserResult<TResult, U> result) {
+        public static (TResult? result, string? message) UnwrapResult<U, TResult>(this ParserResult<TResult, U> result) {
             var (r, f) = result.UnwrapWithFailure();
             return (r, f?.Message());
         }
@@ -152,7 +152,7 @@ namespace FParsec.CSharp {
         /// <para>`e` will be `null` if parsing succeeded.</para>
         /// <para>`r` will be `default(TResult)` if parsing failed.</para>
         /// </summary>
-        public static (TResult result, ParserError? error) UnwrapWithError<U, TResult>(this ParserResult<TResult, U> result) {
+        public static (TResult? result, ParserError? error) UnwrapWithError<U, TResult>(this ParserResult<TResult, U> result) {
             var (r, f) = result.UnwrapWithFailure();
             return (r, f?.Error());
         }
@@ -165,10 +165,10 @@ namespace FParsec.CSharp {
         /// <para>`f` will be `null` if parsing succeeded.</para>
         /// <para>`r` will be `default(TResult)` if parsing failed.</para>
         /// </summary>
-        public static (TResult result, ParserResult<TResult, U>.Failure? failure) UnwrapWithFailure<U, TResult>(
+        public static (TResult? result, ParserResult<TResult, U>.Failure? failure) UnwrapWithFailure<U, TResult>(
             this ParserResult<TResult, U> result)
             => result.IsSuccess
-                ? (result.ToSuccess().Result(), (ParserResult<TResult, U>.Failure?)null)
+                ? (result.ToSuccess().Result(), null)
                 : (default, result.ToFailure());
 
         /// <summary>
@@ -409,9 +409,9 @@ namespace FParsec.CSharp {
         public static FSharpList<T> ToFSharpList<T>(this IEnumerable<T> source) => ListModule.OfSeq(source);
 
         /// <summary>Unwraps the `FSharpOption` using an optional default value.</summary>
-        public static T GetValueOrDefault<T>(
+        public static T? GetValueOrDefault<T>(
             this FSharpOption<T> opt,
-            T defaultValue = default)
+            T? defaultValue = default)
             => FSharpOption<T>.get_IsSome(opt) ? opt.Value : defaultValue;
 
         /// <summary>Prepends an item to the `FSharpList`.</summary>

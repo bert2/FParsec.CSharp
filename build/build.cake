@@ -48,8 +48,8 @@ Task("Test")
             NoBuild = true,
             ArgumentCustomization = args => {
                 var msbuildSettings = new DotNetCoreMSBuildSettings()
-                    .WithProperty("CollectCoverage", new[] { "true" })
-                    .WithProperty("CoverletOutputFormat", new[] { "opencover" });
+                    .WithProperty("CollectCoverage", "true")
+                    .WithProperty("CoverletOutputFormat", "opencover");
                 args.AppendMSBuildSettings(msbuildSettings, environment: null);
                 return args;
             }
@@ -69,8 +69,7 @@ Task("Pack-FParsec.CSharp")
         var pkgDesc = "FParsec.CSharp is a thin C# wrapper for FParsec.";
         var pkgTags = "parser; parser combinator; c#; csharp; parsec; fparsec";
         var pkgAuthors = "Robert Hofmann";
-        var docUrl = "https://github.com/bert2/FParsec.CSharp";
-        var repoUrl = "https://github.com/bert2/FParsec.CSharp.git";
+        var repoUrl = "https://github.com/bert2/FParsec.CSharp";
         var libDir = srcDir + Directory(pkgName);
         var pkgDir = libDir + Directory($"bin/{config}");
 
@@ -78,18 +77,18 @@ Task("Pack-FParsec.CSharp")
             // Cannot set PackageId here due to error "Ambiguous project name 'FParsec.CSharp'"
         	//.WithProperty("PackageId",                new[] { pkgName })
             .SetVersion(semVer.AssemblySemVer) // have to set assembly version here, because pack needs to rebuild
-        	.WithProperty("PackageVersion",           new[] { semVer.NuGetVersion })
-        	.WithProperty("Title",                    new[] { pkgName })
-        	.WithProperty("Description",              new[] { $"{pkgDesc}\r\n\r\nDocumentation: {docUrl}\r\n\r\nRelease notes: {relNotes}" })
-        	.WithProperty("PackageTags",              new[] { pkgTags })
-        	.WithProperty("PackageReleaseNotes",      new[] { relNotes })
-        	.WithProperty("Authors",                  new[] { pkgAuthors })
-        	.WithProperty("RepositoryUrl",            new[] { repoUrl })
-        	.WithProperty("RepositoryCommit",         new[] { lastCommitSha })
-        	.WithProperty("PackageLicenseExpression", new[] { "MIT" })
-        	.WithProperty("IncludeSource",            new[] { "true" })
-        	.WithProperty("IncludeSymbols",           new[] { "true" })
-        	.WithProperty("SymbolPackageFormat",      new[] { "snupkg" });
+        	.WithProperty("PackageVersion",           semVer.NuGetVersion)
+        	.WithProperty("Title",                    pkgName)
+        	.WithProperty("Description",              $"{pkgDesc}\r\n\r\nDocumentation: {repoUrl}\r\n\r\nRelease notes: {relNotes}")
+        	.WithProperty("PackageTags",              pkgTags)
+        	.WithProperty("PackageReleaseNotes",      relNotes)
+        	.WithProperty("Authors",                  pkgAuthors)
+        	.WithProperty("PackageProjectUrl",        repoUrl)
+        	.WithProperty("RepositoryCommit",         lastCommitSha)
+        	.WithProperty("PackageLicenseExpression", "MIT")
+        	.WithProperty("IncludeSource",            "true")
+        	.WithProperty("IncludeSymbols",           "true")
+        	.WithProperty("SymbolPackageFormat",      "snupkg");
 
         DotNetCorePack(libDir, new DotNetCorePackSettings {
             Configuration = config,

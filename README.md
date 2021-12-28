@@ -20,7 +20,7 @@ Note that the documentation assumes prior knowledge on FParsec or other parser c
 
 Import the combinators, pre-defined parsers, and helper functions:
 
-```C#
+```csharp
 using FParsec.CSharp; // extension functions (combinators & helpers)
 using static FParsec.CSharp.PrimitivesCS; // combinator functions
 using static FParsec.CSharp.CharParsersCS; // pre-defined parsers
@@ -28,10 +28,10 @@ using static FParsec.CSharp.CharParsersCS; // pre-defined parsers
 
 Now you can write some parsers:
 
-```C#
-var p = AnyChar.And(Digit);
-var r = p.ParseString("a1");
-System.Diagnostics.Debug.Assert(r.Result == ('a', '1'));
+```csharp
+var parser = AnyChar.And(Digit);
+var reply = parser.ParseString("a1");
+Debug.Assert(reply.Result == ('a', '1'));
 ```
 
 ## Executing parsers
@@ -56,7 +56,7 @@ Using `Invoke()`, `Parse()`, or any of its variants is generally not recommended
 
 The extension `ParserResult<T, Unit> Run(string)` does the same as `Reply<T> ParseString(string)`, but also builds an error message from the `Reply`'s errors and the parser postion:
 
-```C#
+```csharp
 var result = Many1(Digit).AndR(Upper).Run("123a");
 
 // Don't be shocked: in the next section we will learn how to improve this.
@@ -86,7 +86,7 @@ FParsec's `ParserResult` is an F# discriminated union, which are awkward to work
 
 The easiest way to get the parser result is to use `GetResult()`:
 
-```C#
+```csharp
 var one = Digit.Run("1").GetResult();
 Debug.Assert(one == '1');
 ```
@@ -97,7 +97,7 @@ Debug.Assert(one == '1');
 
 If you need more graceful error handling you can use `GetResult<T>(Func<string, T>)` which delegates error handling to the caller and provides the failure message to it:
 
-```C#
+```csharp
 // provide fallback value
 var d1 = Digit.Run("a").GetResult(_ => default);
 Debug.Assert(d1 == '\0');
@@ -116,9 +116,9 @@ Additionally, the extensions `GetResultOrError<T>(Func<ParserError, T>)` and `Ge
 
 ### Safe unwrapping
 
-Alternatively, you can can safely unwrap a `ParserResult<T, Unit>` into a tuple `(T result, string message)` using `UnwrapResult()` (which will never throw):
+Alternatively, you can can safely unwrap a `ParserResult<T, Unit>` into a tuple `(T? result, string? message)` using `UnwrapResult()` (which will never throw):
 
-```C#
+```csharp
 var (res, msg) = Digit.Run("a").UnwrapResult();
 Console.WriteLine(msg ?? $"Parser succeeded: {res}");
 ```
@@ -131,7 +131,7 @@ Hence the safest way to check if the parser result tuple indicates failure is to
 
 With C# 8.0 you can do that quite nicely using a `switch` expression and recursive patterns:
 
-```C#
+```csharp
 var response = Digit.Run("a").UnwrapResult() switch {
     (var r, null) => $"Parser succeeded: {r}",
     (_,    var m) => $"Parser failed: {m}"
@@ -144,7 +144,7 @@ var response = Digit.Run("a").UnwrapResult() switch {
 
 FParsec.CSharp extends the types involved with parser results with deconstructors so you can make use of C# 8.0's recursive patterns inside `switch` statements/expressions:
 
-```C#
+```csharp
 var response = Digit.Run("1") switch {
     ParserResult<char, Unit>.Success(var c, _, _) => $"Parsed '{c}'.",
     ParserResult<char, Unit>.Failure(_, (_, (_, _, var col, _)), _) => $"Some error at column {col}."
@@ -152,7 +152,7 @@ var response = Digit.Run("1") switch {
 
 ```
 
-```C#
+```csharp
 var response = Digit.ParseString("a") switch {
     (ReplyStatus.Ok, var c, _) => $"Parsed '{c}'.",
     (ReplyStatus.Error, _, (ErrorMessage.Expected err, _)) => $"Expected a {err.Label}.",
@@ -170,7 +170,7 @@ using static FParsec.CharParsers; // contains `ParserResult`
 
 FParsec.CSharp, like FParsec, supports parsing with user state. This is reflected by the type parameter `U` in the signatures:
 
-```C#
+```csharp
 public FSharpFunc<CharStream<U>, Reply<(T1, T2)>> And<U, T1, T2>(
     this FSharpFunc<CharStream<U>, Reply<T1>> p1,
     FSharpFunc<CharStream<U>, Reply<T2>> p2);
@@ -192,7 +192,7 @@ var parserWithUserState = DigitU<int>().And(LetterU<int>());
 
 Below are example test cases to demonstrate working with user state:
 
-```C#
+```csharp
 [Fact] public void SimpleSet() {
     switch (SetUserState(12).RunOnString("", 0)) {
         case ParserResult<Unit, int>.Success(_, 12, _):
@@ -231,13 +231,13 @@ Below are example test cases to demonstrate working with user state:
 
 In case you need one of FParsec's more specialized parsers you can easily import their namespace:
 
-```C#
+```csharp
 using static FParsec.CharParsers;
 ```
 
 In the example below we are using `FParsec.CharParsers.many1Chars2()`. As you can see it integrates seemlessly with FParsec.CSharp:
 
-```C#
+```csharp
 var first = Letter.Or(CharP('_'));
 var rest = Letter.Or(CharP('_')).Or(Digit);
 var identifier = many1Chars2(first, rest);
@@ -252,7 +252,7 @@ System.Diagnostics.Debug.Assert(r.Result == ("my_1st_var", 13));
 
 Some of FParsec's parsers take anonymous functions. But since they expect curried `FSharpFunc`s they won't accept C# lambdas. FParsec.CSharp comes with a little helper to create `FSharpFunc`s from `Func` objects:
 
-```C#
+```csharp
 // convert lambda with factory method
 var fsfunc1 = FSharpFunc.From<char, bool>(c => c == 'x' || c == 'y');
 
@@ -271,7 +271,7 @@ You can find lots of examples in the [test project](https://github.com/bert2/FPa
 
 ### Simple JSON
 
-```C#
+```csharp
 FSharpFunc<CharStream<Unit>, Reply<JToken>> jvalue = null;
 
 var jnull = StringCI("null", (JToken)null).Lbl("null");
@@ -306,7 +306,7 @@ var simpleJsonParser = WS.And(jobject).And(WS).And(EOF).Map(o => (JObject)o);
 
 ### Simple XML
 
-```C#
+```csharp
 var nameStart = Choice(Letter, CharP('_'));
 var nameChar = Choice(Letter, Digit, AnyOf("-_."));
 var name = Many1Chars(nameStart, nameChar).And(WS);
@@ -349,7 +349,7 @@ var simpleXmlParser = WS.And(element).And(WS).And(EOF);
 
 ### Glob patterns
 
-```C#
+```csharp
 var globParser =
     Many(Choice(
         Skip('?').Map(NFA.MakeAnyChar),
@@ -364,7 +364,7 @@ var globParser =
 
 This example contructs a non-deterministic finite automaton (NFA) during parsing and can be used for matching:
 
-```C#
+```csharp
 [Fact] public void CanParseAndMatchGlobPattern() => globParser
     .ParseString("The * syntax is easy?").Result
     .Matches("The glob syntax is easy!")
@@ -375,7 +375,7 @@ This example contructs a non-deterministic finite automaton (NFA) during parsing
 
 FParsec.CSharp comes with a builder to construct `FParsec.OperatorPrecedenceParser`s:
 
-```C#
+```csharp
 var basicExprParser = new OPPBuilder<Unit, int, Unit>()
     .WithOperators(ops => ops
         .AddInfix("+", 1, (x, y) => x + y)
@@ -395,7 +395,7 @@ var recursiveExprParser = new OPPBuilder<Unit, int, Unit>()
 
 It also supports implicit operators:
 
-```C#
+```csharp
 var exprParser =
     WS.And(new OPPBuilder<Unit, int, Unit>()
         .WithOperators(ops => ops
@@ -418,7 +418,7 @@ var exprParser =
 
 Armed with the `OPPBuilder` and the NFA implementation used for the glob parser above we can even build a simple regex parser & matcher:
 
-```C#
+```csharp
 var simpleRegexParser =
     Many(new OPPBuilder<Unit, NFA.ProtoState, Unit>()
         .WithImplicitOperator(2, NFA.Connect)
@@ -443,7 +443,7 @@ var simpleRegexParser =
     .Map(proto => proto(new Final()));
 ```
 
-```C#
+```csharp
 [Fact] public void CanParseAndMatchRegex() => simpleRegexParser
     .ParseString("The( simple)? .+ syntax is .*more tricky( and (complex|difficult|involved))+.").Result
     .Matches("The simple regex syntax is only a little bit more tricky and complex and involved!")
@@ -454,7 +454,7 @@ var simpleRegexParser =
 
 This example implements a simple functional script language. It only knows one type (`int`) and is super inefficient, but it has lots of functional fu (e.g. lazy evaluation, partial application, lambdas, higher order functions, and function composition).
 
-```C#
+```csharp
 var number = Natural.Lbl("number");
 
 static StringParser notReserved(string id) => id == "let" || id == "in" || id == "match" ? Zero<string>() : Return(id);
@@ -525,7 +525,7 @@ var scriptParser = WS.And(expression).And(EOF);
 
 This parser builds a function that can be invoked (with an empty arguments list and an empty "runtime environment") to execute the script:
 
-```C#
+```csharp
 [Fact] public void FibonacciNumber() => scriptParser
     .Run(@"
         let fib n = match n
@@ -549,40 +549,84 @@ It takes two `Action`s:
 * `Action<CharStream<Unit>> before`: is run before the parser is applied,
 * `Action<CharStream<Unit>, Reply<T>> after`: is run after the parser was applied.
 
-For instance, you can use empty `Action`s in order to place break points:
+For instance, you can use empty `Action`s and place break points inside them:
 
-```C#
+```csharp
 var p = Digit.Debug(cs => {}, (cs, r) => {})
         .And(
             Letter.Debug(cs => {}, (cs, r) => {}))
         .Debug(cs => {}, (cs, r) => {});
 ```
 
-### Aliasing awkward types
+### Reducing namespace noise
 
-In order to simplify the types shown in IntelliSense you can use type aliases:
+The signatures of FParsec.CSharp's combinators can look pretty daunting. For instance, the signature of the combinator `Many()` might appear like this in InteliSense or when hovering over its name:
 
-```C#
+```csharp
+Microsoft.FSharp.Core.FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<Microsoft.FSharp.Collections.FSharpList<T>>> PrimitivesCS.Many<U, T>(Microsoft.FSharp.Core.FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<T>> p)
+```
+
+Remember that Visual Studio hides namespaces in the UI that have a `using` in the current file. So if you add the following `using`s (even though not all of them are actually needed)...
+
+```csharp
+using FParsec;
+using Microsoft.FSharp.Collections;
+using Microsoft.FSharp.Core;
+```
+
+...then the Visual Studio UI will simplify the above signature to:
+
+```csharp
+FSharpFunc<CharStream<Unit>, Reply<FSharpList<T>>> PrimitivesCS.Many<U, T>(FSharpFunc<CharStream<Unit>, Reply<T>> p)
+```
+
+Still a mouthful, but a little more readable nonetheless.
+
+#### Aliasing awkward types
+
+You can use type aliases to further simplify signatures in the Visual Studio UI and your code:
+
+```csharp
 using Chars = FParsec.CharStream<Microsoft.FSharp.Core.Unit>;
 ```
 
 Unfortunately C# does not support type aliases with open generics. Hence if you want to simplify the type of a parser you will have to do it for each of the possible `Reply<T>`s you are using:
 
-```C#
+```csharp
 using StringParser = Microsoft.FSharp.Core.FSharpFunc<FParsec.CharStream<Microsoft.FSharp.Core.Unit>, FParsec.Reply<string>>;
 using JsonParser = Microsoft.FSharp.Core.FSharpFunc<FParsec.CharStream<Microsoft.FSharp.Core.Unit>, FParsec.Reply<JObject>>;
 // ...
 ```
 
-Also make sure to place your import `usings` _outside_, and your alias `using`s _inside_ your namespace declaration. This will greatly reduce namespace noise in IntelliSense and simplify your alias definitions:
+If you place your import `usings` _outside_, and your alias `using`s _inside_ your namespace declaration then this will simplify your alias definitions:
 
-```C#
+```csharp
 using System.Xml.Linq;
 using FParsec;
 using Microsoft.FSharp.Core;
 
-namespace Tests {
+namespace Tests
+{
     using XElParser = FSharpFunc<CharStream<Unit>, Reply<XElement>>;
+    // ...
+```
+
+Combining all suggestions your `using`s could look like this for minimal noise:
+
+```csharp
+#pragma warning disable IDE0065 // Misplaced using directive
+using FParsec;
+using FParsec.CSharp;
+using Microsoft.FSharp.Collections;
+using Microsoft.FSharp.Core;
+using static FParsec.CSharp.PrimitivesCS;
+using static FParsec.CSharp.CharParsersCS;
+
+namespace MyParser
+{
+    using Chars = CharStream<Unit>;
+    using CharParser = FSharpFunc<CharStream<Unit>, Reply<char>>;
+    using StringParser = FSharpFunc<CharStream<Unit>, Reply<string>>;
     // ...
 ```
 
@@ -810,8 +854,3 @@ This library is based on the following works:
 * The OPP's implicit operator implementation was stolen from [StackOverflow](https://stackoverflow.com/questions/29322892).
 * The idea for the parser `Purify()` was also stolen from [StackOverflow](https://stackoverflow.com/a/56364809/1025555).
 * The NFA implementation for the glob/regex parser example was inspired by [Russ Cox' fantastic article on efficient regex matching](https://swtch.com/~rsc/regexp/regexp1.html).
-
-## TODO
-
-* Wrap `identifier` parsers?
-* Add [source link](https://github.com/dotnet/sourcelink) support?

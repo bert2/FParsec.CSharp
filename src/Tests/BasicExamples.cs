@@ -99,7 +99,7 @@ namespace Tests {
                 NumberLiteralOptions.AllowMinusSign |
                 NumberLiteralOptions.AllowFraction |
                 NumberLiteralOptions.AllowExponent, "scientific notation").ParseString("-13.45e+2");
-            
+
             status.ShouldBe(ReplyStatus.Ok);
             result.Info.ShouldBe(NumberLiteralResultFlags.HasMinusSign |
                                                   NumberLiteralResultFlags.HasIntegerPart |
@@ -108,7 +108,7 @@ namespace Tests {
                                                   NumberLiteralResultFlags.IsDecimal);
             errorMessageList.ShouldBeNull();
         }
-        
+
         [Fact]
         public void ParseNumberLiteralE() {
             const string numberString = "-13.45e+2";
@@ -118,7 +118,7 @@ namespace Tests {
                 NumberLiteralOptions.AllowMinusSign |
                 NumberLiteralOptions.AllowFraction |
                 NumberLiteralOptions.AllowExponent, errorInCaseNoLiteralFound, charStream);
-            
+
             status.ShouldBe(ReplyStatus.Ok);
             result.Info.ShouldBe(NumberLiteralResultFlags.HasMinusSign |
                                  NumberLiteralResultFlags.HasIntegerPart |

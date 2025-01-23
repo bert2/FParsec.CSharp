@@ -849,8 +849,8 @@ Keep in mind that many predefined parsers and some of the combinators have a var
 
 This library is based on the following works:
 
-* Obviously [FParsec](https://github.com/stephan-tolksdorf/fparsec), because FParsec.CSharp only _wraps_ FParsec and barely implements any logic on its own. FParsec is also where I stole most of the XML documentation from.
-* [Pidgin](https://github.com/benjamin-hodgson/Pidgin) gave me the whole idea of thinking about a parser combinator API in C#. However, I'm not smart enough to build my own implementation and just wrapped FParsec instead.
-* The OPP's implicit operator implementation was stolen from [StackOverflow](https://stackoverflow.com/questions/29322892).
-* The idea for the parser `Purify()` was also stolen from [StackOverflow](https://stackoverflow.com/a/56364809/1025555).
+* Obviously [FParsec](https://github.com/stephan-tolksdorf/fparsec), because FParsec.CSharp mostly just _wraps_ FParsec. FParsec is also where I took most of the XML documentation from.
+* [Pidgin](https://github.com/benjamin-hodgson/Pidgin) gave me the whole idea of thinking about a parser combinator API in C#.
+* The OPP's implicit operator implementation was taken from [StackOverflow](https://stackoverflow.com/questions/29322892).
+* The idea for the parser `Purify()` was taken from [StackOverflow](https://stackoverflow.com/a/56364809/1025555).
 * The NFA implementation for the glob/regex parser example was inspired by [Russ Cox' fantastic article on efficient regex matching](https://swtch.com/~rsc/regexp/regexp1.html).

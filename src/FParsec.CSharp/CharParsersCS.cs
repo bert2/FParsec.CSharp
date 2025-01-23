@@ -139,7 +139,7 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>
         /// If `s` does not contain the char '\n', `NoneOf(s)` parses any newline ("\n", "\r\n", or
-        /// "\r") and returns it as  as '\n'.
+        /// "\r") and returns it as '\n'.
         /// </para>
         /// <para>
         /// Note that it does not make a difference whether or not `s` contains '\r'; `NoneOf(s)`
@@ -1072,7 +1072,7 @@ namespace FParsec.CSharp {
         public static FSharpFunc<CharStream<U>, Reply<string>> Many1Strings<U>(
             FSharpFunc<CharStream<U>, Reply<string>> p,
             FSharpFunc<CharStream<U>, Reply<string>> sep)
-            => stringsSepBy(p, sep);
+            => stringsSepBy1(p, sep);
 
         /// <summary>
         /// <para>
@@ -1086,7 +1086,7 @@ namespace FParsec.CSharp {
         public static FSharpFunc<CharStream<U>, Reply<string>> Many1Strings<U>(
             FSharpFunc<CharStream<U>, Reply<string>> p,
             string sep)
-            => stringsSepBy(p, pstring<U>(sep));
+            => stringsSepBy1(p, pstring<U>(sep));
 
         /// <summary>
         /// <para>
@@ -1410,7 +1410,7 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>
         /// The given `NumberLiteralOptions` argument determines the kind of number literals accepted.
-        /// The string `label` is used in the `Expected` error message that is generated when the parser fails without consuming input. 
+        /// The string `label` is used in the `Expected` error message that is generated when the parser fails without consuming input.
         /// </para>
         /// <para>
         /// The parser fails without consuming input, if not at least one digit (including the 0 in the format specifiers "0x" etc.) can be parsed.
@@ -1418,7 +1418,7 @@ namespace FParsec.CSharp {
         /// </para>
         /// </summary>
         public static FSharpFunc<CharStream<Unit>, Reply<NumberLiteral>> NumberLiteral(NumberLiteralOptions opt, string label) => numberLiteral<Unit>(opt, label);
-        
+
         /// <summary>`NumberLiteralU()` behaves like `NumberLiteral`, but supports user state.</summary>
         public static FSharpFunc<CharStream<U>, Reply<NumberLiteral>> NumberLiteralU<U>(NumberLiteralOptions opt, string label) => numberLiteral<U>(opt, label);
 
@@ -1429,7 +1429,7 @@ namespace FParsec.CSharp {
         /// </para>
         /// </summary>
         public static Reply<NumberLiteral> NumberLiteralE(NumberLiteralOptions opt, ErrorMessageList errorInCaseNoLiteralFound, CharStream<Unit> stream) => numberLiteralE<Unit>(opt, errorInCaseNoLiteralFound, stream);
-        
+
         /// <summary>`NumberLiteralEU()` behaves like `NumberLiteralE`, but supports user state.</summary>
         public static Reply<NumberLiteral> NumberLiteralEU<U>(NumberLiteralOptions opt, ErrorMessageList errorInCaseNoLiteralFound, CharStream<U> stream) => numberLiteralE<U>(opt, errorInCaseNoLiteralFound, stream);
 

@@ -24,6 +24,23 @@ namespace FParsec.CSharp {
         /// <summary>
         /// <para>
         /// `p.RunOnString(s,u,name)` runs the parser `p` directly on the content of the string
+        /// `s`.
+        /// </para>
+        /// <para>
+        /// The `name` is used in error messages to describe the source of the input (e.g. a file
+        /// path) and may be `null` or empty.
+        /// </para>
+        /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
+        /// </summary>
+        public static ParserResult<TResult, Unit> RunOnString<TResult>(
+            this FSharpFunc<CharStream<Unit>, Reply<TResult>> p,
+            string chars,
+            string? streamName = null)
+            => runParserOnString(p, default!, streamName, chars);
+
+        /// <summary>
+        /// <para>
+        /// `p.RunOnString(s,u,name)` runs the parser `p` directly on the content of the string
         /// `s`, starting with the initial user state `u`.
         /// </para>
         /// <para>
@@ -32,12 +49,31 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
         /// </summary>
-        public static ParserResult<TResult, U?> RunOnString<U, TResult>(
-            this FSharpFunc<CharStream<U?>, Reply<TResult>> p,
+        public static ParserResult<TResult, U> RunOnString<U, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<TResult>> p,
             string chars,
-            U? userState = default,
+            U userState,
             string? streamName = null)
             => runParserOnString(p, userState, streamName, chars);
+
+        /// <summary>
+        /// <para>
+        /// `p.RunOnString(s,index,count,u,name)` runs the parser `p` directly on the content of
+        /// the string `s` between the indices `index` (inclusive) and `index + count` (exclusive).
+        /// </para>
+        /// <para>
+        /// The `name` is used in error messages to describe the source of the input (e.g. a file
+        /// path) and may be `null` or empty.
+        /// </para>
+        /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
+        /// </summary>
+        public static ParserResult<TResult, Unit> RunOnString<TResult>(
+            this FSharpFunc<CharStream<Unit>, Reply<TResult>> p,
+            string chars,
+            int index,
+            int length,
+            string? streamName = null)
+            => runParserOnSubstring(p, default!, streamName, chars, index, length);
 
         /// <summary>
         /// <para>
@@ -51,14 +87,36 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
         /// </summary>
-        public static ParserResult<TResult, U?> RunOnString<U, TResult>(
-            this FSharpFunc<CharStream<U?>, Reply<TResult>> p,
+        public static ParserResult<TResult, U> RunOnString<U, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<TResult>> p,
             string chars,
             int index,
             int length,
-            U? userState = default,
+            U userState,
             string? streamName = null)
             => runParserOnSubstring(p, userState, streamName, chars, index, length);
+
+        /// <summary>
+        /// <para>
+        /// `p.RunOnStream(stream,enc,name)` runs the parser `p` on the content of the
+        /// `System.IO.Stream` `stream`.
+        /// </para>
+        /// <para>
+        /// The `name` is used in error messages to describe the source of the input (e.g. a file
+        /// path) and may be `null` or empty.
+        /// </para>
+        /// <para>
+        /// In case no unicode byte order mark is found, the stream data is assumed to be encoded
+        /// with the given `enc`. `Encoding.Default` will be used if `enc` was not specified.
+        /// </para>
+        /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
+        /// </summary>
+        public static ParserResult<TResult, Unit> RunOnStream<TResult>(
+            this FSharpFunc<CharStream<Unit>, Reply<TResult>> p,
+            Stream byteStream,
+            Encoding? encoding = null,
+            string? streamName = null)
+            => runParserOnStream(p, default!, streamName, byteStream, encoding ?? Encoding.Default);
 
         /// <summary>
         /// <para>
@@ -75,10 +133,10 @@ namespace FParsec.CSharp {
         /// </para>
         /// <para>The parser's `Reply` is captured and returned as a `ParserResult` value.</para>
         /// </summary>
-        public static ParserResult<TResult, U?> RunOnStream<U, TResult>(
-            this FSharpFunc<CharStream<U?>, Reply<TResult>> p,
+        public static ParserResult<TResult, U> RunOnStream<U, TResult>(
+            this FSharpFunc<CharStream<U>, Reply<TResult>> p,
             Stream byteStream,
-            U? userState = default,
+            U userState,
             Encoding? encoding = null,
             string? streamName = null)
             => runParserOnStream(p, userState, streamName, byteStream, encoding ?? Encoding.Default);

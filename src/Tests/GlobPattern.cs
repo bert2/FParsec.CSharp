@@ -6,67 +6,67 @@ using Xunit;
 using static FParsec.CSharp.CharParsersCS;
 using static FParsec.CSharp.PrimitivesCS;
 
-namespace Tests {
-    public class GlobPattern {
-        #region Parser definition
+namespace Tests;
 
-        private static readonly FSharpFunc<CharStream<Unit>, Reply<IState>> GlobParser =
-            Many(Choice(
-                Skip('?').Map(NFA.MakeAnyChar),
-                Skip('*').Map(NFA.MakeAnyChar).Map(NFA.MakeZeroOrMore),
-                Between('[', AnyChar.And(Skip('-')).And(AnyChar), ']').Lbl("character range").Map(NFA.MakeCharRange),
-                Skip('\\').And(AnyOf(@"?*[]\").Lbl("meta character")).Map(NFA.MakeChar),
-                AnyChar.Map(NFA.MakeChar)))
-            .And(EOF)
-            .Map(NFA.Concat)
-            .Map(protoState => protoState(new Final()));
+public class GlobPattern {
+    #region Parser definition
 
-        #endregion Parser definition
+    private static readonly FSharpFunc<CharStream<Unit>, Reply<IState>> GlobParser =
+        Many(Choice(
+            Skip('?').Map(NFA.MakeAnyChar),
+            Skip('*').Map(NFA.MakeAnyChar).Map(NFA.MakeZeroOrMore),
+            Between('[', AnyChar.And(Skip('-')).And(AnyChar), ']').Lbl("character range").Map(NFA.MakeCharRange),
+            Skip('\\').And(AnyOf(@"?*[]\").Lbl("meta character")).Map(NFA.MakeChar),
+            AnyChar.Map(NFA.MakeChar)))
+        .And(EOF)
+        .Map(NFA.Concat)
+        .Map(protoState => protoState(new Final()));
 
-        #region Tests
+    #endregion Parser definition
 
-        [Fact]
-        public void SingleChar() => GlobParser
-            .ParseString("a").OkResult()
-            .Matches("a")
-            .ShouldBe(true);
+    #region Tests
 
-        [Fact]
-        public void MultipleChars() => GlobParser
-            .ParseString("abc").OkResult()
-            .Matches("abc")
-            .ShouldBe(true);
+    [Fact]
+    public void SingleChar() => GlobParser
+        .ParseString("a").OkResult()
+        .Matches("a")
+        .ShouldBe(true);
 
-        [Fact]
-        public void AnyCharWildcard() => GlobParser
-            .ParseString("a?c").OkResult()
-            .Matches("abc")
-            .ShouldBe(true);
+    [Fact]
+    public void MultipleChars() => GlobParser
+        .ParseString("abc").OkResult()
+        .Matches("abc")
+        .ShouldBe(true);
 
-        [Fact]
-        public void AnyStringWildcard() => GlobParser
-            .ParseString("a*d").OkResult()
-            .Matches("abcd")
-            .ShouldBe(true);
+    [Fact]
+    public void AnyCharWildcard() => GlobParser
+        .ParseString("a?c").OkResult()
+        .Matches("abc")
+        .ShouldBe(true);
 
-        [Fact]
-        public void CharacterClass() => GlobParser
-            .ParseString("[0-9]").OkResult()
-            .Matches("3")
-            .ShouldBe(true);
+    [Fact]
+    public void AnyStringWildcard() => GlobParser
+        .ParseString("a*d").OkResult()
+        .Matches("abcd")
+        .ShouldBe(true);
 
-        [Fact]
-        public void EscapedChar() => GlobParser
-            .ParseString(@"a\[c").OkResult()
-            .Matches("a[c")
-            .ShouldBe(true);
+    [Fact]
+    public void CharacterClass() => GlobParser
+        .ParseString("[0-9]").OkResult()
+        .Matches("3")
+        .ShouldBe(true);
 
-        [Fact]
-        public void All() => GlobParser
-            .ParseString(@"The * syntax allows wildcards (\? and \*) and character classes (\[0-9\]). [A-Z]ackslash \\ is the escape character?").OkResult()
-            .Matches(@"The glob syntax allows wildcards (? and *) and character classes ([0-9]). Hackslash \ is the escape character!")
-            .ShouldBe(true);
+    [Fact]
+    public void EscapedChar() => GlobParser
+        .ParseString(@"a\[c").OkResult()
+        .Matches("a[c")
+        .ShouldBe(true);
 
-        #endregion Tests
-    }
+    [Fact]
+    public void All() => GlobParser
+        .ParseString(@"The * syntax allows wildcards (\? and \*) and character classes (\[0-9\]). [A-Z]ackslash \\ is the escape character?").OkResult()
+        .Matches(@"The glob syntax allows wildcards (? and *) and character classes ([0-9]). Hackslash \ is the escape character!")
+        .ShouldBe(true);
+
+    #endregion Tests
 }

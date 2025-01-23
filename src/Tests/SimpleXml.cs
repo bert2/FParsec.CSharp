@@ -7,135 +7,137 @@ using Xunit;
 using static FParsec.CSharp.CharParsersCS;
 using static FParsec.CSharp.PrimitivesCS;
 
-namespace Tests {
-    using Chars = CharStream<Unit>;
-    using StringParser = FSharpFunc<CharStream<Unit>, Reply<string>>;
-    using XElContentParser = FSharpFunc<CharStream<Unit>, Reply<object>>;
-    using XElParser = FSharpFunc<CharStream<Unit>, Reply<XElement>>;
+namespace Tests;
 
-    public class SimpleXml {
-        #region Parser definition
+using StringParser = FSharpFunc<CharStream<Unit>, Reply<string>>;
+using XElContentParser = FSharpFunc<CharStream<Unit>, Reply<object>>;
+using XElParser = FSharpFunc<CharStream<Unit>, Reply<XElement>>;
 
-        // This XML parser mimics the behavior of `XElement.Parse(string)`.
-        private static readonly XElParser SimpleXmlParser;
+public class SimpleXml {
+    #region Parser definition
 
-        static SimpleXml() {
-            var nameStart = Choice(Letter, CharP('_'));
-            var nameChar = Choice(Letter, Digit, AnyOf("-_."));
-            var name = Many1Chars(nameStart, nameChar).And(WS);
+    // This XML parser mimics the behavior of `XElement.Parse(string)`.
+    private static readonly XElParser SimpleXmlParser;
 
-            var quotedString = Between('"', ManyChars(NoneOf("\"")), '"');
-            var attribute = name.And(Skip('=')).And(WS).And(quotedString).And(WS)
-                .Lbl_("attribute")
-                .Map((attrName, attrVal) => new XAttribute(attrName, attrVal));
-            var attributes = Many(attribute);
+    static SimpleXml() {
+        var nameStart = Choice(Letter, CharP('_'));
+        var nameChar = Choice(Letter, Digit, AnyOf("-_."));
+        var name = Many1Chars(nameStart, nameChar).And(WS);
 
-            XElParser? element = null;
+        var quotedString = Between('"', ManyChars(NoneOf("\"")), '"');
+        var attribute = name.And(Skip('=')).And(WS).And(quotedString).And(WS)
+            .Lbl_("attribute")
+            .Map((attrName, attrVal) => new XAttribute(attrName, attrVal));
+        var attributes = Many(attribute);
 
-            var elementStart = Skip('<').AndTry(name.Lbl("tag name")).And(attributes);
+        XElParser? element = null;
 
-            static StringParser closingTag(string tagName) => Between("</", StringP(tagName).And(WS), ">")
-                .Lbl_($"closing tag '</{tagName}>'");
+        var elementStart = Skip('<').AndTry(name.Lbl("tag name")).And(attributes);
 
-            XElContentParser textContent(string leadingWS) => NotEmpty(ManyChars(NoneOf("<"))
-                .Map(text => leadingWS + text)
-                .Map(x => (object)x)
-                .Lbl_("text content"));
+        static StringParser closingTag(string tagName) => Between("</", StringP(tagName).And(WS), ">")
+            .Lbl_($"closing tag '</{tagName}>'");
 
-            var childElement = Rec(() => element).Map(x => (object)x).Lbl_("child element");
+        XElContentParser textContent(string leadingWS) => NotEmpty(ManyChars(NoneOf("<"))
+            .Map(text => leadingWS + text)
+            .Map(x => (object)x)
+            .Lbl_("text content"));
 
-            static object EmptyContentToEmptyString(FSharpList<object> xs) => xs.IsEmpty ? (object)"" : xs;
+        var childElement = Rec(() => element).Map(x => (object)x).Lbl_("child element");
 
-            var elementContent = Many(WS.WithSkipped().AndTry(ws => Choice(textContent(ws), childElement)))
-                .Map(EmptyContentToEmptyString);
+        static object EmptyContentToEmptyString(FSharpList<object> xs) => xs.IsEmpty ? (object)"" : xs;
 
-            XElParser elementEnd(string elName, FSharpList<XAttribute> elAttrs) =>
-                Choice(
-                    Skip("/>").Return((object?)null),
-                    Skip(">").And(elementContent).And(WS).AndL(closingTag(elName)).Map(x => (object?)x))
-                .Map(elContent => new XElement(elName, elContent, elAttrs));
+        var elementContent = Many(WS.WithSkipped().AndTry(ws => Choice(textContent(ws), childElement)))
+            .Map(EmptyContentToEmptyString);
 
-            element = elementStart.And(elementEnd);
+        XElParser elementEnd(string elName, FSharpList<XAttribute> elAttrs) =>
+            Choice(
+                Skip("/>").Return((object?)null),
+                Skip(">").And(elementContent).And(WS).AndL(closingTag(elName)).Map(x => (object?)x))
+            .Map(elContent => new XElement(elName, elContent, elAttrs));
 
-            SimpleXmlParser = element.And(WS).And(EOF);
-        }
+        element = elementStart.And(elementEnd);
 
-        #endregion Parser definition
+        SimpleXmlParser = element.And(WS).And(EOF);
+    }
 
-        #region Tests
+    #endregion Parser definition
 
-        [Fact]
-        public void Root() =>
-            SimpleXmlParser
-            .Run("<root/>").GetResult()
-            .ShouldBe(new XElement("root"));
+    #region Tests
 
-        [Fact]
-        public void TextContent() =>
-            SimpleXmlParser
-            .Run("<root>text</root>").GetResult()
-            .ShouldBe(new XElement("root", "text"));
+    [Fact]
+    public void Root() =>
+        SimpleXmlParser
+        .Run("<root/>").GetResult()
+        .ShouldBe(new XElement("root"));
 
-        [Fact]
-        public void NoContent() =>
-            SimpleXmlParser
-            .Run("<root></root>").GetResult()
-            .ShouldBe(new XElement("root", ""));
+    [Fact]
+    public void TextContent() =>
+        SimpleXmlParser
+        .Run("<root>text</root>").GetResult()
+        .ShouldBe(new XElement("root", "text"));
 
-        [Fact]
-        public void WhitespaceContent() =>
-            SimpleXmlParser
-            .Run("<root>   \t  \n </root>").GetResult()
-            .ShouldBe(new XElement("root", ""));
+    [Fact]
+    public void NoContent() =>
+        SimpleXmlParser
+        .Run("<root></root>").GetResult()
+        .ShouldBe(new XElement("root", ""));
 
-        [Fact]
-        public void ChildElements() =>
-            SimpleXmlParser
-            .Run("<root><child1/><child2></child2></root>").GetResult()
-            .ShouldBe(new XElement("root",
-                new XElement("child1"),
-                new XElement("child2", "")));
+    [Fact]
+    public void WhitespaceContent() =>
+        SimpleXmlParser
+        .Run("<root>   \t  \n </root>").GetResult()
+        .ShouldBe(new XElement("root", ""));
 
-        [Fact]
-        public void TextContentAndChildElementsMix() =>
-            SimpleXmlParser
-            .Run("<root> text1 <child1/> <child2></child2> text2 </root>").GetResult()
-            .ShouldBe(new XElement("root",
-                " text1 ",
-                new XElement("child1"),
-                new XElement("child2", ""),
-                " text2 "));
+    [Fact]
+    public void ChildElements() =>
+        SimpleXmlParser
+        .Run("<root><child1/><child2></child2></root>").GetResult()
+        .ShouldBe(new XElement("root",
+            new XElement("child1"),
+            new XElement("child2", "")));
 
-        [Fact]
-        public void Attributes() =>
-            SimpleXmlParser
-            .Run("<root attr1=\"1\" attr2=\"2\"></root>").GetResult()
-            .ShouldBe(new XElement("root",
-                new XAttribute("attr1", "1"),
-                new XAttribute("attr2", "2"),
-                ""));
+    [Fact]
+    public void TextContentAndChildElementsMix() =>
+        SimpleXmlParser
+        .Run("<root> text1 <child1/> <child2></child2> text2 </root>").GetResult()
+        .ShouldBe(new XElement("root",
+            " text1 ",
+            new XElement("child1"),
+            new XElement("child2", ""),
+            " text2 "));
 
-        [Fact]
-        public void WithWhitespace() =>
-            SimpleXmlParser
-            .Run(@"<root    attr1  =  ""1""
-                            attr2  =  ""2""   >
+    [Fact]
+    public void Attributes() =>
+        SimpleXmlParser
+        .Run("<root attr1=\"1\" attr2=\"2\"></root>").GetResult()
+        .ShouldBe(new XElement("root",
+            new XAttribute("attr1", "1"),
+            new XAttribute("attr2", "2"),
+            ""));
+
+    [Fact]
+    public void WithWhitespace() =>
+        SimpleXmlParser
+        .Run(
+            """
+            <root    attr1  =  "1"
+                            attr2  =  "2"   >
                         <child1  />
                         <child2   ></child2   >
-                    </root   >       ")
-            .GetResult()
-            .ShouldBe(new XElement("root",
-                new XAttribute("attr1", 1),
-                new XAttribute("attr2", 2),
-                new XElement("child1"),
-                new XElement("child2", "")));
+                    </root   >       
+            """)
+        .GetResult()
+        .ShouldBe(new XElement("root",
+            new XAttribute("attr1", 1),
+            new XAttribute("attr2", 2),
+            new XElement("child1"),
+            new XElement("child2", "")));
 
-        [Fact]
-        public void ParsesWholeInput() =>
-            SimpleXmlParser
-            .ParseString("<root/> this should cause an error")
-            .ShouldBe<ErrorMessage.Expected>("end of input");
+    [Fact]
+    public void ParsesWholeInput() =>
+        SimpleXmlParser
+        .ParseString("<root/> this should cause an error")
+        .ShouldBe<ErrorMessage.Expected>("end of input");
 
-        #endregion Tests
-    }
+    #endregion Tests
 }

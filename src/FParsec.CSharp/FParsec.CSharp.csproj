@@ -5,12 +5,12 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FParsec" Version="1.1.1" />
-    <PackageReference Include="FSharp.Core" Version="6.0.1" />
+    <PackageReference Include="FSharp.Core" Version="9.0.101" />
   </ItemGroup>
 
   <PropertyGroup>

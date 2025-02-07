@@ -25,39 +25,38 @@ Task("SemVer")
     });
 
 Task("Clean")
-    .Does(() =>
-        DotNetClean(srcDir, new DotNetCleanSettings {
-            Configuration = config,
-            Verbosity = DotNetVerbosity.Minimal
-        }));
+    .Does(() => DotNetClean(srcDir, new DotNetCleanSettings {
+        Configuration = config,
+        Verbosity = DotNetVerbosity.Minimal
+    }));
 
 Task("Build")
     .IsDependentOn("SemVer")
-    .Does(() =>
-        DotNetBuild(srcDir, new DotNetBuildSettings {
-            Configuration = config,
-            MSBuildSettings = new DotNetMSBuildSettings()
-                .SetVersion(semVer.AssemblySemVer)
-        }));
+    .Does(() => DotNetBuild(srcDir, new DotNetBuildSettings {
+        Configuration = config,
+        MSBuildSettings = new DotNetMSBuildSettings()
+            .SetVersion(semVer.AssemblySemVer)
+    }));
 
 Task("Test")
     .IsDependentOn("Build")
-    .Does(() =>
-        DotNetTest(srcDir, new DotNetTestSettings {
-            Configuration = config,
-            NoBuild = true,
-            ArgumentCustomization = args => {
-                var msbuildSettings = new DotNetMSBuildSettings()
-                    .WithProperty("CollectCoverage", "true")
-                    .WithProperty("CoverletOutputFormat", "opencover");
-                args.AppendMSBuildSettings(msbuildSettings, environment: null);
-                return args;
-            }
-        }));
+    .Does(() => DotNetTest(srcDir, new DotNetTestSettings {
+        Configuration = config,
+        NoBuild = true,
+        ArgumentCustomization = args => {
+            var msbuildSettings = new DotNetMSBuildSettings()
+                .WithProperty("CollectCoverage", "true")
+                .WithProperty("CoverletOutputFormat", "opencover");
+            args.AppendMSBuildSettings(msbuildSettings, environment: null);
+            return args;
+        }
+    }));
 
 Task("UploadCoverage")
-    .Does(() =>
-        Codecov(testDir + File("coverage.opencover.xml")));
+    .Does(() => Codecov(new[] {
+        testDir + File("coverage.net9.0.opencover.xml"),
+        testDir + File("coverage.net481.opencover.xml")
+    }.Select(f => f.ToString())));
 
 Task("Pack-FParsec.CSharp")
     .IsDependentOn("SemVer")

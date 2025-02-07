@@ -331,4 +331,4 @@ ASALocalRun/
 
 .vscode/
 build/tools/
-coverage.opencover.xml
+*.opencover.xml

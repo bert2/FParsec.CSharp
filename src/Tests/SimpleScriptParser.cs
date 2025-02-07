@@ -1,20 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using FParsec;
+﻿using FParsec;
 using FParsec.CSharp;
+
+using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
+
 using Shouldly;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 using Xunit;
+
 using static FParsec.CSharp.CharParsersCS;
 using static FParsec.CSharp.PrimitivesCS;
+
 using RTE = System.Collections.Generic.Dictionary<string, Tests.Script>;
-using Microsoft.FSharp.Collections;
-using System.Linq;
 
 namespace Tests;
 
-using StringParser = FSharpFunc<CharStream<Unit>, Reply<string>>;
 using ScriptParser = FSharpFunc<CharStream<Unit>, Reply<Script>>;
+using StringParser = FSharpFunc<CharStream<Unit>, Reply<string>>;
 
 // This example implements a simple functional script language. It only knows one type (`int`)
 // and is super inefficient, but it has lots of functional fu (e.g. lazy evaluation, partial
@@ -101,10 +107,16 @@ public class SimpleScriptParser {
 
     #region Examples
 
+#if NET8_0_OR_GREATER
+    private static readonly FSharpList<Script> NoArgs = [];
+#else
+    private static readonly FSharpList<Script> NoArgs = FSharpList<Script>.Empty;
+#endif
+
     [Fact] public void HelloWorld() => ScriptParser
         .Run("42")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(42);
 
     [Fact] public void Variable() => ScriptParser
@@ -112,7 +124,7 @@ public class SimpleScriptParser {
                 let x = 6 in
                 x * 7")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(42);
 
     [Fact] public void Function() => ScriptParser
@@ -124,7 +136,7 @@ public class SimpleScriptParser {
                 in
                 negateOdd 7")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(-7);
 
     [Fact] public void FibonacciNumber() => ScriptParser
@@ -135,7 +147,7 @@ public class SimpleScriptParser {
                     | _ => fib (n-1) + fib (n-2)
                 in fib 7")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(13);
 
     [Fact] public void SkkReducesToI() => ScriptParser
@@ -148,7 +160,7 @@ public class SimpleScriptParser {
                 let f'      = skk f     in
                 f' 4")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(16);
 
     [Fact] public void YCombinator() => ScriptParser
@@ -161,7 +173,7 @@ public class SimpleScriptParser {
                 in let fact = y factGen
                 in fact 7")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(5040);
 
     [Fact] public void YCombinatorDefinedRecursively() => ScriptParser
@@ -174,7 +186,7 @@ public class SimpleScriptParser {
                 in let fact = y factGen
                 in fact 7")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(5040);
 
     [Fact] public void YCombinatorDefinedWithSK() => ScriptParser
@@ -191,7 +203,7 @@ public class SimpleScriptParser {
                 in let fact = y factGen
                 in fact 7")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(5040);
 
     [Fact] public void FixPointCombinator() => ScriptParser
@@ -203,23 +215,23 @@ public class SimpleScriptParser {
                                            | _ => n * fact (n-1))
                 in fact 7")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(5040);
 
-    #endregion Examples
+#endregion Examples
 
     #region Unbound expressions
 
     [Fact] public void UnboundValue() => ScriptParser
         .Run("-25")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(-25);
 
     [Fact] public void UnboundArithmeticExpr() => ScriptParser
         .Run("-2 + 3 - (2 - (3 - 4))")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(-2);
 
     #endregion Unbound expressions
@@ -229,13 +241,13 @@ public class SimpleScriptParser {
     [Fact] public void LetBinding() => ScriptParser
         .Run("let x = 3 in x")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(3);
 
     [Fact] public void LetBindingsCanBeInsideArithmeticExpr() => ScriptParser
         .Run("1 + (let x = 2 in x + 3) * 4")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(21);
 
     [Fact] public void LetBindingsCanBeChained() => ScriptParser
@@ -244,7 +256,7 @@ public class SimpleScriptParser {
                 let y = x in
                 y")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(4);
 
     [Fact] public void LetBindingsCanBeNested() => ScriptParser
@@ -254,7 +266,7 @@ public class SimpleScriptParser {
                     in  y
                 in x")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(5);
 
     [Fact] public void DuplicateChainedLetBindingShadowsOriginal() => ScriptParser
@@ -263,7 +275,7 @@ public class SimpleScriptParser {
                 let x = 2 in
                 x")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(2);
 
     [Fact] public void DuplicateNestedLetBindingShadowsOriginal() => ScriptParser
@@ -272,7 +284,7 @@ public class SimpleScriptParser {
                 let y = let x = 2 in x
                 in y")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(2);
 
     [Fact] public void DuplicateNestedLetBindingDoesNotLeakToOuterScope() => ScriptParser
@@ -281,13 +293,13 @@ public class SimpleScriptParser {
                 let y = let x = 2 in x
                 in x + y")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(3);
 
     [Fact] public void VarsMustBeBound() => new Action(() => ScriptParser
         .Run("x")
         .GetResult()
-        .Invoke([], []))
+        .Invoke(NoArgs, []))
         .ShouldThrow<KeyNotFoundException>();
 
     [Fact] public void VarsMustBeBoundBeforeUsage() => new Action(() => ScriptParser
@@ -296,7 +308,7 @@ public class SimpleScriptParser {
                 let x = 2 in
                 y")
         .GetResult()
-        .Invoke([], []))
+        .Invoke(NoArgs, []))
         .ShouldThrow<KeyNotFoundException>();
 
     [Fact] public void NestedBindingCanAccessOuterScope() => ScriptParser
@@ -306,7 +318,7 @@ public class SimpleScriptParser {
                     let z = x in z
                 in y")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(6);
 
     [Fact] public void NestedBindingCannotAccessVariableFromOuterScopeThatsBoundAfterIt() => new Action(() => ScriptParser
@@ -316,7 +328,7 @@ public class SimpleScriptParser {
                 in let x = 7
                 in y")
         .GetResult()
-        .Invoke([], []))
+        .Invoke(NoArgs, []))
         .ShouldThrow<KeyNotFoundException>();
 
     [Fact] public void NestedBindingsDontLeakToOuterScope() => new Action(() => ScriptParser
@@ -326,7 +338,7 @@ public class SimpleScriptParser {
                     in  y
                 in x + y")
         .GetResult()
-        .Invoke([], []))
+        .Invoke(NoArgs, []))
         .ShouldThrow<KeyNotFoundException>();
 
     #endregion 'let' bindings
@@ -338,7 +350,7 @@ public class SimpleScriptParser {
                 let inc x = x + 1 in
                 inc 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(3);
 
     [Fact] public void FunctionWithArgExpr() => ScriptParser
@@ -346,7 +358,7 @@ public class SimpleScriptParser {
                 let inc x = x + 1 in
                 inc (1 * 2)")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(3);
 
     [Fact] public void FunctionWithTwoParameters() => ScriptParser
@@ -354,7 +366,7 @@ public class SimpleScriptParser {
                 let sub x y = x - y in
                 sub 5 3")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(2);
 
     [Fact] public void FunctionCallingOtherFunction() => ScriptParser
@@ -363,7 +375,7 @@ public class SimpleScriptParser {
                 let inc x = add 1 x in
                 inc 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(3);
 
     [Fact] public void FunctionCallingNestedFunction() => ScriptParser
@@ -373,7 +385,7 @@ public class SimpleScriptParser {
                     add 1 x
                 in inc 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(3);
 
     [Fact] public void RecursiveFunction() => ScriptParser
@@ -383,7 +395,7 @@ public class SimpleScriptParser {
                     | _ => toZero (x - 1)
                 in toZero 7")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(0);
 
     [Fact] public void ApplyingTooManyArguments() => new Action(() => ScriptParser
@@ -391,7 +403,7 @@ public class SimpleScriptParser {
                 let add x y = x + y in
                 add 1 2 3")
         .GetResult()
-        .Invoke([], []))
+        .Invoke(NoArgs, []))
         .ShouldThrow<InvalidOperationException>();
 
     [Fact] public void ApplyingTooFewArguments() => new Action(() => ScriptParser
@@ -399,7 +411,7 @@ public class SimpleScriptParser {
                 let add x y = x + y in
                 add 1")
         .GetResult()
-        .Invoke([], []))
+        .Invoke(NoArgs, []))
         .ShouldThrow<InvalidOperationException>();
 
     [Fact] public void ApplyingWithoutSpace() => ScriptParser
@@ -407,7 +419,7 @@ public class SimpleScriptParser {
                 let inc x = x + 1 in
                 inc(2)")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(3);
 
     [Fact] public void DuplicateParameterShadowsOriginalFromOuterScope() => ScriptParser
@@ -416,7 +428,7 @@ public class SimpleScriptParser {
                 let add x y = x + y in
                 add 2 3")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(5);
 
     [Fact] public void DuplicateParameterShadowsOriginal() => ScriptParser
@@ -424,7 +436,7 @@ public class SimpleScriptParser {
                 let add x x = x + x in
                 add 1 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(4);
 
     [Fact] public void ParameterScopesOfChainedFunctionsAreSeparated() => ScriptParser
@@ -433,7 +445,7 @@ public class SimpleScriptParser {
                 let inc x = add 1 x in
                 inc 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(3);
 
     [Fact] public void ParameterScopesOfNestedFunctionsAreSeparated() => ScriptParser
@@ -443,7 +455,7 @@ public class SimpleScriptParser {
                     add 1 x
                 in inc 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(3);
 
     [Fact] public void PartialApplication() => ScriptParser
@@ -452,7 +464,7 @@ public class SimpleScriptParser {
                 let inc = add 1 in
                 inc 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(3);
 
     [Fact] public void FunctionComposition() => ScriptParser
@@ -462,7 +474,7 @@ public class SimpleScriptParser {
                 let incSquared x = inc (square x) in
                 incSquared 3")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(10);
 
     [Fact] public void FunctionCompositionWithInfixOperator() => ScriptParser
@@ -471,7 +483,7 @@ public class SimpleScriptParser {
                 let square x = x * x in
                 (inc . square) 3")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(10);
 
     [Fact] public void FunctionCompositionWithInfixOperatorAndPartialApplication() => ScriptParser
@@ -481,7 +493,7 @@ public class SimpleScriptParser {
                 let incSquared = inc . square in
                 incSquared 3")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(10);
 
     [Fact] public void FunctionCompositionWithInfixOperatorAndInlinePartialApplication() => ScriptParser
@@ -490,7 +502,7 @@ public class SimpleScriptParser {
                 let square x = x * x in
                 (add 1 . square) 3")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(10);
 
     [Fact] public void ApplicationHasHigherPrecedenceThanMul() => ScriptParser
@@ -498,19 +510,19 @@ public class SimpleScriptParser {
                 let inc x = x + 1 in
                 inc 1 * 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(4);
 
     [Fact] public void CannotApplyArgumentToConstant() => new Action(() => ScriptParser
         .Run("1 2")
         .GetResult()
-        .Invoke([], []))
+        .Invoke(NoArgs, []))
         .ShouldThrow<InvalidOperationException>();
 
     [Fact] public void CannotApplyArgumentToValueVariable() => new Action(() => ScriptParser
          .Run("let x = 1 in x 2")
          .GetResult()
-         .Invoke([], []))
+         .Invoke(NoArgs, []))
         .ShouldThrow<InvalidOperationException>();
 
     [Fact] public void HigherOrderFunction() => ScriptParser
@@ -519,7 +531,7 @@ public class SimpleScriptParser {
                 let square x = x * x in
                 map square 3")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(9);
 
     #endregion Functions
@@ -529,13 +541,13 @@ public class SimpleScriptParser {
     [Fact] public void MatchCase() => ScriptParser
         .Run("match 0 | 1 => 1 | 0 => 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(2);
 
     [Fact] public void MatchDefaultCase() => ScriptParser
         .Run("match 0 | 1 => 1 | _ => 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(2);
 
     [Fact] public void MatchVar() => ScriptParser
@@ -545,7 +557,7 @@ public class SimpleScriptParser {
                 | x => 1
                 | _ => 0")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(1);
 
     [Fact] public void MatchAnExpression() => ScriptParser
@@ -555,13 +567,13 @@ public class SimpleScriptParser {
                 | x+1 => 1
                 | _   => 0")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(1);
 
     [Fact] public void NoMatchFound() => new Action(() => ScriptParser
         .Run("match 1 | 0 => 0")
         .GetResult()
-        .Invoke([], []))
+        .Invoke(NoArgs, []))
         .ShouldThrow<InvalidOperationException>();
 
     #endregion 'match' expressions
@@ -572,21 +584,21 @@ public class SimpleScriptParser {
         .Run(@"let f = \x -> x * x
                    in f 3")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(9);
 
     [Fact] public void MultiParamFunctionAsNestedLambda() => ScriptParser
         .Run(@"let f = \x -> \y -> x + y
                    in f 3 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(5);
 
     [Fact] public void MultiParamFunctionAsMultiParamLambda() => ScriptParser
         .Run(@"let f = \x y -> x + y
                    in f 3 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(5);
 
     [Fact]
@@ -594,27 +606,27 @@ public class SimpleScriptParser {
         .Run(@"let f x = \y -> x + y
                    in f 3 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(5);
 
     [Fact] public void LambdaParamShadowsOuterScope() => ScriptParser
         .Run(@"let f x = \x -> x
                    in f 3 2")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(2);
 
     [Fact] public void LambdaAsArg() => ScriptParser
         .Run(@"let map f x = f x
                    in map (\x -> x * x) 3")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(9);
 
     [Fact] public void InlineDefinitionOfAppliedFunction() => ScriptParser
         .Run(@"(\x -> x * x) 3")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(9);
 
     #endregion Lambdas
@@ -624,7 +636,7 @@ public class SimpleScriptParser {
     [Fact] public void ExpressionsAreEvaluatedLazy() => ScriptParser
         .Run("let x = z in 9")
         .GetResult()
-        .Invoke([], [])
+        .Invoke(NoArgs, [])
         .ShouldBe(9);
 
     [Fact] public void KeywordLetIsReserved() => ScriptParser
@@ -748,7 +760,7 @@ public class SimpleScriptParser {
 
     #endregion Parser errors
 
-    #endregion Tests
+#endregion Tests
 }
 
 #region Script builder

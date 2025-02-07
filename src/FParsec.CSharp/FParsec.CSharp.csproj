@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FParsec" Version="1.1.1" />
+    <PackageReference Include="FParsec" Version="2.0.0-beta2" />
     <PackageReference Include="FSharp.Core" Version="9.0.101" />
   </ItemGroup>
 
